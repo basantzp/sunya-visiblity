@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Phone,
   MapPin,
@@ -19,7 +20,9 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Flame,
-  HeartHandshake
+  HeartHandshake,
+  Navigation,
+  ExternalLink
 } from 'lucide-react';
 
 interface TemplateProps {
@@ -32,6 +35,7 @@ interface TemplateProps {
     rating?: number;
     reviews_count?: number;
     photos?: string[];
+    location?: { lat: number; lng: number };
   };
   copy: {
     tagline: string;
@@ -74,22 +78,70 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
   const categories = ['all', 'Chef Signatures', 'Main Courses', 'Beverages & Brews'];
 
+  // Google Maps Embed Query
+  const mapQuery = encodeURIComponent(`${business.name} ${business.address} Kathmandu Nepal`);
+  const googleMapEmbedUrl = `https://maps.google.com/maps?width=100%25&height=450&hl=en&q=${mapQuery}&t=&z=16&ie=UTF8&iwloc=B&output=embed`;
+  const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
+
+  const accolades = [
+    '👑 Valley Culinary Excellence',
+    '⭐️ 4.8 / 5 Rating on Google Maps',
+    `📍 Prime ${business.address.split(',')[0]} Location`,
+    '💬 Direct WhatsApp Quick Orders',
+    '💳 eSewa · Khalti · FonePay Accepted',
+    '👨‍🍳 100% Fresh Daily Preparation',
+    '🌿 Authentic Himalayan Spices',
+  ];
+
   return (
     <div className="min-h-screen bg-[#070709] text-stone-100 font-sans selection:bg-amber-500 selection:text-black relative overflow-x-hidden">
-      {/* Ambient Luxury Spotlights */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-b from-amber-500/15 via-amber-600/5 to-transparent blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute top-[600px] -left-48 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none -z-10" />
-      <div className="absolute top-[1200px] -right-48 w-96 h-96 bg-yellow-600/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+      {/* Dynamic Animated Ambient Orbs */}
+      <motion.div
+        animate={{
+          scale: [1, 1.15, 1],
+          opacity: [0.15, 0.25, 0.15],
+          x: [0, 30, 0],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-amber-500/20 via-yellow-600/10 to-transparent blur-[130px] pointer-events-none -z-10"
+      />
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.08, 0.16, 0.08],
+          y: [0, -40, 0],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-[700px] -left-32 w-96 h-96 bg-amber-600/15 rounded-full blur-[110px] pointer-events-none -z-10"
+      />
+      <motion.div
+        animate={{
+          scale: [1, 1.25, 1],
+          opacity: [0.08, 0.18, 0.08],
+          x: [0, -30, 0],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-[1400px] -right-32 w-96 h-96 bg-yellow-500/15 rounded-full blur-[110px] pointer-events-none -z-10"
+      />
 
-      {/* Top Luxury Navigation */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#0a0a0e]/80 border-b border-white/[0.08] px-4 lg:px-8 py-3.5 transition-all">
+      {/* Top Luxury Header */}
+      <motion.header
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="sticky top-0 z-40 backdrop-blur-2xl bg-[#0a0a0e]/85 border-b border-white/[0.08] px-4 lg:px-8 py-3.5 transition-all shadow-xl"
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-700 p-[1px] shadow-lg shadow-amber-500/20">
+            <motion.div
+              whileHover={{ rotate: 15, scale: 1.1 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-700 p-[1px] shadow-lg shadow-amber-500/20"
+            >
               <div className="w-full h-full bg-[#0d0d12] rounded-2xl flex items-center justify-center text-amber-400">
                 <Utensils className="w-4 h-4" />
               </div>
-            </div>
+            </motion.div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">{business.name}</span>
@@ -105,56 +157,71 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
           <div className="flex items-center gap-2.5 sm:gap-3.5">
             {/* Language Switcher */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => setLang(l => (l === 'en' ? 'np' : 'en'))}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all text-amber-300 shadow-sm"
             >
               <Globe className="w-3.5 h-3.5 text-amber-400" />
               <span>{lang === 'en' ? 'नेपाली' : 'English'}</span>
-            </button>
+            </motion.button>
 
-            {/* Direct Phone / Call */}
+            {/* Direct Phone */}
             {business.phone && (
-              <a
+              <motion.a
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 href={`tel:${business.phone}`}
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all hover:scale-[1.02]"
+                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all"
               >
                 <Phone className="w-3.5 h-3.5 text-amber-400" />
                 <span>{business.phone}</span>
-              </a>
+              </motion.a>
             )}
 
             {/* Direct WhatsApp CTA */}
-            <a
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               href={generalReserveUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-black shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.03] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-black shadow-lg shadow-amber-500/25 transition-all"
             >
               <MessageSquare className="w-3.5 h-3.5 fill-black" />
               <span className="hidden xs:inline">Book Table</span>
               <span className="xs:hidden">Book</span>
-            </a>
+            </motion.a>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
-      <section className="relative pt-12 sm:pt-16 pb-20 px-4 lg:px-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <section className="relative pt-12 sm:pt-20 pb-20 px-4 lg:px-8 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-10 items-center">
           
-          {/* Left Hero Content */}
-          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
-            {/* Top Quality Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-gold border border-amber-500/30 text-amber-300 text-xs font-semibold">
+          {/* Left Hero */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="lg:col-span-7 space-y-6 sm:space-y-8"
+          >
+            {/* Animated Eyebrow Badge */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-gold border border-amber-500/30 text-amber-300 text-xs font-semibold shadow-md"
+            >
               <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
               <span className="tracking-wide">
                 {lang === 'en' ? copy.tagline : copy.nepali_content.tagline}
               </span>
-            </div>
+            </motion.div>
 
-            {/* Majestic Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight leading-[1.08] text-white">
+            {/* Majestic Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.08] text-white">
               {lang === 'en' ? (
                 <>
                   Experience Exquisite Flavors at{' '}
@@ -172,29 +239,43 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               {lang === 'en' ? copy.hero_subtitle : copy.nepali_content.about_snippet}
             </p>
 
-            {/* Quick Action Badges */}
+            {/* Dual CTAs */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <a
+              <motion.a
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.96 }}
                 href={generalReserveUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-7 py-4 rounded-2xl font-bold text-sm bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-stone-950 flex items-center gap-2.5 shadow-xl shadow-amber-500/25 transition-all hover:scale-[1.03] active:scale-[0.98]"
+                className="px-7 py-4 rounded-2xl font-bold text-sm bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-stone-950 flex items-center gap-2.5 shadow-xl shadow-amber-500/30 transition-all"
               >
                 <MessageSquare className="w-4 h-4 fill-stone-950" />
                 <span>Reserve on WhatsApp</span>
                 <ArrowUpRight className="w-4 h-4" />
-              </a>
+              </motion.a>
 
-              <a
+              <motion.a
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
                 href="#menu"
                 className="px-6 py-4 rounded-2xl font-semibold text-sm glass-card hover:bg-white/10 text-stone-200 transition-all flex items-center gap-2 hover:border-amber-500/40"
               >
-                <span>View Curated Menu</span>
+                <span>Explore Curated Menu</span>
                 <ChevronRight className="w-4 h-4 text-amber-400" />
-              </a>
+              </motion.a>
+
+              <motion.a
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                href="#location-map"
+                className="px-5 py-4 rounded-2xl font-semibold text-xs text-amber-300 border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/15 transition-all flex items-center gap-2"
+              >
+                <Navigation className="w-3.5 h-3.5 text-amber-400" />
+                <span>View Google Map</span>
+              </motion.a>
             </div>
 
-            {/* Social Proof Metric Highlights */}
+            {/* Social Proof Metric Row */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/[0.08] max-w-xl">
               <div>
                 <div className="flex items-center gap-1.5 text-amber-400 font-extrabold text-xl">
@@ -222,10 +303,15 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 <span className="text-[11px] text-stone-400 block mt-0.5">10:00 AM – 10:00 PM</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Hero Visual Card */}
-          <div className="lg:col-span-5 relative">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, x: 40 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+            className="lg:col-span-5 relative"
+          >
             <div className="relative rounded-3xl overflow-hidden glass-card-gold p-2 shadow-2xl group animate-float-slow">
               <div className="relative rounded-2xl overflow-hidden h-[440px] sm:h-[480px]">
                 <img
@@ -245,55 +331,53 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-stone-900/90 backdrop-blur-xl border border-white/10 shadow-xl flex items-center justify-between">
                   <div className="space-y-0.5">
                     <p className="text-[10px] font-extrabold text-amber-400 uppercase tracking-widest">
-                      Prime Location
+                      Prime Valley Spot
                     </p>
-                    <p className="text-sm font-bold text-white truncate max-w-[240px]">
+                    <p className="text-sm font-bold text-white truncate max-w-[230px]">
                       {business.address}
                     </p>
                     <p className="text-xs text-stone-400 flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-amber-400" />
-                      <span>{business.district} · Kathmandu Valley</span>
+                      <span>{business.district} · Kathmandu</span>
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                  <a
+                    href="#location-map"
+                    className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 hover:bg-amber-500 hover:text-black transition-colors"
+                  >
                     <Compass className="w-5 h-5" />
-                  </div>
+                  </a>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </section>
 
-      {/* Accolades & Trust Bar */}
-      <section className="py-6 border-y border-white/[0.08] bg-[#0c0c12]/60 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-around gap-6 text-xs text-stone-400">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
-            <span className="font-semibold text-stone-200">Verified Neighborhood Quality</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <HeartHandshake className="w-4 h-4 text-amber-400" />
-            <span className="font-semibold text-stone-200">Authentic Kathmandu Hospitality</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <span className="font-semibold text-stone-200">Instant WhatsApp Table Reservations</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-amber-400" />
-            <span className="font-semibold text-stone-200">Top Rated in {business.district}</span>
-          </div>
+      {/* Infinite Animated Marquee Accolades Ticker */}
+      <div className="py-4 border-y border-white/[0.08] bg-[#0c0c12]/80 overflow-hidden relative">
+        <div className="flex w-[200%] animate-marquee space-x-8 items-center text-xs sm:text-sm font-semibold text-stone-300">
+          {[...accolades, ...accolades].map((acc, index) => (
+            <div key={index} className="flex items-center gap-8 shrink-0">
+              <span className="hover:text-amber-300 transition-colors">{acc}</span>
+              <span className="text-amber-400/50">✦</span>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
 
       {/* Signature Offerings Menu */}
       <section id="menu" className="py-24 px-4 lg:px-8 relative">
         <div className="max-w-7xl mx-auto space-y-12">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3 max-w-2xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="space-y-3 max-w-2xl"
+            >
               <span className="text-xs font-bold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" /> Culinary Masterpieces
               </span>
@@ -301,9 +385,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 Signature Culinary Offerings
               </h2>
               <p className="text-stone-400 text-sm sm:text-base leading-relaxed">
-                Every dish at {business.name} is meticulously crafted with authentic spices, fresh produce, and passion.
+                Every dish at {business.name} is meticulously prepared with hand-selected spices, fresh local produce, and pride.
               </p>
-            </div>
+            </motion.div>
 
             {/* Category Switcher */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
@@ -313,7 +397,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                   onClick={() => setActiveCategory(cat)}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                     activeCategory === cat
-                      ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20'
+                      ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/25'
                       : 'glass-card text-stone-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -325,52 +409,200 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
           {/* Offerings Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {copy.signature_offerings.map((item, idx) => (
-              <div
-                key={idx}
-                className="glass-card hover:border-amber-500/40 p-6 rounded-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between group"
-              >
-                <div className="space-y-3">
-                  <div className="flex justify-between items-start gap-4">
-                    <h3 className="font-bold text-white text-lg group-hover:text-amber-300 transition-colors">
-                      {item.title}
-                    </h3>
-                    {item.price_npr && (
-                      <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
-                        {item.price_npr}
-                      </span>
-                    )}
+            <AnimatePresence mode="popLayout">
+              {copy.signature_offerings.map((item, idx) => (
+                <motion.div
+                  key={item.title}
+                  layout
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.08 }}
+                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                  className="glass-card hover:border-amber-500/40 p-6 rounded-3xl transition-all duration-300 flex flex-col justify-between group shadow-xl hover:shadow-amber-500/10"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-start gap-4">
+                      <h3 className="font-bold text-white text-lg group-hover:text-amber-300 transition-colors">
+                        {item.title}
+                      </h3>
+                      {item.price_npr && (
+                        <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
+                          {item.price_npr}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-stone-400 text-xs sm:text-sm leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
-                  <p className="text-stone-400 text-xs sm:text-sm leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
 
-                <div className="pt-6 mt-6 border-t border-white/[0.06] flex items-center justify-between">
-                  <span className="text-[11px] text-stone-500 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Chef Recommended
-                  </span>
+                  <div className="pt-6 mt-6 border-t border-white/[0.06] flex items-center justify-between">
+                    <span className="text-[11px] text-stone-500 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Chef Recommended
+                    </span>
 
-                  <a
-                    href={getItemOrderUrl(item.title, item.price_npr)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
-                  >
-                    <span>Order on WhatsApp</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              </div>
-            ))}
+                    <motion.a
+                      whileHover={{ x: 3 }}
+                      href={getItemOrderUrl(item.title, item.price_npr)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
+                    >
+                      <span>Order on WhatsApp</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </motion.a>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
         </div>
       </section>
 
+      {/* Interactive Google Maps & Directions Showcase */}
+      <section id="location-map" className="py-24 px-4 lg:px-8 bg-[#09090f] border-y border-white/[0.08]">
+        <div className="max-w-7xl mx-auto space-y-12">
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto space-y-3"
+          >
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-400 flex items-center justify-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5" /> Interactive Location
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Find Us on Google Maps
+            </h2>
+            <p className="text-stone-400 text-sm sm:text-base">
+              Conveniently located in {business.address}. Open 7 days a week with parking available.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl overflow-hidden glass-card-gold p-2 sm:p-3 shadow-2xl border border-amber-500/30"
+          >
+            <div className="grid lg:grid-cols-12 gap-0 relative rounded-2xl overflow-hidden bg-black/60">
+              
+              {/* The Google Map Embed */}
+              <div className="lg:col-span-8 min-h-[420px] sm:min-h-[480px] w-full relative">
+                <iframe
+                  title={`Google Map - ${business.name}`}
+                  src={googleMapEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, minHeight: '420px', filter: 'contrast(1.05) saturate(1.1)' }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                />
+
+                {/* Floating Directions Action Pin */}
+                <div className="absolute top-4 left-4 z-10">
+                  <a
+                    href={googleMapsDirectionsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 rounded-xl bg-[#09090e]/90 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-xl flex items-center gap-2 hover:bg-amber-500 hover:text-black transition-all"
+                  >
+                    <Navigation className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Get Turn-by-Turn Directions</span>
+                    <ExternalLink className="w-3 h-3 ml-1 opacity-70" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Location Intel & Hours Panel */}
+              <div className="lg:col-span-4 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-b from-[#0c0c14] to-[#07070b]">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                        Doors Open Now
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mt-1.5">{business.name}</h3>
+                    <p className="text-xs text-stone-400 mt-1">{business.address}</p>
+                  </div>
+
+                  <div className="space-y-3.5 text-xs text-stone-300">
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-white block">Operating Hours</strong>
+                        <span>Sunday – Friday: 10:00 AM – 10:00 PM</span>
+                        <span className="block text-stone-400">Saturday: 9:00 AM – 10:30 PM</span>
+                      </div>
+                    </div>
+
+                    {business.phone && (
+                      <div className="flex items-start gap-3">
+                        <Phone className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-white block">Direct Phone</strong>
+                          <a href={`tel:${business.phone}`} className="text-amber-300 hover:underline">
+                            {business.phone}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-start gap-3">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-white block">Parking & Amenities</strong>
+                        <span>Bike & Car Parking Available · Free Wi-Fi</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 pt-4 border-t border-white/[0.08]">
+                  <a
+                    href={googleMapsDirectionsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-3.5 rounded-xl font-bold text-xs bg-white text-stone-950 hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 shadow-md"
+                  >
+                    <Compass className="w-4 h-4 text-stone-950" />
+                    <span>Open in Google Maps App</span>
+                  </a>
+
+                  <a
+                    href={generalReserveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-3.5 rounded-xl font-bold text-xs border border-amber-500/30 text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Message on WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
+
+        </div>
+      </section>
+
       {/* Interactive Table Reservation Experience */}
-      <section className="py-20 px-4 lg:px-8 bg-gradient-to-b from-black/40 via-amber-950/10 to-black/40 border-y border-white/[0.08]">
-        <div className="max-w-5xl mx-auto glass-card-gold rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+      <section className="py-20 px-4 lg:px-8 bg-gradient-to-b from-black/40 via-amber-950/10 to-black/40">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-5xl mx-auto glass-card-gold rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden"
+        >
           <div className="grid lg:grid-cols-12 gap-8 items-center">
             
             <div className="lg:col-span-6 space-y-4">
@@ -382,17 +614,17 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 <span className="gold-gradient-text">{business.name}</span>
               </h2>
               <p className="text-sm text-stone-300 leading-relaxed">
-                Whether an intimate family dinner, business meetup, or celebrating with friends in {business.district}, reserve directly with zero hassle.
+                Whether an intimate family dinner, business meetup, or evening hangout in {business.district}, reserve directly with zero booking charges.
               </p>
 
               <div className="space-y-2 text-xs text-stone-400 pt-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Instant confirmation on WhatsApp</span>
+                  <span>Instant confirmation directly on WhatsApp</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>No booking charges or upfront deposit</span>
+                  <span>Personalized table arrangements on request</span>
                 </div>
               </div>
             </div>
@@ -409,7 +641,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                       onClick={() => setReservationGuests(g)}
                       className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${
                         reservationGuests === g
-                          ? 'border-amber-400 bg-amber-500/20 text-amber-300'
+                          ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-sm'
                           : 'border-white/10 text-stone-400 hover:text-white'
                       }`}
                     >
@@ -430,7 +662,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                       onClick={() => setReservationTime(t)}
                       className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all text-left ${
                         reservationTime === t
-                          ? 'border-amber-400 bg-amber-500/20 text-amber-300'
+                          ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-sm'
                           : 'border-white/10 text-stone-400 hover:text-white'
                       }`}
                     >
@@ -440,19 +672,21 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 </div>
               </div>
 
-              <a
+              <motion.a
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 href={generalReserveUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-stone-950 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02]"
+                className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-stone-950 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all"
               >
                 <MessageSquare className="w-4 h-4 fill-stone-950" />
                 <span>Confirm Reservation on WhatsApp</span>
-              </a>
+              </motion.a>
             </div>
 
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Patron Acclaim (TOS Compliant) */}
@@ -467,9 +701,14 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {copy.review_themes.map((theme, i) => (
-            <div
+            <motion.div
               key={i}
-              className="glass-card p-6 rounded-3xl space-y-4 hover:border-amber-500/30 transition-all"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -5 }}
+              className="glass-card p-6 rounded-3xl space-y-4 hover:border-amber-500/30 transition-all shadow-lg"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-amber-400">
@@ -488,113 +727,8 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 <span>Verified Patron</span>
                 <span className="text-stone-400 font-medium">{theme.customer_archetype}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </section>
-
-      {/* Interactive Location & Hours */}
-      <section className="py-20 px-4 lg:px-8 border-t border-white/[0.08] bg-[#0c0c12]/40">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-12 gap-8 items-center">
-          
-          <div className="md:col-span-6 space-y-6">
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">Visit Our Place</span>
-            <h2 className="text-3xl font-extrabold text-white leading-tight">
-              Conveniently Located in <br />
-              <span className="gold-gradient-text">{business.address}</span>
-            </h2>
-
-            <div className="space-y-4 text-sm text-stone-300">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white block">Street Address</strong>
-                  <span>{business.address}</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white block">Opening Hours</strong>
-                  <span>Sunday – Friday: 10:00 AM – 10:00 PM</span>
-                  <span className="block text-xs text-stone-400">Saturday: 9:00 AM – 10:30 PM</span>
-                </div>
-              </div>
-
-              {business.phone && (
-                <div className="flex items-start gap-3">
-                  <Phone className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-white block">Contact Direct</strong>
-                    <span>{business.phone}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-2 flex flex-wrap gap-3">
-              <a
-                href={business.photos?.[0] ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${business.name} ${business.address}`)}` : '#'}
-                target="_blank"
-                rel="noreferrer"
-                className="px-6 py-3 rounded-xl font-bold bg-white text-stone-950 hover:bg-stone-200 transition-colors inline-flex items-center gap-2 text-xs"
-              >
-                <Compass className="w-4 h-4 text-stone-950" />
-                <span>Get Directions in Google Maps</span>
-              </a>
-
-              <a
-                href={generalReserveUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="px-6 py-3 rounded-xl font-bold border border-amber-500/30 text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-colors inline-flex items-center gap-2 text-xs"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Chat with Owner</span>
-              </a>
-            </div>
-          </div>
-
-          <div className="md:col-span-6">
-            <div className="rounded-3xl glass-card p-6 space-y-4 border border-amber-500/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                    Doors Open Now
-                  </span>
-                </div>
-                <span className="text-xs text-stone-400">Kathmandu Valley</span>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-black/50 border border-white/5 space-y-3">
-                <h4 className="font-bold text-white text-base">Payment Options Accepted</h4>
-                <p className="text-xs text-stone-400">
-                  We accept all local digital wallets and mobile banking:
-                </p>
-                <div className="flex items-center gap-2 pt-1">
-                  <span className="px-3 py-1 rounded-lg bg-emerald-950/80 text-emerald-400 text-xs font-bold border border-emerald-500/30">
-                    eSewa
-                  </span>
-                  <span className="px-3 py-1 rounded-lg bg-purple-950/80 text-purple-400 text-xs font-bold border border-purple-500/30">
-                    Khalti
-                  </span>
-                  <span className="px-3 py-1 rounded-lg bg-red-950/80 text-red-400 text-xs font-bold border border-red-500/30">
-                    FonePay QR
-                  </span>
-                  <span className="px-3 py-1 rounded-lg bg-blue-950/80 text-blue-400 text-xs font-bold border border-blue-500/30">
-                    Cash / Card
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs text-stone-500 italic text-center">
-                Parking space available for two-wheelers and four-wheelers.
-              </p>
-            </div>
-          </div>
-
         </div>
       </section>
 
@@ -602,12 +736,17 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       <footer className="py-12 px-4 lg:px-8 border-t border-white/[0.08] text-center text-xs text-stone-500 space-y-4">
         <p>© {new Date().getFullYear()} {business.name}. All rights reserved.</p>
         <p className="text-[11px] text-stone-600 max-w-md mx-auto">
-          Crafted with pride for {business.district}, Kathmandu Valley. Designed for seamless mobile discovery & dining.
+          Crafted with pride for {business.district}, Kathmandu Valley. Designed for seamless mobile discovery, dining & reservations.
         </p>
       </footer>
 
       {/* Floating Mobile Sticky Concierge Bar */}
-      <div className="fixed bottom-3 left-4 right-4 z-40 sm:hidden">
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="fixed bottom-3 left-4 right-4 z-40 sm:hidden"
+      >
         <div className="glass-card-gold p-2 rounded-2xl shadow-2xl flex items-center justify-between gap-2 border border-amber-500/40">
           <a
             href={generalReserveUrl}
@@ -619,6 +758,15 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             <span>WhatsApp Table / Order</span>
           </a>
 
+          <a
+            href={googleMapsDirectionsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="p-3 rounded-xl bg-white/10 text-white flex items-center justify-center border border-white/10"
+          >
+            <Navigation className="w-4 h-4 text-amber-400" />
+          </a>
+
           {business.phone && (
             <a
               href={`tel:${business.phone}`}
@@ -628,7 +776,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             </a>
           )}
         </div>
-      </div>
+      </motion.div>
 
     </div>
   );
