@@ -15,6 +15,7 @@ export interface GooglePlaceResult {
   address: string;
   district: 'Kathmandu' | 'Lalitpur' | 'Bhaktapur';
   phone?: string;
+  email?: string;
   rating: number;
   user_ratings_total: number;
   website?: string;

@@ -38,7 +38,7 @@ export default async function PreviewPage({ params }: PageProps) {
   return (
     <div className="relative min-h-screen">
       {/* Top Claim & Purchase Banner for Business Owners */}
-      <ClaimModalBanner businessName={matched.name} district={matched.district} />
+      <ClaimModalBanner businessName={matched.name} district={matched.district} slug={slug} />
 
       {/* Render The Custom Business Template */}
       <TemplateComponent

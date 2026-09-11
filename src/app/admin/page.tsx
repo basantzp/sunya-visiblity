@@ -26,6 +26,7 @@ interface LeadItem {
   reviews: number;
   status: string;
   previewUrl: string;
+  slug: string;
   template: string;
 }
 
@@ -46,6 +47,7 @@ export default function AdminDashboard() {
       reviews: 142,
       status: 'preview_ready',
       previewUrl: '/preview/himalayan-momo-sekuwa-corner',
+      slug: 'himalayan-momo-sekuwa-corner',
       template: 'Restaurant (Warm Amber)',
     },
     {
@@ -57,6 +59,7 @@ export default function AdminDashboard() {
       reviews: 88,
       status: 'preview_ready',
       previewUrl: '/preview/patan-heritage-herbal-spa-ayurveda',
+      slug: 'patan-heritage-herbal-spa-ayurveda',
       template: 'Wellness (Emerald Serene)',
     },
     {
@@ -68,6 +71,7 @@ export default function AdminDashboard() {
       reviews: 215,
       status: 'approved_outreach',
       previewUrl: '/preview/boudha-organic-bakery-artisan-coffee',
+      slug: 'boudha-organic-bakery-artisan-coffee',
       template: 'Restaurant (Warm Amber)',
     },
     {
@@ -79,6 +83,7 @@ export default function AdminDashboard() {
       reviews: 96,
       status: 'outreached',
       previewUrl: '/preview/bhaktapur-traditional-pottery-crafts',
+      slug: 'bhaktapur-traditional-pottery-crafts',
       template: 'Retail (Editorial Minimalist)',
     },
     {
@@ -88,8 +93,9 @@ export default function AdminDashboard() {
       district: 'Kathmandu',
       rating: 4.4,
       reviews: 54,
-      status: 'paid_active',
+      status: 'replied',
       previewUrl: '/preview/apex-physiotherapy-wellness-clinic',
+      slug: 'apex-physiotherapy-wellness-clinic',
       template: 'Services (Navy Trust)',
     },
   ]);
@@ -293,7 +299,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                        lead.status === 'paid_active'
+                        lead.status === 'replied' || lead.status === 'paid_active'
                           ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                           : lead.status === 'approved_outreach'
                           ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
@@ -301,11 +307,18 @@ export default function AdminDashboard() {
                           ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
                           : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                       }`}>
-                        {lead.status}
+                        {lead.status === 'replied' ? 'Interest Confirmed 🎉' : lead.status}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      {lead.status === 'preview_ready' ? (
+                      {lead.status === 'replied' ? (
+                        <a
+                          href={`/preview/${lead.slug}/onboarding`}
+                          className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-colors inline-block"
+                        >
+                          Setup Operations →
+                        </a>
+                      ) : lead.status === 'preview_ready' ? (
                         <button
                           onClick={() => approveOutreach(lead.id)}
                           className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors"

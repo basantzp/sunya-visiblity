@@ -72,6 +72,20 @@ export async function runAgencyPipeline(opts: PipelineExecutionOptions = {}): Pr
 
       // Step 5: Outreach (Only if autoSendOutreach is true, Phase 3 autonomy)
       if (opts.autoSendOutreach) {
+        if (place.email) {
+          const mailRes = await sendOutreachEmail({
+            toEmail: place.email,
+            businessName: place.name,
+            district: place.district,
+            category: place.category,
+            previewUrl: deployment.previewUrl,
+            slug,
+            specificDetail: copy.signature_offerings[0]?.title || 'signature service',
+            isConfidential: true,
+          });
+          if (mailRes.success) summary.outreachDispatched++;
+        }
+
         if (place.phone) {
           const waRes = await sendWhatsAppOutreach({
             toPhone: place.phone,
