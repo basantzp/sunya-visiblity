@@ -1,0 +1,41 @@
+{
+  "name": "sunya-visiblity",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Autonomous Local Website & Lead-Generation Agency for Kathmandu Valley",
+  "scripts": {
+    "dev": "next dev --port 3005",
+    "build": "next build",
+    "start": "next start --port 3005",
+    "lint": "next lint",
+    "pipeline:discover": "tsx scripts/run-pipeline.ts --action discover",
+    "pipeline:enrich": "tsx scripts/run-pipeline.ts --action enrich",
+    "pipeline:generate": "tsx scripts/run-pipeline.ts --action generate",
+    "pipeline:outreach": "tsx scripts/run-pipeline.ts --action outreach",
+    "pipeline:all": "tsx scripts/run-pipeline.ts --action all",
+    "worker": "tsx scripts/cron-worker.ts"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.16.0",
+    "next": "^15.1.7",
+    "nodemailer": "^6.10.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.7",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
