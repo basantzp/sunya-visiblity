@@ -4,52 +4,62 @@
 
 @layer base {
   :root {
-    --background: #0C0A09;
-    --foreground: #F7F4EE;
+    --background: #000000;
+    --foreground: #f5f5f7;
+    --card-bg: #161617;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --apple-blue: #0071e3;
   }
 
   body {
-    background-color: #0C0A09;
-    color: #F7F4EE;
+    background-color: #000000;
+    color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    overflow-x: hidden;
   }
 
-  h1, h2, h3, .font-serif {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  h1, h2, h3, h4 {
+    letter-spacing: -0.03em;
   }
 }
 
-/* Restrained, architectural transitions */
-.hairline {
-  border-width: 1px;
-  border-color: rgba(247, 244, 238, 0.08);
+/* Apple-grade glassmorphic surface */
+.apple-glass {
+  background: rgba(22, 22, 23, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.hairline-b {
-  border-bottom: 1px solid rgba(247, 244, 238, 0.08);
+.apple-card {
+  background: #161617;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hairline-t {
-  border-top: 1px solid rgba(247, 244, 238, 0.08);
+.apple-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.editorial-card {
-  background-color: #12100E;
-  border: 1px solid rgba(247, 244, 238, 0.07);
-  transition: border-color 0.3s ease, background-color 0.3s ease;
+.apple-pill {
+  border-radius: 980px;
 }
 
-.editorial-card:hover {
-  border-color: rgba(197, 160, 89, 0.35);
-  background-color: #151310;
+/* Apple-style typography gradients */
+.apple-text-gradient {
+  background: linear-gradient(180deg, #ffffff 0%, #a1a1a6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Subtle dot-leader for luxury menus */
-.menu-leader {
-  flex: 1;
-  border-bottom: 1px dotted rgba(247, 244, 238, 0.2);
-  height: 0.85em;
-  margin: 0 0.75rem;
+.apple-gold-gradient {
+  background: linear-gradient(180deg, #FFE7B8 0%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
