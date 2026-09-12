@@ -27,6 +27,13 @@
     "pipeline:generate": "tsx scripts/run-pipeline.ts --action generate",
     "pipeline:outreach": "tsx scripts/run-pipeline.ts --action outreach",
     "test:shandar": "tsx scripts/test-shandar-momo.ts",
+    "version:list": "tsx scripts/version-manager.ts list",
+    "version:snapshot": "tsx scripts/version-manager.ts snapshot",
+    "version:downgrade": "tsx scripts/version-manager.ts downgrade",
+    "version:upgrade": "tsx scripts/version-manager.ts upgrade",
+    "snapshot": "tsx scripts/version-manager.ts snapshot",
+    "downgrade": "tsx scripts/version-manager.ts downgrade",
+    "upgrade": "tsx scripts/version-manager.ts upgrade",
     "worker": "tsx scripts/cron-worker.ts",
     "clean": "rm -rf .next dist build coverage *.tsbuildinfo",
     "prepare": "husky"
