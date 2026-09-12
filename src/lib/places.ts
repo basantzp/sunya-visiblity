@@ -133,6 +133,24 @@ export async function discoverPlaces(options: DiscoveryOptions): Promise<GoogleP
 function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
   const mockDatabase: GooglePlaceResult[] = [
     {
+      place_id: 'ktm_place_shandar',
+      name: 'Shandar Momo Corner',
+      category: 'restaurant',
+      address: 'Khichapokhari, New Road, Kathmandu 44600',
+      district: 'Kathmandu',
+      phone: '+977-9801234567',
+      email: 'pokhrelbasant00@gmail.com',
+      rating: 4.8,
+      user_ratings_total: 320,
+      google_maps_url: 'https://maps.google.com/?q=Shandar+Momo+New+Road+Kathmandu',
+      location: { lat: 27.7025, lng: 85.312 },
+      photos: [
+        'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
       place_id: 'ktm_place_001',
       name: 'Himalayan Momo & Sekuwa Corner',
       category: 'restaurant',

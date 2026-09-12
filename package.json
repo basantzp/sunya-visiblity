@@ -26,6 +26,7 @@
     "pipeline:enrich": "tsx scripts/run-pipeline.ts --action enrich",
     "pipeline:generate": "tsx scripts/run-pipeline.ts --action generate",
     "pipeline:outreach": "tsx scripts/run-pipeline.ts --action outreach",
+    "test:shandar": "tsx scripts/test-shandar-momo.ts",
     "worker": "tsx scripts/cron-worker.ts",
     "clean": "rm -rf .next dist build coverage *.tsbuildinfo",
     "prepare": "husky"

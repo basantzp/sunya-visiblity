@@ -125,10 +125,9 @@ JSON Schema:
  * Deterministic, high-grade Kathmandu localized fallback copy
  */
 function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyResult {
+  const isMomo = b.name.toLowerCase().includes('momo') || b.category.toLowerCase().includes('momo');
   const isRestaurant =
-    b.category.toLowerCase().includes('restaurant') ||
-    b.category.toLowerCase().includes('momo') ||
-    b.category.toLowerCase().includes('cafe');
+    b.category.toLowerCase().includes('restaurant') || b.category.toLowerCase().includes('cafe');
   const isSpa =
     b.category.toLowerCase().includes('spa') ||
     b.category.toLowerCase().includes('wellness') ||
@@ -137,6 +136,82 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
     b.category.toLowerCase().includes('boutique') ||
     b.category.toLowerCase().includes('craft') ||
     b.category.toLowerCase().includes('store');
+
+  if (isMomo) {
+    return {
+      tagline: 'Authentic Himalayan Momos, Handcrafted Daily in New Road',
+      hero_title: 'Kathmandu’s Signature Momo Corner',
+      hero_subtitle:
+        'Thin delicate wrappers, succulent fillings, and the iconic roasted timur and yellow sesame jhol achar.',
+      about_story: `${b.name} was established with one timeless commitment: serving pure, uncompromisingly delicious momos right in the heart of ${b.district}. What started as a beloved neighborhood secret in Khichapokhari has grown into a daily pilgrimage for valley locals. From our legendary steamed buff momos to crispy golden kothey and fiery wok-tossed C-momos, every plate is prepared fresh with hand-ground Himalayan spices, cold-pressed mustard oil, and genuine valley pride.`,
+      brand_voice: 'Passionate, authentic, appetizing, and proud of New Road heritage',
+      primary_color: '#991B1B',
+      accent_color: '#EA580C',
+      signature_offerings: [
+        {
+          title: 'Special Steamed Buff Momo (बाफ मःमः)',
+          description:
+            'Juicy hand-minced buff wrapped in razor-thin dough, served with piping-hot roasted soybean and timur jhol achar.',
+          price_npr: 'NPR 180',
+        },
+        {
+          title: 'Crispy Pan-Fried Kothey (कोथे मःमः)',
+          description:
+            'Crisped golden on the bottom while steaming tender on top, served with homemade smoky tomato-chili dip.',
+          price_npr: 'NPR 220',
+        },
+        {
+          title: 'Sizzling Spicy Buff C-Momo (सी मःमः)',
+          description:
+            'Golden dumplings tossed in a blazing wok with crunchy bell peppers, red onions, garlic, and fiery chili glaze.',
+          price_npr: 'NPR 260',
+        },
+        {
+          title: 'Special Chicken Steamed Momo (चिकेन मःमः)',
+          description:
+            'Tender minced chicken blended with fresh coriander, spring onion, and mountain herbs with mild mint dip.',
+          price_npr: 'NPR 240',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Iconic Flavor',
+          original_testimonial_summary:
+            'Patrons consistently praise the aromatic timur jhol achar and the unmatched juiciness of the fresh dumplings.',
+          customer_archetype: 'Valley Regular',
+        },
+        {
+          sentiment: 'Speed & Freshness',
+          original_testimonial_summary:
+            'Renowned for lightning-fast table service and steaming batches made fresh from morning till night.',
+          customer_archetype: 'New Road Shopper',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Do you offer take-away and bulk party orders?',
+          answer:
+            'Yes! We pack hot fresh momos with extra jars of our signature timur jhol achar for take-away and events.',
+        },
+        {
+          question: 'Where can patrons find parking near New Road / Khichapokhari?',
+          answer:
+            'Two-wheeler parking is available right along the alley, and dedicated multi-level parking is a 3-minute walk away.',
+        },
+      ],
+      local_seo_keywords: [
+        `best momo in ${b.district}`,
+        `shandar momo new road`,
+        `kathmandu jhol momo`,
+        `top rated momo kathmandu`,
+      ],
+      nepali_content: {
+        hero_title: 'काठमाडौँको प्रसिद्ध मौलिक मःमः',
+        tagline: 'ताजा बाफ, क्रिस्पी कोथे र स्वादिलो झोल',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो पुरानो मौलिक स्वाद र उत्कृष्ट आतिथ्यको आनन्द लिनुहोस्।`,
+      },
+    };
+  }
 
   if (isRestaurant) {
     return {
