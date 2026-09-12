@@ -16,7 +16,8 @@ const sans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: 'Sunya Visibility — Bespoke Digital Presences for Kathmandu Valley',
-  description: 'Editorial web craftsmanship for exceptional dining and neighborhood establishments across Kathmandu, Lalitpur, and Bhaktapur.',
+  description:
+    'Editorial web craftsmanship for exceptional dining and neighborhood establishments across Kathmandu, Lalitpur, and Bhaktapur.',
 };
 
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${sans.variable} scroll-smooth`}>
-      <body className="antialiased min-h-screen bg-[#0C0A09] text-[#F7F4EE] font-sans selection:bg-[#C5A059] selection:text-black">
+      <body className="min-h-screen bg-[#0C0A09] font-sans text-[#F7F4EE] antialiased selection:bg-[#C5A059] selection:text-black">
         {children}
       </body>
     </html>

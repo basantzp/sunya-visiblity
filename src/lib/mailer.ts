@@ -4,10 +4,10 @@
  * interactive 1-click interest confirmation and immediate transition to onboarding.
  */
 
-import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 import dns from 'dns';
 import { promisify } from 'util';
-import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const resolveMx = promisify(dns.resolveMx);
 
@@ -47,18 +47,24 @@ export function generateColdEmailCopy(opts: OutreachMailOptions) {
   const founderWhatsApp = opts.founderWhatsApp || process.env.FOUNDER_WHATSAPP || '+977-9800000000';
   const founderName = opts.founderName || process.env.FOUNDER_NAME || 'Basant';
   const baseUrl = opts.baseUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005';
-  const slug = opts.slug || opts.businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  
-  const cleanPreviewUrl = opts.previewUrl.startsWith('http') 
-    ? opts.previewUrl 
+  const slug =
+    opts.slug ||
+    opts.businessName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+  const cleanPreviewUrl = opts.previewUrl.startsWith('http')
+    ? opts.previewUrl
     : `${baseUrl}${opts.previewUrl.startsWith('/') ? '' : '/'}${opts.previewUrl}`;
 
   const interestYesUrl = `${baseUrl}/api/leads/interest?slug=${slug}&response=interested&email=${encodeURIComponent(opts.toEmail)}`;
   const interestNoUrl = `${baseUrl}/api/leads/interest?slug=${slug}&response=declined&email=${encodeURIComponent(opts.toEmail)}`;
 
-  const subject = opts.isConfidential !== false
-    ? `[CONFIDENTIAL PROPOSAL] Private Digital Draft for ${opts.businessName}`
-    : `Website proposal for ${opts.businessName} (already live on preview)`;
+  const subject =
+    opts.isConfidential !== false
+      ? `[CONFIDENTIAL PROPOSAL] Private Digital Draft for ${opts.businessName}`
+      : `Website proposal for ${opts.businessName} (already live on preview)`;
 
   const bodyText = `[CONFIDENTIAL DRAFT - FOR DECISION MAKER ONLY]
 
@@ -229,10 +235,10 @@ Email: ${process.env.GMAIL_USER || 'basantpok90@gmail.com'}
   return { subject, bodyText, html };
 }
 
-export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{ 
-  success: boolean; 
-  messageId?: string; 
-  error?: string; 
+export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
+  success: boolean;
+  messageId?: string;
+  error?: string;
   simulated?: boolean;
   previewUrl?: string;
 }> {
@@ -261,20 +267,20 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
     console.log(` -> To: ${options.toEmail}`);
     console.log(` -> Subject: ${subject}`);
     console.log(` -> Confidential: ${options.isConfidential !== false}`);
-    return { 
-      success: true, 
-      simulated: true, 
+    return {
+      success: true,
+      simulated: true,
       messageId: `simulated_direct_${Date.now()}`,
-      previewUrl: options.previewUrl
+      previewUrl: options.previewUrl,
     };
   }
 
   // Domain MX validation
   const isDeliverable = await verifyDomainMX(options.toEmail);
   if (!isDeliverable) {
-    return { 
-      success: false, 
-      error: `Domain ${options.toEmail.split('@')[1]} has no valid mail exchanger (MX) records.` 
+    return {
+      success: false,
+      error: `Domain ${options.toEmail.split('@')[1]} has no valid mail exchanger (MX) records.`,
     };
   }
 
@@ -298,16 +304,21 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
       headers: headers,
     });
 
-    console.log(`[Confidential Direct Mail] Sent successfully to ${options.toEmail} (ID: ${info.messageId})`);
+    console.log(
+      `[Confidential Direct Mail] Sent successfully to ${options.toEmail} (ID: ${info.messageId})`,
+    );
     return { success: true, messageId: info.messageId };
   } catch (err: any) {
-    console.warn('[Nodemailer Dispatch Fallback]: Live SMTP rejected, falling back to simulated dispatch:', err.message);
+    console.warn(
+      '[Nodemailer Dispatch Fallback]: Live SMTP rejected, falling back to simulated dispatch:',
+      err.message,
+    );
     // Graceful fallback so testing and pipeline are not blocked by invalid credentials
-    return { 
-      success: true, 
-      simulated: true, 
+    return {
+      success: true,
+      simulated: true,
       messageId: `simulated_fallback_${Date.now()}`,
-      error: err.message 
+      error: err.message,
     };
   }
 }

@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 
 export async function GET(req: NextRequest) {
@@ -9,11 +9,16 @@ export async function GET(req: NextRequest) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005';
 
-  console.log(`[Lead Direct Interest Response] Slug: ${slug} | Response: ${response} | Email: ${email}`);
+  console.log(
+    `[Lead Direct Interest Response] Slug: ${slug} | Response: ${response} | Email: ${email}`,
+  );
 
   // Update lead in Supabase if live
   try {
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+    if (
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')
+    ) {
       const newStatus = response === 'interested' ? 'replied' : 'archived';
       await supabase
         .from('leads')
@@ -56,6 +61,9 @@ export async function POST(req: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Failed to record response' }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || 'Failed to record response' },
+      { status: 500 },
+    );
   }
 }

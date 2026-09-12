@@ -31,9 +31,11 @@ export async function processClientPaymentVerification(
   reference: string,
   method: 'esewa' | 'khalti' | 'fonepay',
   handoffType: 'hosted' | 'export_zip',
-  customDomain?: string
+  customDomain?: string,
 ): Promise<{ success: boolean; message: string; domainSetup?: boolean; zipDownloadUrl?: string }> {
-  console.log(`[Payment Verification] Processing ${method} payment ref ${reference} for lead ${leadId}`);
+  console.log(
+    `[Payment Verification] Processing ${method} payment ref ${reference} for lead ${leadId}`,
+  );
 
   // In production, verify against eSewa EPAY or Khalti ePayment API
   // On verified:

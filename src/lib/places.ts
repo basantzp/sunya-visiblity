@@ -33,9 +33,9 @@ export interface DiscoveryOptions {
 }
 
 const KATHMANDU_VALLEY_BOUNDS = {
-  Kathmandu: { lat: 27.7172, lng: 85.3240, radius: 10000 },
-  Lalitpur: { lat: 27.6670, lng: 85.3200, radius: 8000 },
-  Bhaktapur: { lat: 27.6710, lng: 85.4298, radius: 8000 },
+  Kathmandu: { lat: 27.7172, lng: 85.324, radius: 10000 },
+  Lalitpur: { lat: 27.667, lng: 85.32, radius: 8000 },
+  Bhaktapur: { lat: 27.671, lng: 85.4298, radius: 8000 },
 };
 
 export async function discoverPlaces(options: DiscoveryOptions): Promise<GooglePlaceResult[]> {
@@ -44,20 +44,23 @@ export async function discoverPlaces(options: DiscoveryOptions): Promise<GoogleP
   const minReviews = options.minReviews ?? 15;
 
   if (!apiKey || apiKey === 'placeholder') {
-    console.log('[Places Discovery] No GOOGLE_PLACES_API_KEY found, using realistic Kathmandu Valley fixture data.');
+    console.log(
+      '[Places Discovery] No GOOGLE_PLACES_API_KEY found, using realistic Kathmandu Valley fixture data.',
+    );
     return getKathmanduMockLeads(options);
   }
 
-  const districts = options.district === 'All' 
-    ? (['Kathmandu', 'Lalitpur', 'Bhaktapur'] as const) 
-    : [options.district];
+  const districts =
+    options.district === 'All'
+      ? (['Kathmandu', 'Lalitpur', 'Bhaktapur'] as const)
+      : [options.district];
 
   const results: GooglePlaceResult[] = [];
 
   for (const district of districts) {
     const coords = KATHMANDU_VALLEY_BOUNDS[district];
     const query = `${options.category} in ${district}, Nepal`;
-    
+
     // Official Google Places API (New Text Search endpoint)
     const url = `https://places.googleapis.com/v1/places:searchText`;
     try {
@@ -66,7 +69,8 @@ export async function discoverPlaces(options: DiscoveryOptions): Promise<GoogleP
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.websiteUri,places.googleMapsUri,places.location,places.photos,places.types',
+          'X-Goog-FieldMask':
+            'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.websiteUri,places.googleMapsUri,places.location,places.photos,places.types',
         },
         body: JSON.stringify({
           textQuery: query,
@@ -108,7 +112,9 @@ export async function discoverPlaces(options: DiscoveryOptions): Promise<GoogleP
             rating: rating,
             user_ratings_total: reviewsCount,
             google_maps_url: p.googleMapsUri,
-            location: p.location ? { lat: p.location.latitude, lng: p.location.longitude } : undefined,
+            location: p.location
+              ? { lat: p.location.latitude, lng: p.location.longitude }
+              : undefined,
             photos: (p.photos || []).map((ph: any) => ph.name).slice(0, 5),
           });
         }
@@ -137,7 +143,9 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       user_ratings_total: 142,
       google_maps_url: 'https://maps.google.com/?cid=101',
       location: { lat: 27.6785, lng: 85.3125 },
-      photos: ['https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80']
+      photos: [
+        'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_002',
@@ -149,8 +157,10 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.8,
       user_ratings_total: 88,
       google_maps_url: 'https://maps.google.com/?cid=102',
-      location: { lat: 27.6740, lng: 85.3260 },
-      photos: ['https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80']
+      location: { lat: 27.674, lng: 85.326 },
+      photos: [
+        'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_003',
@@ -162,8 +172,10 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.5,
       user_ratings_total: 215,
       google_maps_url: 'https://maps.google.com/?cid=103',
-      location: { lat: 27.7215, lng: 85.3620 },
-      photos: ['https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80']
+      location: { lat: 27.7215, lng: 85.362 },
+      photos: [
+        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_004',
@@ -175,8 +187,10 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.7,
       user_ratings_total: 96,
       google_maps_url: 'https://maps.google.com/?cid=104',
-      location: { lat: 27.6720, lng: 85.4280 },
-      photos: ['https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=800&q=80']
+      location: { lat: 27.672, lng: 85.428 },
+      photos: [
+        'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_005',
@@ -188,8 +202,10 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.4,
       user_ratings_total: 54,
       google_maps_url: 'https://maps.google.com/?cid=105',
-      location: { lat: 27.6915, lng: 85.3420 },
-      photos: ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80']
+      location: { lat: 27.6915, lng: 85.342 },
+      photos: [
+        'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_006',
@@ -202,7 +218,9 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       user_ratings_total: 128,
       google_maps_url: 'https://maps.google.com/?q=Cafe+Teentalle+New+Baneshwor',
       location: { lat: 27.6912, lng: 85.3415 },
-      photos: ['https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80']
+      photos: [
+        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_007',
@@ -214,8 +232,10 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.8,
       user_ratings_total: 94,
       google_maps_url: 'https://maps.google.com/?q=Sunrise+Bakeries+Restaurant+New+Baneshwor',
-      location: { lat: 27.6925, lng: 85.3430 },
-      photos: ['https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80']
+      location: { lat: 27.6925, lng: 85.343 },
+      photos: [
+        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_008',
@@ -228,7 +248,9 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       user_ratings_total: 165,
       google_maps_url: 'https://maps.google.com/?q=Krystal+Food+Cafe+Sankhamul',
       location: { lat: 27.6845, lng: 85.3325 },
-      photos: ['https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80']
+      photos: [
+        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_009',
@@ -240,8 +262,10 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.4,
       user_ratings_total: 112,
       google_maps_url: 'https://maps.google.com/?q=Surface+Coffee+New+Baneshwor',
-      location: { lat: 27.6905, lng: 85.3400 },
-      photos: ['https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80']
+      location: { lat: 27.6905, lng: 85.34 },
+      photos: [
+        'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_010',
@@ -253,14 +277,23 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.6,
       user_ratings_total: 110,
       google_maps_url: 'https://maps.google.com/?cid=106',
-      location: { lat: 27.6690, lng: 85.3180 },
-      photos: ['https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80']
-    }
+      location: { lat: 27.669, lng: 85.318 },
+      photos: [
+        'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+      ],
+    },
   ];
 
-  return mockDatabase.filter(item => {
-    const matchCat = options.category === 'all' || item.category.toLowerCase().includes(options.category.toLowerCase());
+  return mockDatabase.filter((item) => {
+    const matchCat =
+      options.category === 'all' ||
+      item.category.toLowerCase().includes(options.category.toLowerCase());
     const matchDist = options.district === 'All' || item.district === options.district;
-    return matchCat && matchDist && item.rating >= (options.minRating ?? 4.0) && item.user_ratings_total >= (options.minReviews ?? 15);
+    return (
+      matchCat &&
+      matchDist &&
+      item.rating >= (options.minRating ?? 4.0) &&
+      item.user_ratings_total >= (options.minReviews ?? 15)
+    );
   });
 }

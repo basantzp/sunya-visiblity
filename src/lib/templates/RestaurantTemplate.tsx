@@ -1,24 +1,24 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Phone,
-  MapPin,
-  Clock,
-  Star,
-  MessageSquare,
-  Globe,
   ArrowUpRight,
-  ChevronRight,
-  Compass,
   Calendar,
-  Users,
   Check,
+  ChevronRight,
+  Clock,
+  Compass,
+  Globe,
+  MapPin,
+  MessageSquare,
   Navigation,
-  Sparkles,
+  Phone,
   ShieldCheck,
-  UtensilsCrossed
+  Sparkles,
+  Star,
+  Users,
+  UtensilsCrossed,
 } from 'lucide-react';
 
 interface TemplateProps {
@@ -41,7 +41,11 @@ interface TemplateProps {
     primary_color: string;
     accent_color: string;
     signature_offerings: Array<{ title: string; description: string; price_npr?: string }>;
-    review_themes: Array<{ sentiment: string; original_testimonial_summary: string; customer_archetype: string }>;
+    review_themes: Array<{
+      sentiment: string;
+      original_testimonial_summary: string;
+      customer_archetype: string;
+    }>;
     faqs: Array<{ question: string; answer: string }>;
     nepali_content: { hero_title: string; tagline: string; about_snippet: string };
   };
@@ -76,7 +80,7 @@ function SpotlightCard({
     >
       {/* Interactive Cursor Spotlight */}
       <div
-        className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 -z-0"
+        className="pointer-events-none absolute -inset-px -z-0 opacity-0 transition-opacity duration-300"
         style={{
           opacity,
           background: `radial-gradient(500px circle at ${position.x}px ${position.y}px, rgba(255, 255, 255, 0.08), transparent 40%)`,
@@ -102,7 +106,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
   const baseWhatsAppUrl = `https://wa.me/${targetPhone}?text=`;
   const reservationUrl = `${baseWhatsAppUrl}${encodeURIComponent(
-    `Hello ${business.name}! I would like to reserve a table for ${guestCount} guests at ${selectedTime}.`
+    `Hello ${business.name}! I would like to reserve a table for ${guestCount} guests at ${selectedTime}.`,
   )}`;
 
   const mapQuery = encodeURIComponent(`${business.name} ${business.address} Kathmandu Nepal`);
@@ -112,29 +116,26 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
   const tabs = ['All', 'Chef Specials', 'Traditional Plates', 'Brews & Beverages'];
 
   return (
-    <div className="min-h-screen bg-black text-[#F5F5F7] font-sans selection:bg-[#0071E3] selection:text-white relative">
-      
+    <div className="relative min-h-screen bg-black font-sans text-[#F5F5F7] selection:bg-[#0071E3] selection:text-white">
       {/* Apple-style Frosted Nav */}
       <motion.nav
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="sticky top-0 z-40 bg-black/70 backdrop-blur-2xl border-b border-white/[0.08] px-6 lg:px-12 py-3.5 transition-all"
+        className="sticky top-0 z-40 border-b border-white/[0.08] bg-black/70 px-6 py-3.5 backdrop-blur-2xl transition-all lg:px-12"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-semibold text-lg tracking-tight text-white">
-              {business.name}
-            </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/5 border border-white/10 text-[#86868B]">
+            <span className="text-lg font-semibold tracking-tight text-white">{business.name}</span>
+            <span className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-[#86868B] sm:inline-flex">
               {business.district} · Kathmandu
             </span>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4 text-xs">
+          <div className="flex items-center gap-3 text-xs sm:gap-4">
             <button
-              onClick={() => setLang(l => (l === 'en' ? 'np' : 'en'))}
-              className="px-3 py-1.5 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-stone-200 transition-colors"
+              onClick={() => setLang((l) => (l === 'en' ? 'np' : 'en'))}
+              className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-stone-200 transition-colors hover:bg-white/10"
             >
               {lang === 'en' ? 'नेपाली' : 'English'}
             </button>
@@ -142,9 +143,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             {business.phone && (
               <a
                 href={`tel:${business.phone}`}
-                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[#86868B] hover:text-white transition-colors"
+                className="hidden items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[#86868B] transition-colors hover:text-white md:inline-flex"
               >
-                <Phone className="w-3.5 h-3.5" />
+                <Phone className="h-3.5 w-3.5" />
                 <span>{business.phone}</span>
               </a>
             )}
@@ -155,7 +156,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               href={reservationUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-4 sm:px-5 py-2 rounded-full font-medium text-xs sm:text-sm bg-white text-black hover:bg-[#F5F5F7] transition-all shadow-md"
+              className="rounded-full bg-white px-4 py-2 text-xs font-medium text-black shadow-md transition-all hover:bg-[#F5F5F7] sm:px-5 sm:text-sm"
             >
               Book Table
             </motion.a>
@@ -164,18 +165,17 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       </motion.nav>
 
       {/* Hero Section — Apple Keynote Scale */}
-      <section className="relative pt-16 sm:pt-24 pb-24 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="space-y-6 max-w-4xl">
-          
+      <section className="relative mx-auto max-w-7xl px-6 pb-24 pt-16 sm:pt-24 lg:px-12">
+        <div className="max-w-4xl space-y-6">
           {/* Dynamic Island Style Status Pill */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#161617] border border-white/10 text-xs text-[#86868B] shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#161617] px-3.5 py-1.5 text-xs text-[#86868B] shadow-sm"
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-stone-300 font-medium">{business.district}</span>
+            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+            <span className="font-medium text-stone-300">{business.district}</span>
             <span className="text-stone-600">|</span>
             <span>4+ ★ Google Verified</span>
           </motion.div>
@@ -185,7 +185,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="text-5xl sm:text-7xl lg:text-8xl font-semibold tracking-[-0.035em] text-white leading-[1.04]"
+            className="text-5xl font-semibold leading-[1.04] tracking-[-0.035em] text-white sm:text-7xl lg:text-8xl"
           >
             {lang === 'en' ? (
               <>
@@ -204,7 +204,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-            className="text-lg sm:text-xl text-[#86868B] max-w-2xl font-normal leading-relaxed tracking-tight"
+            className="max-w-2xl text-lg font-normal leading-relaxed tracking-tight text-[#86868B] sm:text-xl"
           >
             {lang === 'en' ? copy.hero_subtitle : copy.nepali_content.about_snippet}
           </motion.p>
@@ -222,26 +222,26 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               href={reservationUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-6 py-3.5 rounded-full font-medium text-sm bg-[#0071E3] hover:bg-[#0077ED] text-white flex items-center gap-2 shadow-lg shadow-[#0071E3]/25 transition-colors"
+              className="flex items-center gap-2 rounded-full bg-[#0071E3] px-6 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#0071E3]/25 transition-colors hover:bg-[#0077ED]"
             >
               <span>Reserve Table on WhatsApp</span>
-              <ArrowUpRight className="w-4 h-4" />
+              <ArrowUpRight className="h-4 w-4" />
             </motion.a>
 
             <motion.a
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               href="#menu"
-              className="px-6 py-3.5 rounded-full font-medium text-sm bg-[#161617] hover:bg-[#202022] border border-white/10 text-white transition-colors"
+              className="rounded-full border border-white/10 bg-[#161617] px-6 py-3.5 text-sm font-medium text-white transition-colors hover:bg-[#202022]"
             >
               Explore Menu
             </motion.a>
 
             <a
               href="#location"
-              className="px-4 py-3.5 text-xs text-[#86868B] hover:text-white transition-colors flex items-center gap-1.5"
+              className="flex items-center gap-1.5 px-4 py-3.5 text-xs text-[#86868B] transition-colors hover:text-white"
             >
-              <Navigation className="w-3.5 h-3.5 text-[#0071E3]" />
+              <Navigation className="h-3.5 w-3.5 text-[#0071E3]" />
               <span>Map & Directions</span>
             </a>
           </motion.div>
@@ -252,26 +252,30 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
           initial={{ opacity: 0, y: 40, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
-          className="mt-14 rounded-[32px] overflow-hidden border border-white/[0.08] bg-[#161617] p-2 sm:p-3 shadow-2xl relative"
+          className="relative mt-14 overflow-hidden rounded-[32px] border border-white/[0.08] bg-[#161617] p-2 shadow-2xl sm:p-3"
         >
-          <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-[24px] overflow-hidden">
+          <div className="relative aspect-[16/9] overflow-hidden rounded-[24px] sm:aspect-[21/9]">
             <img
               src={heroImage}
               alt={business.name}
-              className="w-full h-full object-cover contrast-[1.05]"
+              className="h-full w-full object-cover contrast-[1.05]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
             <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-mono uppercase tracking-widest text-[#86868B]">Neighborhood Table</p>
-                <h3 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">{business.name}</h3>
-                <p className="text-xs text-stone-300 mt-0.5">{business.address}</p>
+                <p className="font-mono text-xs uppercase tracking-widest text-[#86868B]">
+                  Neighborhood Table
+                </p>
+                <h3 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  {business.name}
+                </h3>
+                <p className="mt-0.5 text-xs text-stone-300">{business.address}</p>
               </div>
 
-              <div className="flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 rounded-full text-xs text-white">
-                <span className="flex items-center gap-1 text-amber-400 font-bold">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
+              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/60 px-4 py-2.5 text-xs text-white backdrop-blur-xl">
+                <span className="flex items-center gap-1 font-bold text-amber-400">
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
                   <span>{business.rating || 4.5}</span>
                 </span>
                 <span className="text-stone-500">•</span>
@@ -283,25 +287,27 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       </section>
 
       {/* Menu Showcase with Apple-style Fluid Tabs */}
-      <section id="menu" className="py-24 px-6 lg:px-12 max-w-7xl mx-auto space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <p className="text-xs font-semibold text-[#0071E3] uppercase tracking-wider">The Menu</p>
-            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+      <section id="menu" className="mx-auto max-w-7xl space-y-12 px-6 py-24 lg:px-12">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div className="max-w-xl space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0071E3]">
+              The Menu
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
               Signature Offerings.
             </h2>
-            <p className="text-[#86868B] text-sm sm:text-base">
+            <p className="text-sm text-[#86868B] sm:text-base">
               Crafted fresh daily with authentic local spices and farm-fresh ingredients.
             </p>
           </div>
 
           {/* Fluid Sliding Tab Bar */}
-          <div className="flex items-center bg-[#161617] p-1.5 rounded-full border border-white/[0.08] overflow-x-auto scrollbar-none self-start md:self-auto">
-            {tabs.map(tab => (
+          <div className="scrollbar-none flex items-center self-start overflow-x-auto rounded-full border border-white/[0.08] bg-[#161617] p-1.5 md:self-auto">
+            {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative px-4 py-2 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+                className={`relative whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
                   activeTab === tab ? 'text-black' : 'text-[#86868B] hover:text-white'
                 }`}
               >
@@ -309,7 +315,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                   <motion.div
                     layoutId="activeTabPill"
                     transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                    className="absolute inset-0 bg-white rounded-full"
+                    className="absolute inset-0 rounded-full bg-white"
                   />
                 )}
                 <span className="relative z-10">{tab}</span>
@@ -319,41 +325,39 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
         </div>
 
         {/* Bento Grid with Spotlight Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {copy.signature_offerings.map((item, idx) => (
-            <SpotlightCard key={idx} className="p-8 flex flex-col justify-between h-full group">
+            <SpotlightCard key={idx} className="group flex h-full flex-col justify-between p-8">
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-xl font-semibold text-white tracking-tight group-hover:text-[#0071E3] transition-colors">
+                  <h3 className="text-xl font-semibold tracking-tight text-white transition-colors group-hover:text-[#0071E3]">
                     {item.title}
                   </h3>
                   {item.price_npr && (
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white shrink-0">
+                    <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs font-bold text-white">
                       {item.price_npr}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-[#86868B] leading-relaxed">
-                  {item.description}
-                </p>
+                <p className="text-sm leading-relaxed text-[#86868B]">{item.description}</p>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-white/[0.06] flex items-center justify-between">
-                <span className="text-xs text-stone-500 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-emerald-400" /> Chef Recipe
+              <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-6">
+                <span className="flex items-center gap-1.5 text-xs text-stone-500">
+                  <Check className="h-3.5 w-3.5 text-emerald-400" /> Chef Recipe
                 </span>
 
                 <motion.a
                   whileHover={{ x: 2 }}
                   href={`${baseWhatsAppUrl}${encodeURIComponent(
-                    `Hello ${business.name}! I would like to order: ${item.title} (${item.price_npr || ''}).`
+                    `Hello ${business.name}! I would like to order: ${item.title} (${item.price_npr || ''}).`,
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs font-medium text-[#0071E3] hover:text-white transition-colors flex items-center gap-1"
+                  className="flex items-center gap-1 text-xs font-medium text-[#0071E3] transition-colors hover:text-white"
                 >
                   <span>Order on WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </motion.a>
               </div>
             </SpotlightCard>
@@ -362,16 +366,16 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       </section>
 
       {/* Interactive Google Maps & Directions */}
-      <section id="location" className="py-24 px-6 lg:px-12 max-w-7xl mx-auto space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section id="location" className="mx-auto max-w-7xl space-y-12 px-6 py-24 lg:px-12">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-[#0071E3] uppercase tracking-wider">Location</p>
-            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0071E3]">
+              Location
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
               Directions & Map.
             </h2>
-            <p className="text-[#86868B] text-sm">
-              {business.address} · Open daily 10:00 — 22:00
-            </p>
+            <p className="text-sm text-[#86868B]">{business.address} · Open daily 10:00 — 22:00</p>
           </div>
 
           <motion.a
@@ -380,16 +384,16 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             href={googleMapsDirectionsUrl}
             target="_blank"
             rel="noreferrer"
-            className="px-5 py-2.5 rounded-full text-xs font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all flex items-center gap-2 self-start md:self-auto"
+            className="flex items-center gap-2 self-start rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-xs font-medium text-white transition-all hover:bg-white/20 md:self-auto"
           >
-            <Compass className="w-4 h-4 text-[#0071E3]" />
+            <Compass className="h-4 w-4 text-[#0071E3]" />
             <span>Open Navigation</span>
           </motion.a>
         </div>
 
-        <div className="rounded-[32px] overflow-hidden border border-white/[0.08] bg-[#161617] grid lg:grid-cols-12 shadow-2xl">
+        <div className="grid overflow-hidden rounded-[32px] border border-white/[0.08] bg-[#161617] shadow-2xl lg:grid-cols-12">
           {/* Map Frame */}
-          <div className="lg:col-span-8 min-h-[460px] w-full">
+          <div className="min-h-[460px] w-full lg:col-span-8">
             <iframe
               title={`Map - ${business.name}`}
               src={googleMapEmbedUrl}
@@ -403,46 +407,51 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
           </div>
 
           {/* Details Sidebar */}
-          <div className="lg:col-span-4 p-8 sm:p-10 flex flex-col justify-between space-y-8 border-t lg:border-t-0 lg:border-l border-white/[0.08]">
+          <div className="flex flex-col justify-between space-y-8 border-t border-white/[0.08] p-8 sm:p-10 lg:col-span-4 lg:border-l lg:border-t-0">
             <div className="space-y-6">
               <div>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#86868B] block">
+                <span className="block font-mono text-[11px] uppercase tracking-wider text-[#86868B]">
                   Location
                 </span>
-                <p className="text-lg font-semibold text-white mt-1">{business.address}</p>
-                <span className="text-xs text-[#86868B]">{business.district}, Kathmandu Valley</span>
+                <p className="mt-1 text-lg font-semibold text-white">{business.address}</p>
+                <span className="text-xs text-[#86868B]">
+                  {business.district}, Kathmandu Valley
+                </span>
               </div>
 
               <div>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#86868B] block">
+                <span className="block font-mono text-[11px] uppercase tracking-wider text-[#86868B]">
                   Service Hours
                 </span>
-                <p className="text-xs text-stone-200 mt-1">Sun — Fri: 10:00 — 22:00</p>
+                <p className="mt-1 text-xs text-stone-200">Sun — Fri: 10:00 — 22:00</p>
                 <p className="text-xs text-stone-200">Saturday: 09:00 — 22:30</p>
               </div>
 
               {business.phone && (
                 <div>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#86868B] block">
+                  <span className="block font-mono text-[11px] uppercase tracking-wider text-[#86868B]">
                     Telephone
                   </span>
-                  <a href={`tel:${business.phone}`} className="text-sm font-mono text-white hover:text-[#0071E3] transition-colors">
+                  <a
+                    href={`tel:${business.phone}`}
+                    className="font-mono text-sm text-white transition-colors hover:text-[#0071E3]"
+                  >
                     {business.phone}
                   </a>
                 </div>
               )}
             </div>
 
-            <div className="space-y-3 pt-6 border-t border-white/[0.08]">
+            <div className="space-y-3 border-t border-white/[0.08] pt-6">
               <motion.a
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 href={googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3.5 rounded-full text-xs font-semibold bg-[#0071E3] hover:bg-[#0077ED] text-white flex items-center justify-center gap-2 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0071E3] py-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#0077ED]"
               >
-                <Navigation className="w-3.5 h-3.5" />
+                <Navigation className="h-3.5 w-3.5" />
                 <span>Turn-by-Turn Directions</span>
               </motion.a>
 
@@ -450,9 +459,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 href={reservationUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3 rounded-full text-xs font-medium border border-white/10 hover:border-white/20 text-[#86868B] hover:text-white flex items-center justify-center gap-2 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-full border border-white/10 py-3 text-xs font-medium text-[#86868B] transition-colors hover:border-white/20 hover:text-white"
               >
-                <MessageSquare className="w-3.5 h-3.5" />
+                <MessageSquare className="h-3.5 w-3.5" />
                 <span>Chat with Staff</span>
               </a>
             </div>
@@ -461,27 +470,29 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       </section>
 
       {/* Interactive Table Reservation Experience */}
-      <section className="py-20 px-6 lg:px-12 max-w-4xl mx-auto">
-        <SpotlightCard className="p-8 sm:p-12 space-y-8">
+      <section className="mx-auto max-w-4xl px-6 py-20 lg:px-12">
+        <SpotlightCard className="space-y-8 p-8 sm:p-12">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-[#0071E3] uppercase tracking-wider">Reservations</p>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0071E3]">
+              Reservations
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Reserve Your Table.
             </h2>
-            <p className="text-[#86868B] text-sm">
+            <p className="text-sm text-[#86868B]">
               Zero booking charges. Instant WhatsApp confirmation.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-xs text-[#86868B] font-medium block">Party Size</label>
+              <label className="block text-xs font-medium text-[#86868B]">Party Size</label>
               <div className="flex items-center gap-3">
-                {[1, 2, 4, 6, 8].map(count => (
+                {[1, 2, 4, 6, 8].map((count) => (
                   <button
                     key={count}
                     onClick={() => setGuestCount(count)}
-                    className={`flex-1 py-2.5 rounded-xl text-xs font-medium border transition-all ${
+                    className={`flex-1 rounded-xl border py-2.5 text-xs font-medium transition-all ${
                       guestCount === count
                         ? 'border-[#0071E3] bg-[#0071E3]/20 text-white'
                         : 'border-white/10 text-[#86868B] hover:border-white/20'
@@ -494,21 +505,23 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-[#86868B] font-medium block">Preferred Time</label>
+              <label className="block text-xs font-medium text-[#86868B]">Preferred Time</label>
               <div className="grid grid-cols-2 gap-2">
-                {['Lunch (13:00)', 'Evening (18:30)', 'Dinner (20:00)', 'Late Dining'].map(time => (
-                  <button
-                    key={time}
-                    onClick={() => setSelectedTime(time)}
-                    className={`py-2 px-3 rounded-xl text-xs font-medium border text-left transition-all ${
-                      selectedTime === time
-                        ? 'border-[#0071E3] bg-[#0071E3]/20 text-white'
-                        : 'border-white/10 text-[#86868B] hover:border-white/20'
-                    }`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {['Lunch (13:00)', 'Evening (18:30)', 'Dinner (20:00)', 'Late Dining'].map(
+                  (time) => (
+                    <button
+                      key={time}
+                      onClick={() => setSelectedTime(time)}
+                      className={`rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all ${
+                        selectedTime === time
+                          ? 'border-[#0071E3] bg-[#0071E3]/20 text-white'
+                          : 'border-white/10 text-[#86868B] hover:border-white/20'
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -519,23 +532,22 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             href={reservationUrl}
             target="_blank"
             rel="noreferrer"
-            className="w-full py-4 rounded-full font-medium text-sm bg-white text-black hover:bg-[#F5F5F7] flex items-center justify-center gap-2 transition-colors"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-white py-4 text-sm font-medium text-black transition-colors hover:bg-[#F5F5F7]"
           >
             <span>Confirm Booking on WhatsApp</span>
-            <ArrowUpRight className="w-4 h-4" />
+            <ArrowUpRight className="h-4 w-4" />
           </motion.a>
         </SpotlightCard>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.08] py-12 px-6 lg:px-12 text-center text-xs text-[#86868B] space-y-2">
-        <p className="text-white font-medium">{business.name}</p>
+      <footer className="space-y-2 border-t border-white/[0.08] px-6 py-12 text-center text-xs text-[#86868B] lg:px-12">
+        <p className="font-medium text-white">{business.name}</p>
         <p>{business.address}</p>
-        <p className="text-stone-600 text-[11px] pt-4">
+        <p className="pt-4 text-[11px] text-stone-600">
           © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
       </footer>
-
     </div>
   );
 }

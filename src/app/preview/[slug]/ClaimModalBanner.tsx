@@ -2,9 +2,27 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { QrCode, X, ArrowRight, ShieldCheck, Check, Mail, Send, Loader2, Sparkles } from 'lucide-react';
+import {
+  ArrowRight,
+  Check,
+  Loader2,
+  Mail,
+  QrCode,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  X,
+} from 'lucide-react';
 
-export function ClaimModalBanner({ businessName, district, slug }: { businessName: string; district: string; slug?: string }) {
+export function ClaimModalBanner({
+  businessName,
+  district,
+  slug,
+}: {
+  businessName: string;
+  district: string;
+  slug?: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'claim' | 'direct_mail'>('claim');
   const [selectedMethod, setSelectedMethod] = useState<'fonepay' | 'esewa' | 'khalti'>('fonepay');
@@ -12,10 +30,19 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
   // Direct Mail State
   const [recipientEmail, setRecipientEmail] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [mailSentResult, setMailSentResult] = useState<{ success: boolean; simulated?: boolean; message?: string } | null>(null);
+  const [mailSentResult, setMailSentResult] = useState<{
+    success: boolean;
+    simulated?: boolean;
+    message?: string;
+  } | null>(null);
 
   const founderWhatsApp = '9779800000000';
-  const cleanSlug = slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const cleanSlug =
+    slug ||
+    businessName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
   async function handleSendDirectMail(e: React.FormEvent) {
     e.preventDefault();
@@ -66,26 +93,26 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
   return (
     <>
       {/* Restrained Luxury Top Banner */}
-      <div className="sticky top-0 z-50 bg-[#12100E]/95 backdrop-blur-md text-[#F7F4EE] px-4 sm:px-6 py-2.5 flex items-center justify-between text-xs font-mono border-b border-stone-800">
+      <div className="sticky top-0 z-50 flex items-center justify-between border-b border-stone-800 bg-[#12100E]/95 px-4 py-2.5 font-mono text-xs text-[#F7F4EE] backdrop-blur-md sm:px-6">
         <div className="flex items-center gap-3 truncate">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#C5A059] shrink-0" />
-          <span className="text-stone-300 font-medium truncate">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C5A059]" />
+          <span className="truncate font-medium text-stone-300">
             Private Draft for {businessName}
           </span>
-          <span className="hidden md:inline text-stone-500">
+          <span className="hidden text-stone-500 md:inline">
             · Ready for official .com.np domain handover
           </span>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             onClick={() => {
               setActiveTab('direct_mail');
               setIsOpen(true);
             }}
-            className="px-3 py-1 rounded border border-stone-700 bg-stone-900/80 text-stone-300 hover:text-white hover:border-stone-500 font-medium transition-colors text-[11px] inline-flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 rounded border border-stone-700 bg-stone-900/80 px-3 py-1 text-[11px] font-medium text-stone-300 transition-colors hover:border-stone-500 hover:text-white"
           >
-            <Mail className="w-3 h-3 text-[#C5A059]" />
+            <Mail className="h-3 w-3 text-[#C5A059]" />
             <span className="hidden sm:inline">Send Direct Mail</span>
             <span className="sm:hidden">Mail</span>
           </button>
@@ -95,7 +122,7 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
               setActiveTab('claim');
               setIsOpen(true);
             }}
-            className="px-3.5 py-1 rounded border border-[#C5A059] bg-[#C5A059]/10 text-[#C5A059] hover:bg-[#C5A059] hover:text-black font-semibold transition-colors uppercase tracking-wider text-[11px]"
+            className="rounded border border-[#C5A059] bg-[#C5A059]/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#C5A059] transition-colors hover:bg-[#C5A059] hover:text-black"
           >
             Claim Site
           </button>
@@ -104,20 +131,20 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
 
       {/* Action Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#12100E] border border-stone-800 rounded-sm max-w-lg w-full p-6 sm:p-8 space-y-6 text-[#F7F4EE] relative shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg space-y-6 rounded-sm border border-stone-800 bg-[#12100E] p-6 text-[#F7F4EE] shadow-2xl sm:p-8">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-6 text-stone-400 hover:text-white p-1 transition-colors"
+              className="absolute right-6 top-6 p-1 text-stone-400 transition-colors hover:text-white"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
 
             {/* Tab Switcher */}
-            <div className="flex border-b border-stone-800 text-xs font-mono">
+            <div className="flex border-b border-stone-800 font-mono text-xs">
               <button
                 onClick={() => setActiveTab('claim')}
-                className={`pb-3 pr-4 uppercase tracking-wider font-semibold border-b-2 transition-colors ${
+                className={`border-b-2 pb-3 pr-4 font-semibold uppercase tracking-wider transition-colors ${
                   activeTab === 'claim'
                     ? 'border-[#C5A059] text-[#C5A059]'
                     : 'border-transparent text-stone-500 hover:text-stone-300'
@@ -127,13 +154,13 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
               </button>
               <button
                 onClick={() => setActiveTab('direct_mail')}
-                className={`pb-3 px-4 uppercase tracking-wider font-semibold border-b-2 transition-colors inline-flex items-center gap-1.5 ${
+                className={`inline-flex items-center gap-1.5 border-b-2 px-4 pb-3 font-semibold uppercase tracking-wider transition-colors ${
                   activeTab === 'direct_mail'
                     ? 'border-[#C5A059] text-[#C5A059]'
                     : 'border-transparent text-stone-500 hover:text-stone-300'
                 }`}
               >
-                <Mail className="w-3.5 h-3.5" />
+                <Mail className="h-3.5 w-3.5" />
                 2. Confidential Direct Mail
               </button>
             </div>
@@ -142,47 +169,49 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
             {activeTab === 'claim' && (
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-[#C5A059]">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#C5A059]">
                     Bespoke Digital Handover
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-light text-white">
+                  <h3 className="font-serif text-2xl font-light text-white sm:text-3xl">
                     Own the {businessName} Presence
                   </h3>
-                  <p className="text-xs text-stone-400 leading-relaxed font-light">
-                    Launch on your dedicated domain with high-speed hosting, direct WhatsApp reservations, and verified local Google indexing.
+                  <p className="text-xs font-light leading-relaxed text-stone-400">
+                    Launch on your dedicated domain with high-speed hosting, direct WhatsApp
+                    reservations, and verified local Google indexing.
                   </p>
                 </div>
 
-                <div className="p-4 bg-[#0C0A09] border border-stone-800/80 rounded-sm space-y-2 text-xs font-mono">
-                  <div className="flex justify-between items-center text-stone-300">
+                <div className="space-y-2 rounded-sm border border-stone-800/80 bg-[#0C0A09] p-4 font-mono text-xs">
+                  <div className="flex items-center justify-between text-stone-300">
                     <span>Setup & Customization:</span>
-                    <span className="text-white font-semibold">NPR 9,999 (One-time)</span>
+                    <span className="font-semibold text-white">NPR 9,999 (One-time)</span>
                   </div>
-                  <div className="flex justify-between items-center text-stone-300">
+                  <div className="flex items-center justify-between text-stone-300">
                     <span>Managed Cloud Hosting:</span>
-                    <span className="text-white font-semibold">NPR 1,500 / month</span>
+                    <span className="font-semibold text-white">NPR 1,500 / month</span>
                   </div>
-                  <div className="pt-2 border-t border-stone-800/80 text-[10px] text-emerald-400 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Free SSL & Mercantile .com.np domain registration
+                  <div className="flex items-center gap-1 border-t border-stone-800/80 pt-2 text-[10px] text-emerald-400">
+                    <Check className="h-3.5 w-3.5" /> Free SSL & Mercantile .com.np domain
+                    registration
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <Link
                     href={`/preview/${cleanSlug}/onboarding`}
-                    className="w-full py-3 rounded text-xs font-semibold uppercase tracking-widest bg-[#C5A059] text-black hover:bg-[#d4b068] transition-all flex items-center justify-center gap-2"
+                    className="flex w-full items-center justify-center gap-2 rounded bg-[#C5A059] py-3 text-xs font-semibold uppercase tracking-widest text-black transition-all hover:bg-[#d4b068]"
                   >
                     <span>Confirm Interest & Begin Setup</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
 
                   <a
                     href={`https://wa.me/${founderWhatsApp}?text=${encodeURIComponent(
-                      `Namaste! I am the owner of ${businessName}. I reviewed the private website draft and wish to activate the handover!`
+                      `Namaste! I am the owner of ${businessName}. I reviewed the private website draft and wish to activate the handover!`,
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full py-2.5 rounded text-xs font-mono text-stone-400 hover:text-white border border-stone-800 text-center block"
+                    className="block w-full rounded border border-stone-800 py-2.5 text-center font-mono text-xs text-stone-400 hover:text-white"
                   >
                     Or Message Founder on WhatsApp
                   </a>
@@ -195,7 +224,7 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
               <div className="space-y-5">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono tracking-widest uppercase bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30 px-2 py-0.5 rounded">
+                    <span className="rounded border border-[#C5A059]/30 bg-[#C5A059]/20 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[#C5A059]">
                       Confidential Mode
                     </span>
                   </div>
@@ -203,13 +232,14 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
                     Send Direct Proposal to Decision Maker
                   </h3>
                   <p className="text-xs text-stone-400">
-                    Sends a private, high-priority proposal email directly to the business client featuring this live preview URL and interactive 1-click interest confirmation.
+                    Sends a private, high-priority proposal email directly to the business client
+                    featuring this live preview URL and interactive 1-click interest confirmation.
                   </p>
                 </div>
 
                 <form onSubmit={handleSendDirectMail} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-stone-300 mb-2">
+                    <label className="mb-2 block font-mono text-xs uppercase tracking-wider text-stone-300">
                       Client Email Address
                     </label>
                     <input
@@ -218,22 +248,24 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
                       placeholder="owner@business.com"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="w-full bg-[#0C0A09] border border-stone-700 rounded-sm px-4 py-2.5 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-[#C5A059]"
+                      className="w-full rounded-sm border border-stone-700 bg-[#0C0A09] px-4 py-2.5 text-xs text-white placeholder-stone-600 focus:border-[#C5A059] focus:outline-none"
                     />
                   </div>
 
-                  <div className="p-3 bg-[#0C0A09] border border-stone-800 text-[11px] font-mono text-stone-400 space-y-1">
+                  <div className="space-y-1 border border-stone-800 bg-[#0C0A09] p-3 font-mono text-[11px] text-stone-400">
                     <div className="text-stone-300">✓ Sensitivity: Company-Confidential</div>
-                    <div>✓ Embedded 1-click &apos;Yes, I&apos;m Interested&apos; instant setup hook</div>
+                    <div>
+                      ✓ Embedded 1-click &apos;Yes, I&apos;m Interested&apos; instant setup hook
+                    </div>
                     <div>✓ Fallback to Kathmandu Valley local phone concierge</div>
                   </div>
 
                   {mailSentResult && (
                     <div
-                      className={`p-3 rounded text-xs font-mono ${
+                      className={`rounded p-3 font-mono text-xs ${
                         mailSentResult.success
-                          ? 'bg-emerald-950/40 border border-emerald-500/40 text-emerald-300'
-                          : 'bg-red-950/40 border border-red-500/40 text-red-300'
+                          ? 'border border-emerald-500/40 bg-emerald-950/40 text-emerald-300'
+                          : 'border border-red-500/40 bg-red-950/40 text-red-300'
                       }`}
                     >
                       {mailSentResult.message}
@@ -243,16 +275,16 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
                   <button
                     type="submit"
                     disabled={isSending}
-                    className="w-full py-3 rounded text-xs font-semibold uppercase tracking-widest bg-[#C5A059] text-black hover:bg-[#d4b068] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded bg-[#C5A059] py-3 text-xs font-semibold uppercase tracking-widest text-black transition-all hover:bg-[#d4b068] disabled:opacity-50"
                   >
                     {isSending ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         <span>Dispatching Mail...</span>
                       </>
                     ) : (
                       <>
-                        <Send className="w-3.5 h-3.5" />
+                        <Send className="h-3.5 w-3.5" />
                         <span>Send Confidential Direct Mail</span>
                       </>
                     )}

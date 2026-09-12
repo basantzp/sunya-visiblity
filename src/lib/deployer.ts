@@ -11,12 +11,18 @@ export interface DeploymentResult {
   provider: 'vercel' | 'cloudflare' | 'local_multitenant';
 }
 
-export async function deployPreviewSite(slug: string, siteData: Record<string, any>): Promise<DeploymentResult> {
+export async function deployPreviewSite(
+  slug: string,
+  siteData: Record<string, any>,
+): Promise<DeploymentResult> {
   const vercelToken = process.env.VERCEL_API_TOKEN;
   const vercelProjectId = process.env.VERCEL_PROJECT_ID;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005';
 
-  const cleanSubdomain = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+  const cleanSubdomain = slug
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-');
 
   // If Vercel API credentials are provided, register subdomain alias
   if (vercelToken && vercelProjectId && vercelToken !== 'placeholder') {
@@ -25,7 +31,7 @@ export async function deployPreviewSite(slug: string, siteData: Record<string, a
       const res = await fetch(aliasUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${vercelToken}`,
+          Authorization: `Bearer ${vercelToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -42,7 +48,10 @@ export async function deployPreviewSite(slug: string, siteData: Record<string, a
         };
       }
     } catch (err) {
-      console.warn('[Vercel Deployer Warning] Subdomain alias failed, falling back to dynamic route:', err);
+      console.warn(
+        '[Vercel Deployer Warning] Subdomain alias failed, falling back to dynamic route:',
+        err,
+      );
     }
   }
 

@@ -33,7 +33,9 @@ Transparent cost: NPR ${price} one-time setup + NPR 1,500/month managed hosting.
 Would you like to connect your own domain today? Simply reply to this chat!`;
 }
 
-export async function sendWhatsAppOutreach(options: WhatsAppOutreachOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
+export async function sendWhatsAppOutreach(
+  options: WhatsAppOutreachOptions,
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const metaToken = process.env.WHATSAPP_CLOUD_TOKEN;
   const metaPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
@@ -55,7 +57,7 @@ export async function sendWhatsAppOutreach(options: WhatsAppOutreachOptions): Pr
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${metaToken}`,
+        Authorization: `Bearer ${metaToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
