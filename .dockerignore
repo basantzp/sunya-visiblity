@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.husky
+.vscode
+docs
+coverage
+tests
+*.md
+*.log
+.env.local
+.env.*.local
