@@ -7,14 +7,17 @@
  * 5. Saves the full rendered HTML email artifact to outreach/shandar-momo-cold-mail.html
  */
 
-import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
 import { deployPreviewSite } from '../src/lib/deployer';
 import { enrichAndGenerateCopy } from '../src/lib/gemini';
 import { generateColdEmailCopy, sendOutreachEmail } from '../src/lib/mailer';
 import { discoverPlaces } from '../src/lib/places';
 import { resolveTemplateType } from '../src/lib/templates';
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+dotenv.config();
 
 async function main() {
   console.log('🥟 [Shandar Momo Test Runner] Initializing test cycle...\n');
