@@ -167,10 +167,34 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
           price_npr: 'NPR 260',
         },
         {
+          title: 'Iconic Timur Sesame Jhol Momo (झोल मःमः)',
+          description:
+            'Steamed momos submerged in a fragrant, piping-hot bowl of roasted yellow soybean, sesame, and Himalayan timur broth.',
+          price_npr: 'NPR 200',
+        },
+        {
           title: 'Special Chicken Steamed Momo (चिकेन मःमः)',
           description:
             'Tender minced chicken blended with fresh coriander, spring onion, and mountain herbs with mild mint dip.',
           price_npr: 'NPR 240',
+        },
+        {
+          title: 'Fresh Paneer & Garden Veg Momo (पनीर मःमः)',
+          description:
+            'Handmade soft dairy paneer, fresh ginger, shredded valley cabbage, and delicate spring spices.',
+          price_npr: 'NPR 210',
+        },
+        {
+          title: 'Fiery Sadheko Buff Momo (साँधेको मःमः)',
+          description:
+            'Steamed dumplings tossed in cold-pressed mustard oil, green chilies, red onions, cilantro, and roasted cumin.',
+          price_npr: 'NPR 250',
+        },
+        {
+          title: 'Slow-Brewed Kathmandu Masala Chiyā (तातो मसला चिया)',
+          description:
+            'Whole-cream valley milk simmered with fresh crushed ginger, green cardamom, cinnamon, and orthodox tea leaves.',
+          price_npr: 'NPR 50',
         },
       ],
       review_themes: [

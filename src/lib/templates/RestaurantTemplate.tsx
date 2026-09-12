@@ -113,7 +113,42 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
   const googleMapEmbedUrl = `https://maps.google.com/maps?width=100%25&height=500&hl=en&q=${mapQuery}&t=&z=16&ie=UTF8&iwloc=B&output=embed`;
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
-  const tabs = ['All', 'Chef Specials', 'Traditional Plates', 'Brews & Beverages'];
+  const isMomo =
+    business.name.toLowerCase().includes('momo') ||
+    business.category.toLowerCase().includes('momo');
+
+  const tabs = isMomo
+    ? ['All', 'Steamed (बाफ)', 'Pan-Fried (कोथे)', 'Spicy & Jhol', 'Chiyā & Drinks']
+    : ['All', 'Chef Specials', 'Traditional Plates', 'Brews & Beverages'];
+
+  const filteredOfferings = copy.signature_offerings.filter((item) => {
+    if (activeTab === 'All') return true;
+    if (isMomo) {
+      if (activeTab === 'Steamed (बाफ)')
+        return item.title.includes('बाफ') || item.title.toLowerCase().includes('steamed');
+      if (activeTab === 'Pan-Fried (कोथे)')
+        return item.title.includes('कोथे') || item.title.toLowerCase().includes('kothey');
+      if (activeTab === 'Spicy & Jhol')
+        return (
+          item.title.includes('सी') ||
+          item.title.includes('झोल') ||
+          item.title.includes('साँधेको') ||
+          item.title.toLowerCase().includes('chilli') ||
+          item.title.toLowerCase().includes('jhol') ||
+          item.title.toLowerCase().includes('sadheko')
+        );
+      if (activeTab === 'Chiyā & Drinks')
+        return (
+          item.title.includes('चिया') ||
+          item.title.toLowerCase().includes('tea') ||
+          item.title.toLowerCase().includes('brew')
+        );
+    }
+    return true;
+  });
+
+  const displayOfferings =
+    filteredOfferings.length > 0 ? filteredOfferings : copy.signature_offerings;
 
   return (
     <div className="relative min-h-screen bg-black font-sans text-[#F5F5F7] selection:bg-[#0071E3] selection:text-white">
@@ -326,7 +361,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
         {/* Bento Grid with Spotlight Cards */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {copy.signature_offerings.map((item, idx) => (
+          {displayOfferings.map((item, idx) => (
             <SpotlightCard key={idx} className="group flex h-full flex-col justify-between p-8">
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-4">
@@ -359,6 +394,115 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                   <span>Order on WhatsApp</span>
                   <ChevronRight className="h-3.5 w-3.5" />
                 </motion.a>
+              </div>
+            </SpotlightCard>
+          ))}
+        </div>
+      </section>
+
+      {/* Story & Heritage Section */}
+      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-12">
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+          <div className="space-y-6 lg:col-span-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-[#86868B]">
+              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              <span>Generational Craftsmanship</span>
+            </div>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+              {lang === 'en' ? (
+                <>
+                  Rooted in Kathmandu. <br />
+                  <span className="apple-text-gradient">Crafted with Heritage.</span>
+                </>
+              ) : (
+                <>
+                  काठमाडौँको मौलिक स्वाद। <br />
+                  <span className="apple-text-gradient">परम्परागत शुद्धता।</span>
+                </>
+              )}
+            </h2>
+            <p className="text-base leading-relaxed text-[#86868B] sm:text-lg">
+              {copy.about_story}
+            </p>
+            <div className="grid grid-cols-2 gap-4 border-t border-white/[0.08] pt-6 sm:grid-cols-3">
+              <div>
+                <div className="text-2xl font-bold text-white sm:text-3xl">100%</div>
+                <div className="text-xs text-[#86868B]">Fresh Daily Prep</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white sm:text-3xl">4.8 ★</div>
+                <div className="text-xs text-[#86868B]">Google Patron Rating</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white sm:text-3xl">300+</div>
+                <div className="text-xs text-[#86868B]">Daily Happy Patrons</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative lg:col-span-6">
+            <div className="relative overflow-hidden rounded-[32px] border border-white/[0.08] bg-[#161617] p-3 shadow-2xl">
+              <img
+                src={business.photos?.[1] || business.photos?.[0] || heroImage}
+                alt="Craftsmanship"
+                className="aspect-[4/3] w-full rounded-[24px] object-cover"
+              />
+              <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/15 bg-black/70 p-4 backdrop-blur-xl">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                    <Star className="h-5 w-5 fill-amber-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">
+                      Authentic Himalayan Spices
+                    </div>
+                    <div className="text-xs text-stone-400">
+                      Cold-pressed mustard oil & fresh roasted timur
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Patron Praise & Review Themes */}
+      <section className="mx-auto max-w-7xl space-y-12 px-6 py-20 lg:px-12">
+        <div className="max-w-xl space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#0071E3]">
+            Verified Patrons
+          </p>
+          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+            Loved Across the Valley.
+          </h2>
+          <p className="text-sm text-[#86868B]">
+            Grounded in genuine customer experiences from Google Maps reviews.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {copy.review_themes.map((theme, idx) => (
+            <SpotlightCard key={idx} className="flex flex-col justify-between space-y-6 p-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
+                    {theme.sentiment}
+                  </span>
+                </div>
+                <p className="text-base italic leading-relaxed text-stone-300">
+                  &ldquo;{theme.original_testimonial_summary}&rdquo;
+                </p>
+              </div>
+
+              <div className="border-t border-white/[0.06] pt-4">
+                <span className="text-xs font-semibold text-white">{theme.customer_archetype}</span>
+                <span className="block text-[11px] text-stone-500">Kathmandu Valley Regular</span>
               </div>
             </SpotlightCard>
           ))}
@@ -539,6 +683,29 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
           </motion.a>
         </SpotlightCard>
       </section>
+
+      {/* Frequently Asked Questions */}
+      {copy.faqs && copy.faqs.length > 0 && (
+        <section className="mx-auto max-w-4xl px-6 py-20 lg:px-12">
+          <div className="space-y-2 pb-8 text-center">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0071E3]">
+              Need to Know
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Frequently Asked Questions.
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {copy.faqs.map((faq, idx) => (
+              <SpotlightCard key={idx} className="p-6 sm:p-8">
+                <h3 className="text-base font-semibold text-white">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#86868B]">{faq.answer}</p>
+              </SpotlightCard>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="space-y-2 border-t border-white/[0.08] px-6 py-12 text-center text-xs text-[#86868B] lg:px-12">
