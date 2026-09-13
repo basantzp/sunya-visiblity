@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sunya-visibility-app
+    restart: unless-stopped
+    ports:
+      - '3005:3005'
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sunya-visibility-worker
+    restart: unless-stopped
+    command: ['pnpm', 'worker']
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production

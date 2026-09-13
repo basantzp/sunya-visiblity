@@ -34,7 +34,7 @@ async function main() {
   console.log('==========================================\n');
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('[Fatal Error]:', err);
   process.exit(1);
 });

@@ -4,10 +4,10 @@
  * interactive 1-click interest confirmation and immediate transition to onboarding.
  */
 
-import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 import dns from 'dns';
 import { promisify } from 'util';
-import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const resolveMx = promisify(dns.resolveMx);
 
@@ -64,10 +64,15 @@ export function generateColdEmailCopy(opts: OutreachMailOptions) {
   const founderPhone = opts.founderWhatsApp || process.env.FOUNDER_PHONE || '9867333080';
   const founderName = opts.founderName || process.env.FOUNDER_NAME || 'Basant';
   const baseUrl = opts.baseUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005';
-  const slug = opts.slug || opts.businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  
-  const cleanPreviewUrl = opts.previewUrl.startsWith('http') 
-    ? opts.previewUrl 
+  const slug =
+    opts.slug ||
+    opts.businessName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+  const cleanPreviewUrl = opts.previewUrl.startsWith('http')
+    ? opts.previewUrl
     : `${baseUrl}${opts.previewUrl.startsWith('/') ? '' : '/'}${opts.previewUrl}`;
 
   const interestYesUrl = `${baseUrl}/api/leads/interest?slug=${slug}&response=interested&email=${opts.toEmail}`;
@@ -887,11 +892,14 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
       attachments
     };
   } catch (err: any) {
-    console.warn('[Nodemailer Dispatch Fallback]: Live SMTP rejected, falling back to simulated dispatch:', err.message);
+    console.warn(
+      '[Nodemailer Dispatch Fallback]: Live SMTP rejected, falling back to simulated dispatch:',
+      err.message,
+    );
     // Graceful fallback so testing and pipeline are not blocked by invalid credentials
-    return { 
-      success: true, 
-      simulated: true, 
+    return {
+      success: true,
+      simulated: true,
       messageId: `simulated_fallback_${Date.now()}`,
       error: err.message,
       emailPayload: { subject, bodyText, html },

@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'placeholder-key';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -20,7 +23,17 @@ export interface Lead {
   google_maps_url?: string;
   latitude?: number;
   longitude?: number;
-  status: 'discovered' | 'enriched' | 'site_generated' | 'preview_deployed' | 'outreach_queued' | 'outreached' | 'replied' | 'paid' | 'handed_off' | 'archived';
+  status:
+    | 'discovered'
+    | 'enriched'
+    | 'site_generated'
+    | 'preview_deployed'
+    | 'outreach_queued'
+    | 'outreached'
+    | 'replied'
+    | 'paid'
+    | 'handed_off'
+    | 'archived';
   created_at?: string;
   updated_at?: string;
 }

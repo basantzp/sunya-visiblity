@@ -123,9 +123,117 @@ JSON Schema:
  * Deterministic, high-grade Kathmandu localized fallback copy
  */
 function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyResult {
-  const isRestaurant = b.category.toLowerCase().includes('restaurant') || b.category.toLowerCase().includes('momo') || b.category.toLowerCase().includes('cafe');
-  const isSpa = b.category.toLowerCase().includes('spa') || b.category.toLowerCase().includes('wellness') || b.category.toLowerCase().includes('salon');
-  const isBoutique = b.category.toLowerCase().includes('boutique') || b.category.toLowerCase().includes('craft') || b.category.toLowerCase().includes('store');
+  const isMomo = b.name.toLowerCase().includes('momo') || b.category.toLowerCase().includes('momo');
+  const isRestaurant =
+    b.category.toLowerCase().includes('restaurant') || b.category.toLowerCase().includes('cafe');
+  const isSpa =
+    b.category.toLowerCase().includes('spa') ||
+    b.category.toLowerCase().includes('wellness') ||
+    b.category.toLowerCase().includes('salon');
+  const isBoutique =
+    b.category.toLowerCase().includes('boutique') ||
+    b.category.toLowerCase().includes('craft') ||
+    b.category.toLowerCase().includes('store');
+
+  if (isMomo) {
+    return {
+      tagline: 'Authentic Himalayan Momos, Handcrafted Daily in New Road',
+      hero_title: 'Kathmandu’s Signature Momo Corner',
+      hero_subtitle:
+        'Thin delicate wrappers, succulent fillings, and the iconic roasted timur and yellow sesame jhol achar.',
+      about_story: `${b.name} was established with one timeless commitment: serving pure, uncompromisingly delicious momos right in the heart of ${b.district}. What started as a beloved neighborhood secret in Khichapokhari has grown into a daily pilgrimage for valley locals. From our legendary steamed buff momos to crispy golden kothey and fiery wok-tossed C-momos, every plate is prepared fresh with hand-ground Himalayan spices, cold-pressed mustard oil, and genuine valley pride.`,
+      brand_voice: 'Passionate, authentic, appetizing, and proud of New Road heritage',
+      primary_color: '#991B1B',
+      accent_color: '#EA580C',
+      signature_offerings: [
+        {
+          title: 'Special Steamed Buff Momo (बाफ मःमः)',
+          description:
+            'Juicy hand-minced buff wrapped in razor-thin dough, served with piping-hot roasted soybean and timur jhol achar.',
+          price_npr: 'NPR 180',
+        },
+        {
+          title: 'Crispy Pan-Fried Kothey (कोथे मःमः)',
+          description:
+            'Crisped golden on the bottom while steaming tender on top, served with homemade smoky tomato-chili dip.',
+          price_npr: 'NPR 220',
+        },
+        {
+          title: 'Sizzling Spicy Buff C-Momo (सी मःमः)',
+          description:
+            'Golden dumplings tossed in a blazing wok with crunchy bell peppers, red onions, garlic, and fiery chili glaze.',
+          price_npr: 'NPR 260',
+        },
+        {
+          title: 'Iconic Timur Sesame Jhol Momo (झोल मःमः)',
+          description:
+            'Steamed momos submerged in a fragrant, piping-hot bowl of roasted yellow soybean, sesame, and Himalayan timur broth.',
+          price_npr: 'NPR 200',
+        },
+        {
+          title: 'Special Chicken Steamed Momo (चिकेन मःमः)',
+          description:
+            'Tender minced chicken blended with fresh coriander, spring onion, and mountain herbs with mild mint dip.',
+          price_npr: 'NPR 240',
+        },
+        {
+          title: 'Fresh Paneer & Garden Veg Momo (पनीर मःमः)',
+          description:
+            'Handmade soft dairy paneer, fresh ginger, shredded valley cabbage, and delicate spring spices.',
+          price_npr: 'NPR 210',
+        },
+        {
+          title: 'Fiery Sadheko Buff Momo (साँधेको मःमः)',
+          description:
+            'Steamed dumplings tossed in cold-pressed mustard oil, green chilies, red onions, cilantro, and roasted cumin.',
+          price_npr: 'NPR 250',
+        },
+        {
+          title: 'Slow-Brewed Kathmandu Masala Chiyā (तातो मसला चिया)',
+          description:
+            'Whole-cream valley milk simmered with fresh crushed ginger, green cardamom, cinnamon, and orthodox tea leaves.',
+          price_npr: 'NPR 50',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Iconic Flavor',
+          original_testimonial_summary:
+            'Patrons consistently praise the aromatic timur jhol achar and the unmatched juiciness of the fresh dumplings.',
+          customer_archetype: 'Valley Regular',
+        },
+        {
+          sentiment: 'Speed & Freshness',
+          original_testimonial_summary:
+            'Renowned for lightning-fast table service and steaming batches made fresh from morning till night.',
+          customer_archetype: 'New Road Shopper',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Do you offer take-away and bulk party orders?',
+          answer:
+            'Yes! We pack hot fresh momos with extra jars of our signature timur jhol achar for take-away and events.',
+        },
+        {
+          question: 'Where can patrons find parking near New Road / Khichapokhari?',
+          answer:
+            'Two-wheeler parking is available right along the alley, and dedicated multi-level parking is a 3-minute walk away.',
+        },
+      ],
+      local_seo_keywords: [
+        `best momo in ${b.district}`,
+        `shandar momo new road`,
+        `kathmandu jhol momo`,
+        `top rated momo kathmandu`,
+      ],
+      nepali_content: {
+        hero_title: 'काठमाडौँको प्रसिद्ध मौलिक मःमः',
+        tagline: 'ताजा बाफ, क्रिस्पी कोथे र स्वादिलो झोल',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो पुरानो मौलिक स्वाद र उत्कृष्ट आतिथ्यको आनन्द लिनुहोस्।`,
+      },
+    };
+  }
 
   const isParijat = b.name.toLowerCase().includes('parijat') || b.category.toLowerCase().includes('flower') || b.category.toLowerCase().includes('nursery');
   if (isParijat) {
@@ -333,30 +441,67 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
     return {
       tagline: 'Fresh Flavors, Grounded in Kathmandu Tradition',
       hero_title: 'The Neighborhood Table in ' + b.district,
-      hero_subtitle: 'Handmade daily with slow-simmered spices, firewood aroma, and honest Himalayan warmth.',
+      hero_subtitle:
+        'Handmade daily with slow-simmered spices, firewood aroma, and honest Himalayan warmth.',
       about_story: `${b.name} was established with one commitment: serving uncomplicated, deeply satisfying plates right in the heart of ${b.district}. What started as a modest neighborhood recipe has grown into a trusted daily gathering spot for valley residents. Every dish reflects hours of early morning market selection from Asan and Kalimati, honoring heritage spices without shortcuts.`,
       brand_voice: 'Warm, conversational, and proud of local valley heritage',
       primary_color: '#831843',
       accent_color: '#D97706',
       signature_offerings: [
-        { title: 'Special Steamed Kothey Plate', description: 'Pan-crisped dumplings stuffed with tender mountain spices and smoked chili chutney.', price_npr: 'NPR 380' },
-        { title: 'Charcoal Sekuwa & Beaten Rice', description: 'Marinated overnight with timur, mustard oil, and Himalayan rock salt over open charcoal.', price_npr: 'NPR 520' },
-        { title: 'Slow-Brewed Masala Spiced Tea', description: 'Fresh full-cream milk brewed with organic cardamom, cinnamon, and fresh ginger.', price_npr: 'NPR 120' },
+        {
+          title: 'Special Steamed Kothey Plate',
+          description:
+            'Pan-crisped dumplings stuffed with tender mountain spices and smoked chili chutney.',
+          price_npr: 'NPR 380',
+        },
+        {
+          title: 'Charcoal Sekuwa & Beaten Rice',
+          description:
+            'Marinated overnight with timur, mustard oil, and Himalayan rock salt over open charcoal.',
+          price_npr: 'NPR 520',
+        },
+        {
+          title: 'Slow-Brewed Masala Spiced Tea',
+          description:
+            'Fresh full-cream milk brewed with organic cardamom, cinnamon, and fresh ginger.',
+          price_npr: 'NPR 120',
+        },
       ],
       review_themes: [
-        { sentiment: 'Signature Taste', original_testimonial_summary: 'Patrons celebrate the distinct timur-infused chili chutney and consistent steaming freshness.', customer_archetype: 'Food Enthusiast' },
-        { sentiment: 'Atmosphere', original_testimonial_summary: 'Praised by local families for its spotless seating, quick hospitality, and unhurried courtyard breeze.', customer_archetype: 'Local Resident' },
+        {
+          sentiment: 'Signature Taste',
+          original_testimonial_summary:
+            'Patrons celebrate the distinct timur-infused chili chutney and consistent steaming freshness.',
+          customer_archetype: 'Food Enthusiast',
+        },
+        {
+          sentiment: 'Atmosphere',
+          original_testimonial_summary:
+            'Praised by local families for its spotless seating, quick hospitality, and unhurried courtyard breeze.',
+          customer_archetype: 'Local Resident',
+        },
       ],
       faqs: [
-        { question: 'Do you take group table reservations?', answer: 'Yes! Walk-ins are always welcomed, but for groups of 6 or more, advance phone bookings ensure quick seating.' },
-        { question: 'Is parking available near the venue?', answer: `Convenient two-wheeler and four-wheeler parking is accessible within 50 meters of our ${b.district} location.` },
+        {
+          question: 'Do you take group table reservations?',
+          answer:
+            'Yes! Walk-ins are always welcomed, but for groups of 6 or more, advance phone bookings ensure quick seating.',
+        },
+        {
+          question: 'Is parking available near the venue?',
+          answer: `Convenient two-wheeler and four-wheeler parking is accessible within 50 meters of our ${b.district} location.`,
+        },
       ],
-      local_seo_keywords: [`best ${b.category} in ${b.district}`, `${b.name} menu`, `top rated dining kathmandu`],
+      local_seo_keywords: [
+        `best ${b.category} in ${b.district}`,
+        `${b.name} menu`,
+        `top rated dining kathmandu`,
+      ],
       nepali_content: {
         hero_title: 'काठमाडौँको मौलिक स्वाद र न्यानो आतिथ्य',
         tagline: 'हरेक दिन ताजा, सधैं आत्मीय',
-        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो मौलिक स्वादको अनुभव लिनुहोस्।`
-      }
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो मौलिक स्वादको अनुभव लिनुहोस्।`,
+      },
     };
   }
 
@@ -364,30 +509,68 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
     return {
       tagline: 'Ancient Ayurvedic Solace in the Valley',
       hero_title: 'Restore Your Vitality in ' + b.district,
-      hero_subtitle: 'Holistic therapies, cold-pressed Himalayan botanical oils, and dedicated therapist care.',
+      hero_subtitle:
+        'Holistic therapies, cold-pressed Himalayan botanical oils, and dedicated therapist care.',
       about_story: `Tucked away from the frantic hum of valley traffic, ${b.name} provides a restorative sanctuary inspired by centuries of Ayurvedic healing. Our practitioners combine deep herbal steam, traditional marma massage, and therapeutic warm poultices to rejuvenate both tired bodies and busy minds.`,
       brand_voice: 'Serene, grounding, and scientifically attentive',
       primary_color: '#064E3B',
       accent_color: '#10B981',
       signature_offerings: [
-        { title: 'Himalayan Herbal Abhyanga (75 min)', description: 'Full body restorative rhythm with warm herb-infused sesame oil to stimulate circulation.', price_npr: 'NPR 2,800' },
-        { title: 'Patan Deep Tissue Re-alignment', description: 'Focused trigger-point release targeting lumbar tightness and shoulder fatigue.', price_npr: 'NPR 3,400' },
-        { title: 'Wild Botanical Facial Treatment', description: 'Gentle exfoliating scrub using wild high-altitude herbs and cold-pressed apricot nectar.', price_npr: 'NPR 2,200' },
+        {
+          title: 'Himalayan Herbal Abhyanga (75 min)',
+          description:
+            'Full body restorative rhythm with warm herb-infused sesame oil to stimulate circulation.',
+          price_npr: 'NPR 2,800',
+        },
+        {
+          title: 'Patan Deep Tissue Re-alignment',
+          description:
+            'Focused trigger-point release targeting lumbar tightness and shoulder fatigue.',
+          price_npr: 'NPR 3,400',
+        },
+        {
+          title: 'Wild Botanical Facial Treatment',
+          description:
+            'Gentle exfoliating scrub using wild high-altitude herbs and cold-pressed apricot nectar.',
+          price_npr: 'NPR 2,200',
+        },
       ],
       review_themes: [
-        { sentiment: 'Therapist Mastery', original_testimonial_summary: 'Clients frequently note the exceptional attentiveness and technical precision of certified therapists.', customer_archetype: 'Wellness Seeker' },
-        { sentiment: 'Calm Environment', original_testimonial_summary: 'Regarded as a tranquil haven that isolates visitors entirely from city noise.', customer_archetype: 'Working Professional' },
+        {
+          sentiment: 'Therapist Mastery',
+          original_testimonial_summary:
+            'Clients frequently note the exceptional attentiveness and technical precision of certified therapists.',
+          customer_archetype: 'Wellness Seeker',
+        },
+        {
+          sentiment: 'Calm Environment',
+          original_testimonial_summary:
+            'Regarded as a tranquil haven that isolates visitors entirely from city noise.',
+          customer_archetype: 'Working Professional',
+        },
       ],
       faqs: [
-        { question: 'Do I need to book in advance?', answer: 'We strongly suggest booking at least 2 hours prior to your desired session to ensure therapist availability.' },
-        { question: 'What natural oils are used during sessions?', answer: 'We source exclusively chemical-free, cold-pressed oils blended with wild Himalayan herbs.' }
+        {
+          question: 'Do I need to book in advance?',
+          answer:
+            'We strongly suggest booking at least 2 hours prior to your desired session to ensure therapist availability.',
+        },
+        {
+          question: 'What natural oils are used during sessions?',
+          answer:
+            'We source exclusively chemical-free, cold-pressed oils blended with wild Himalayan herbs.',
+        },
       ],
-      local_seo_keywords: [`spa in ${b.district}`, `massage center kathmandu`, `ayurvedic therapy nepal`],
+      local_seo_keywords: [
+        `spa in ${b.district}`,
+        `massage center kathmandu`,
+        `ayurvedic therapy nepal`,
+      ],
       nepali_content: {
         hero_title: 'तनावमुक्त जीवन, प्राकृतिक उपचार',
         tagline: 'आयुर्वेदिक स्पर्शले शरीर र मनलाई नयाँ ऊर्जा',
-        about_snippet: `${b.name} मा प्राकृतिक विधिद्वारा शान्ति र पुनर्ताजगी प्राप्त गर्नुहोस्।`
-      }
+        about_snippet: `${b.name} मा प्राकृतिक विधिद्वारा शान्ति र पुनर्ताजगी प्राप्त गर्नुहोस्।`,
+      },
     };
   }
 
@@ -401,23 +584,58 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
     primary_color: '#1E3A8A',
     accent_color: '#3B82F6',
     signature_offerings: [
-      { title: 'Standard Service Consultation', description: 'Comprehensive diagnostic evaluation tailored specifically to your individual requirements.', price_npr: 'NPR 1,500' },
-      { title: 'Comprehensive Care Package', description: 'End-to-end specialized attention designed for lasting quality and peace of mind.', price_npr: 'NPR 4,500' },
-      { title: 'Priority On-Demand Assistance', description: 'Expedited support with dedicated specialist follow-up.', price_npr: 'NPR 7,000' },
+      {
+        title: 'Standard Service Consultation',
+        description:
+          'Comprehensive diagnostic evaluation tailored specifically to your individual requirements.',
+        price_npr: 'NPR 1,500',
+      },
+      {
+        title: 'Comprehensive Care Package',
+        description:
+          'End-to-end specialized attention designed for lasting quality and peace of mind.',
+        price_npr: 'NPR 4,500',
+      },
+      {
+        title: 'Priority On-Demand Assistance',
+        description: 'Expedited support with dedicated specialist follow-up.',
+        price_npr: 'NPR 7,000',
+      },
     ],
     review_themes: [
-      { sentiment: 'Reliability', original_testimonial_summary: 'Recognized by patrons for transparent quotes, reliable timelines, and meticulous execution.', customer_archetype: 'Long-term Client' },
-      { sentiment: 'Professionalism', original_testimonial_summary: 'Praised for prompt communication and respectful, attentive customer support.', customer_archetype: 'New Client' },
+      {
+        sentiment: 'Reliability',
+        original_testimonial_summary:
+          'Recognized by patrons for transparent quotes, reliable timelines, and meticulous execution.',
+        customer_archetype: 'Long-term Client',
+      },
+      {
+        sentiment: 'Professionalism',
+        original_testimonial_summary:
+          'Praised for prompt communication and respectful, attentive customer support.',
+        customer_archetype: 'New Client',
+      },
     ],
     faqs: [
-      { question: 'How do I get started?', answer: 'Reach out via our direct WhatsApp button or give us a quick call to schedule your first visit.' },
-      { question: 'What are your working hours?', answer: 'We are open Sunday through Friday from 9:30 AM to 6:30 PM.' }
+      {
+        question: 'How do I get started?',
+        answer:
+          'Reach out via our direct WhatsApp button or give us a quick call to schedule your first visit.',
+      },
+      {
+        question: 'What are your working hours?',
+        answer: 'We are open Sunday through Friday from 9:30 AM to 6:30 PM.',
+      },
     ],
-    local_seo_keywords: [`trusted ${b.category} in ${b.district}`, `${b.name} kathmandu`, `best ${b.category} nepal`],
+    local_seo_keywords: [
+      `trusted ${b.category} in ${b.district}`,
+      `${b.name} kathmandu`,
+      `best ${b.category} nepal`,
+    ],
     nepali_content: {
       hero_title: 'विश्वसनीय सेवा, स्थानीय सन्तुष्टि',
       tagline: 'तपाईंको आवश्यकतामा हाम्रो पूर्ण समर्पण',
-      about_snippet: `${b.name} द्वारा गुणस्तरीय सेवा प्रदान गर्न हामी सधैं तत्पर छौं।`
-    }
+      about_snippet: `${b.name} द्वारा गुणस्तरीय सेवा प्रदान गर्न हामी सधैं तत्पर छौं।`,
+    },
   };
 }

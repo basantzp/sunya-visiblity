@@ -1,0 +1,16 @@
+# Dependencies & Package Managers
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Build & Compilation Artifacts
+.next/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE & Tooling Metadata
+.reticle/
+.husky/

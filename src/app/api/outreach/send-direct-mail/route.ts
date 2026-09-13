@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     if (!toEmail || !businessName) {
       return NextResponse.json(
         { error: 'Missing required parameters: toEmail and businessName' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     console.error('[API Send Direct Mail Error]:', err);
     return NextResponse.json(
       { error: err.message || 'Internal dispatch failure' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

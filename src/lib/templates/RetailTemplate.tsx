@@ -2,18 +2,18 @@
 
 import React, { useState } from 'react';
 import {
-  Phone,
-  MapPin,
-  ShoppingBag,
-  Star,
-  MessageSquare,
   ArrowUpRight,
-  Globe,
-  Shield,
-  Sparkles,
-  ChevronRight,
   CheckCircle2,
-  PackageCheck
+  ChevronRight,
+  Globe,
+  MapPin,
+  MessageSquare,
+  PackageCheck,
+  Phone,
+  Shield,
+  ShoppingBag,
+  Sparkles,
+  Star,
 } from 'lucide-react';
 
 interface TemplateProps {
@@ -33,7 +33,11 @@ interface TemplateProps {
     hero_subtitle: string;
     about_story: string;
     signature_offerings: Array<{ title: string; description: string; price_npr?: string }>;
-    review_themes: Array<{ sentiment: string; original_testimonial_summary: string; customer_archetype: string }>;
+    review_themes: Array<{
+      sentiment: string;
+      original_testimonial_summary: string;
+      customer_archetype: string;
+    }>;
     nepali_content: { hero_title: string; tagline: string; about_snippet: string };
   };
 }
@@ -47,13 +51,13 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
   const cleanPhone = (business.phone || '').replace(/[^0-9]/g, '');
   const targetPhone = cleanPhone.length >= 7 ? `977${cleanPhone}` : '9779867333080';
   const whatsappCatalogUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(
-    `Namaste ${business.name}! I would like to view your latest catalog and prices.`
+    `Namaste ${business.name}! I would like to view your latest catalog and prices.`,
   )}`;
 
   return (
-    <div className="min-h-screen bg-[#0d0d11] text-stone-100 font-sans selection:bg-amber-400 selection:text-black relative overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#0d0d11] font-sans text-stone-100 selection:bg-amber-400 selection:text-black">
       {/* Background Accent */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="pointer-events-none absolute right-1/4 top-0 -z-10 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
 
       {/* Editorial Luxury Header */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#0d0d11]/90 border-b border-white/10 px-4 sm:px-6 py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
@@ -76,7 +80,7 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
             onClick={() => setLang(l => (l === 'en' ? 'np' : 'en'))}
             className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 border border-white/15 rounded-xl text-stone-300 hover:text-white bg-white/5 transition-colors"
           >
-            <Globe className="w-3.5 h-3.5" />
+            <Globe className="h-3.5 w-3.5" />
             <span>{lang === 'en' ? 'नेपाली' : 'English'}</span>
           </button>
 
@@ -86,7 +90,7 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 rounded-xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-stone-950 shadow-lg shadow-amber-500/20 hover:scale-[1.02] transition-transform text-xs"
           >
-            <ShoppingBag className="w-3.5 h-3.5 fill-stone-950" />
+            <ShoppingBag className="h-3.5 w-3.5 fill-stone-950" />
             <span>Inquire Catalog</span>
           </a>
         </div>
@@ -123,9 +127,9 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
               rel="noreferrer"
               className="w-full sm:w-auto justify-center px-6 py-3.5 sm:py-4 rounded-2xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 text-stone-950 flex items-center gap-2 shadow-xl shadow-amber-500/25 hover:scale-105 transition-all"
             >
-              <MessageSquare className="w-4 h-4 fill-stone-950" />
+              <MessageSquare className="h-4 w-4 fill-stone-950" />
               <span>Direct WhatsApp Orders</span>
-              <ArrowUpRight className="w-4 h-4" />
+              <ArrowUpRight className="h-4 w-4" />
             </a>
 
             <a
@@ -155,8 +159,8 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
           </div>
         </div>
 
-        <div className="lg:col-span-6 relative">
-          <div className="glass-card-gold p-2 rounded-3xl overflow-hidden shadow-2xl animate-float-slow">
+        <div className="relative lg:col-span-6">
+          <div className="glass-card-gold animate-float-slow overflow-hidden rounded-3xl p-2 shadow-2xl">
             <img
               src={heroImage}
               alt={business.name}
@@ -186,22 +190,24 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Fresh Bouquets & Living Collections</h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {copy.signature_offerings.map((item, idx) => (
             <div
               key={idx}
-              className="glass-card hover:border-amber-500/40 p-6 rounded-3xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between"
+              className="glass-card flex flex-col justify-between rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/40"
             >
               <div className="space-y-3">
-                <div className="flex justify-between items-start gap-4">
-                  <h3 className="font-bold text-white text-lg">{item.title}</h3>
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-lg font-bold text-white">{item.title}</h3>
                   {item.price_npr && (
-                    <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    <span className="rounded-full border border-amber-500/30 bg-amber-500/15 px-3 py-1 text-xs font-extrabold text-amber-300">
                       {item.price_npr}
                     </span>
                   )}
                 </div>
-                <p className="text-stone-400 text-xs sm:text-sm leading-relaxed">{item.description}</p>
+                <p className="text-xs leading-relaxed text-stone-400 sm:text-sm">
+                  {item.description}
+                </p>
               </div>
 
               <div className="pt-6 mt-6 border-t border-white/[0.06] flex items-center justify-between">
@@ -215,7 +221,7 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+                  className="flex items-center gap-1 text-xs font-bold text-amber-400 transition-colors hover:text-amber-300"
                 >
                   <span>Order via WhatsApp</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -300,8 +306,10 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/10 text-center text-xs text-stone-500">
-        <p>© {new Date().getFullYear()} {business.name} · {business.district}, Kathmandu Valley.</p>
+      <footer className="border-t border-white/10 px-6 py-12 text-center text-xs text-stone-500">
+        <p>
+          © {new Date().getFullYear()} {business.name} · {business.district}, Kathmandu Valley.
+        </p>
       </footer>
     </div>
   );

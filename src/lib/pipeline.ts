@@ -3,13 +3,13 @@
  * Orchestrates Discovery -> Enrichment -> Site Generation -> Deployment -> Outreach -> Health Check.
  */
 
-import { discoverPlaces, GooglePlaceResult } from './places';
-import { enrichAndGenerateCopy } from './gemini';
-import { resolveTemplateType } from './templates';
 import { deployPreviewSite } from './deployer';
+import { enrichAndGenerateCopy } from './gemini';
 import { sendOutreachEmail } from './mailer';
-import { sendWhatsAppOutreach } from './whatsapp';
+import { discoverPlaces, GooglePlaceResult } from './places';
 import { supabase } from './supabaseClient';
+import { resolveTemplateType } from './templates';
+import { sendWhatsAppOutreach } from './whatsapp';
 
 export interface PipelineExecutionOptions {
   category?: string;
@@ -26,7 +26,9 @@ export interface PipelineSummary {
   errors: string[];
 }
 
-export async function runAgencyPipeline(opts: PipelineExecutionOptions = {}): Promise<PipelineSummary> {
+export async function runAgencyPipeline(
+  opts: PipelineExecutionOptions = {},
+): Promise<PipelineSummary> {
   const summary: PipelineSummary = {
     discovered: 0,
     enriched: 0,
@@ -50,7 +52,9 @@ export async function runAgencyPipeline(opts: PipelineExecutionOptions = {}): Pr
   for (const place of places) {
     try {
       // Step 2: Enrichment Engine (Google TOS-compliant theme extraction)
-      console.log(`[Step 2 - Enrichment] Synthesizing authentic voice for: ${place.name} (${place.district})...`);
+      console.log(
+        `[Step 2 - Enrichment] Synthesizing authentic voice for: ${place.name} (${place.district})...`,
+      );
       const copy = await enrichAndGenerateCopy({
         name: place.name,
         category: place.category,
@@ -63,7 +67,10 @@ export async function runAgencyPipeline(opts: PipelineExecutionOptions = {}): Pr
 
       // Step 3: Template Assignment & Generation
       const templateType = resolveTemplateType(place.category);
-      const slug = place.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const slug = place.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
 
       // Step 4: Preview Deployment
       const deployment = await deployPreviewSite(slug, { business: place, copy, templateType });
