@@ -15,7 +15,7 @@ const sans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Sunya Visibility — Bespoke Digital Presences for Kathmandu Valley',
+  title: 'Sunya — Bespoke Digital Presences for Kathmandu Valley',
   description: 'Editorial web craftsmanship for exceptional dining and neighborhood establishments across Kathmandu, Lalitpur, and Bhaktapur.',
 };
 

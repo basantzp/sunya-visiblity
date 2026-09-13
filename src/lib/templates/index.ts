@@ -13,7 +13,7 @@ export function resolveTemplateType(category: string): TemplateType {
   if (cat.includes('spa') || cat.includes('salon') || cat.includes('wellness') || cat.includes('massage') || cat.includes('ayurveda') || cat.includes('beauty')) {
     return 'wellness';
   }
-  if (cat.includes('boutique') || cat.includes('craft') || cat.includes('store') || cat.includes('shop') || cat.includes('clothing') || cat.includes('jewelry') || cat.includes('pottery')) {
+  if (cat.includes('boutique') || cat.includes('craft') || cat.includes('store') || cat.includes('shop') || cat.includes('flower') || cat.includes('flora') || cat.includes('nursery') || cat.includes('clothing') || cat.includes('jewelry') || cat.includes('pottery')) {
     return 'retail';
   }
   return 'services';

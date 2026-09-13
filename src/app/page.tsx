@@ -67,11 +67,11 @@ export default function AgencyHomePage() {
       <nav className="border-b border-slate-800/80 px-6 py-4 backdrop-blur bg-slate-950/80 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-white text-sm shadow-md shadow-blue-500/20">
-              SV
+            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-1.5 shadow-md shadow-blue-500/10">
+              <img src="/sunya-mark-white.png" alt="Sunya" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight text-white">Sunya Visibility</span>
+              <span className="font-extrabold text-base tracking-tight text-white">Sunya</span>
               <span className="hidden sm:inline-block ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                 Kathmandu Valley
               </span>
@@ -249,7 +249,7 @@ export default function AgencyHomePage() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-slate-800 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} Sunya Visibility · Kathmandu Valley Autonomous Agency</p>
+        <p>© {new Date().getFullYear()} Sunya · Kathmandu Valley Autonomous Agency</p>
       </footer>
     </div>
   );

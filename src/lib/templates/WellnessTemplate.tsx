@@ -54,7 +54,7 @@ export function WellnessTemplate({ business, copy }: TemplateProps) {
     'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80';
 
   const cleanPhone = (business.phone || '').replace(/[^0-9]/g, '');
-  const targetPhone = cleanPhone.length >= 7 ? `977${cleanPhone}` : '9779800000000';
+  const targetPhone = cleanPhone.length >= 7 ? `977${cleanPhone}` : '9779867333080';
   const whatsappBookingUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(
     `Namaste ${business.name}! I would like to schedule an appointment for ${selectedService}.`
   )}`;

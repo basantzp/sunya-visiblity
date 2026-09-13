@@ -50,15 +50,17 @@ export interface EnrichedCopyResult {
 }
 
 export async function enrichAndGenerateCopy(business: BusinessInputForEnrichment): Promise<EnrichedCopyResult> {
-  if (!genAI || !apiKey || apiKey === 'placeholder') {
-    console.log('[Gemini Enrichment] No GEMINI_API_KEY found, generating authentic Kathmandu fallback copy.');
+  const isZeroFees = process.env.ZERO_API_FEES === 'true' || !genAI || !apiKey || apiKey === 'placeholder';
+
+  if (isZeroFees) {
+    console.log('⚡ [Zero-Fee Copywriting Engine] Generating authentic Kathmandu localized copy (Cost: NPR 0.00 / $0.00).');
     return getFallbackEnrichedCopy(business);
   }
 
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   const prompt = `
-You are the master local-business copywriter for Sunya Visibility, a bespoke agency in Kathmandu, Nepal.
+You are the master local-business copywriter for Sunya, a bespoke agency in Kathmandu, Nepal.
 Write high-converting, deeply authentic website copy for this real local business:
 
 Business Name: ${business.name}
@@ -124,6 +126,208 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
   const isRestaurant = b.category.toLowerCase().includes('restaurant') || b.category.toLowerCase().includes('momo') || b.category.toLowerCase().includes('cafe');
   const isSpa = b.category.toLowerCase().includes('spa') || b.category.toLowerCase().includes('wellness') || b.category.toLowerCase().includes('salon');
   const isBoutique = b.category.toLowerCase().includes('boutique') || b.category.toLowerCase().includes('craft') || b.category.toLowerCase().includes('store');
+
+  const isParijat = b.name.toLowerCase().includes('parijat') || b.category.toLowerCase().includes('flower') || b.category.toLowerCase().includes('nursery');
+  if (isParijat) {
+    return {
+      tagline: 'Kathmandu Valley’s Freshest Blooms & Living Greenery',
+      hero_title: 'Handcrafted Floral Art & Living Plants in Sankhamul',
+      hero_subtitle: 'Bespoke Dutch rose & lily bouquets, daily temple devotional garlands, and lush air-purifying houseplants delivered fresh across Kathmandu & Lalitpur.',
+      about_story: `${b.name} brings floral vitality, fragrant warmth, and tranquil botanical greenery to homes, ceremonial gatherings, and sacred spaces throughout Kathmandu Valley. Situated along Sankhamul Marg opposite the green riverside park corridor, our artisans curate daily morning harvests of fresh local and imported cut flowers, hand-tied celebration bouquets, and conditioned indoor houseplants that thrive in valley homes.`,
+      brand_voice: 'Fresh, vibrant, artistic, fragrant, and deeply rooted in Kathmandu botanical heritage',
+      primary_color: '#064E3B', // Lush Emerald
+      accent_color: '#F59E0B', // Warm Floral Gold
+      signature_offerings: [
+        { title: 'Signature Royal Rose & Lily Hand Bouquet (रोयल गुलाब तथा लिली बुके)', description: 'Hand-tied arrangement of long-stem red Dutch roses, fragrant white Oriental lilies, and fresh eucalyptus in luxury matte wrap.', price_npr: 'NPR 1,500' },
+        { title: 'Daily Temple Puja Garland & Lotus Basket (नित्य पूजा सयपत्री तथा कमलको टोकरी)', description: 'Freshly threaded orange marigolds, makhamali garlands, and pristine morning lotus buds for home altars and valley temples.', price_npr: 'NPR 450' },
+        { title: 'Exotic Monstera Deliciosa & Ceramic Planter (मोन्स्टेरा इन्डोर प्लान्ट र गमला सेट)', description: 'Lush fenestrated Swiss cheese houseplant conditioned for valley indoor climates, potted in artisanal handcrafted ceramic.', price_npr: 'NPR 1,200' },
+        { title: 'Celebration & Birthday Luxury Floral Basket (जन्मदिन र वार्षिकोत्सव गिफ्ट बास्केट)', description: 'Curated seasonal mix of sunflowers, carnations, baby’s breath, and premium Ferrero chocolates in an artisan woven basket.', price_npr: 'NPR 2,500' },
+        { title: 'Ceremonial Wedding Mandap & Bridal Car Floral Decor (विवाह मण्डप तथा गाडी सजावट)', description: 'Grand seasonal floral styling for wedding vehicles and bespoke mandap arch arrangements curated for valley festivities.', price_npr: 'NPR 12,000' },
+      ],
+      review_themes: [
+        { sentiment: 'Morning Dew Freshness', original_testimonial_summary: 'Patrons consistently highlight that bouquets remain vibrant and fragrant days longer than typical street-side flower vendors.', customer_archetype: 'Gift Buyer' },
+        { sentiment: 'Prompt Sankhamul & Valley Delivery', original_testimonial_summary: 'Celebrated across Kathmandu and Lalitpur for rapid, careful same-day doorstep deliveries for urgent anniversaries and puja occasions.', customer_archetype: 'Neighborhood Regular' },
+        { sentiment: 'Reddit r/Nepal & Facebook Group Praise', original_testimonial_summary: 'Frequently recommended on r/Nepal and Kathmandu lifestyle groups as the most authentic, reliable floral and nursery destination along Sankhamul Marg.', customer_archetype: 'Online Community Patron' },
+      ],
+      faqs: [
+        { question: 'Do you provide same-day floral bouquet delivery across Kathmandu and Lalitpur?', answer: 'Yes! Orders placed before 4:00 PM via WhatsApp receive guaranteed same-day hand delivery anywhere in the valley.' },
+        { question: 'Where in Sankhamul are you located?', answer: 'We are situated along Sankhamul Marg, opposite the riverside park corridor and a 2-minute walk from the Sankhamul Bridge.' },
+        { question: 'Can you customize bouquets for anniversaries and weddings?', answer: 'Absolutely. Message us directly on WhatsApp with your preferred color palette and message card details.' },
+      ],
+      local_seo_keywords: ['flower shop sankhamul kathmandu', 'parijat flower house sankhamul', 'best florist near baneshwor', 'fresh flower bouquet delivery kathmandu', 'indoor plant nursery sankhamul'],
+      nepali_content: {
+        hero_title: 'पारिजात पुष्प गृह — शंखमुलमा ताजा फूल, बुके र सुन्दर इन्डोर प्लान्ट्स',
+        tagline: 'हरेक अवसरलाई स्मरणीय बनाउने ताजा सुगन्धित फूलहरु',
+        about_snippet: 'शंखमुल पार्क नजिकै दैनिक पूजा, विवाह, उत्सव तथा उपहारका लागि उत्कृष्ट ताजा फूल र बोटबिरुवाहरु उपलब्ध गराउँदै।'
+      }
+    };
+  }
+
+  const isSandar = b.name.toLowerCase().includes('sandar');
+  if (isSandar) {
+    return {
+      tagline: 'Kathmandu’s Iconic Timur Momo, Steamed Fresh Daily',
+      hero_title: 'The Legendary Taste of Sankhamul',
+      hero_subtitle: 'Hand-pleated buffalo and chicken momos paired with Kathmandu’s most addictive fire-roasted timur chutney. Steaming non-stop in Sankhamul.',
+      about_story: `${b.name} stands as an undisputed culinary landmark of Sankhamul. Built on generations of dedication to honest flavor, our kitchen serves hundreds of bustling plates every single day to students, neighborhood families, and momo pilgrims from across Kathmandu and Lalitpur. We source only fresh, quality cuts, finely minced and seasoned with authentic mountain spices, wrapped thin, and steamed to juicy perfection.`,
+      brand_voice: 'Bold, historic, welcoming, and unapologetically flavorful',
+      primary_color: '#991B1B', // Deep Chilli Red
+      accent_color: '#D97706', // Warm Amber
+      signature_offerings: [
+        { title: 'Signature Buff Steamed Momo (शानदार बफ मःमः - NPR 160)', description: '10 juicy hand-pleated dumplings with spiced buffalo mince and our legendary fiery timur-tomato paste.', price_npr: 'NPR 160' },
+        { title: 'Spicy Buff C-Momo (सी मःमः - NPR 210)', description: 'Golden crisped dumplings tossed in a blazing wok with green capsicum, charred onions, and fresh hot chilies.', price_npr: 'NPR 210' },
+        { title: 'Chicken Steamed & Jhol Momo (चिकेन झोल मःमः - NPR 240)', description: 'Tender chicken dumplings steeped in our slow-simmered, tangy-nutty roasted sesame and soybean jhol broth.', price_npr: 'NPR 240' },
+        { title: 'Fresh Veg Steamed Paneer Momo (NPR 180)', description: 'Finely minced garden greens, cabbage, and soft dairy paneer wrapped in delicate dough with mild mountain herbs.', price_npr: 'NPR 180' },
+        { title: 'Extra Signature Timur Chutney Jar (NPR 40)', description: 'Sandar’s famous house-ground spicy chutney jar prepared with roasted Himalayan timur and ripe tomatoes.', price_npr: 'NPR 40' },
+      ],
+      review_themes: [
+        { sentiment: 'The Fiery Timur Achar', original_testimonial_summary: 'Patrons consistently rank the fiery timur-tomato chutney as unmatched anywhere in Kathmandu Valley.', customer_archetype: 'Local Foodie' },
+        { sentiment: 'Sankhamul Daily Rush', original_testimonial_summary: 'Celebrated for piping-hot steamers, generous meat filling, and lightning-fast takeaway packaging.', customer_archetype: 'Evening Commuter' },
+        { sentiment: 'Reddit r/Nepal & Facebook Foodies Cult Following', original_testimonial_summary: 'Frequently voted on r/Nepal and Kathmandu foodie groups as an absolute legendary momo spot for its authentic spice balance and fiery timur dip.', customer_archetype: 'Food Connoisseur' },
+      ],
+      faqs: [
+        { question: 'Where in Sankhamul are you located?', answer: 'We are situated along Sankhamul Marg, within a 2-minute walk from Sankhamul Bridge connecting Kathmandu and Lalitpur.' },
+        { question: 'Can I order advance parcel takeaways on WhatsApp?', answer: 'Yes! Tap our WhatsApp button to place your order in advance and skip the evening queue for hot takeaway.' },
+        { question: 'What are your opening hours?', answer: 'We serve hot momos daily from 11:00 AM to 8:30 PM.' },
+      ],
+      local_seo_keywords: ['sandar momo sankhamul', 'best momo in sankhamul kathmandu', 'sandar momo menu price', 'famous timur momo kathmandu'],
+      nepali_content: {
+        hero_title: 'शानदार मःमः — शंखमुलको मौलिक र ऐतिहासिक स्वाद',
+        tagline: 'काठमाडौँको प्रख्यात पिरो टिमुर अचार र ताजा मःमः',
+        about_snippet: 'शंखमुल पुल नजिकै दशकौंदेखि लाखौं ग्राहकको मन जित्न सफल शानदार मःमःमा यहाँहरुलाई हार्दिक स्वागत छ।'
+      }
+    };
+  }
+
+  const isHonacha = b.name.toLowerCase().includes('honacha');
+  if (isHonacha) {
+    return {
+      tagline: 'Generations of Authentic Newari Taste Behind Krishna Mandir',
+      hero_title: 'Patan’s Living Newari Heritage',
+      hero_subtitle: 'Crispy Wo (Bara), spiced buffalo Choila, and slow-simmered Aalu Tama prepared over traditional iron griddles since 1936.',
+      about_story: 'Tucked directly behind Krishna Mandir in historic Patan Durbar Square, Honacha has stood for nearly a century as the heart of traditional Newari snacking. Established by the late Krishna Govinda Byanjankar in 1936, the eatery still uses age-old charcoal griddles and mustard-oil seasoning to craft unbeatable Choila, Keema Bara, and spicy potato stews beloved by generations of Lalitpur locals.',
+      brand_voice: 'Ancient, proud, communal, and steeped in Patan cultural heritage',
+      primary_color: '#7C2D12',
+      accent_color: '#D97706',
+      signature_offerings: [
+        { title: 'Spiced Buff Choila (होनचा छोइला)', description: 'Tender buffalo meat grilled on iron plates, spiced with roasted mustard oil, garlic, and fresh ground green chilies.', price_npr: 'NPR 150' },
+        { title: 'Crispy Minced Buff & Egg Wo (अन्डा र किमा वः)', description: 'Traditional black-lentil pancake topped with savory minced meat and egg, pan-seared to a golden crunch.', price_npr: 'NPR 120' },
+        { title: 'Slow-Simmered Aalu Tama Bodi (आलु तामा)', description: 'Fragrant sour and savory soup of bamboo shoots, black-eyed beans, and potatoes cooked with local spices.', price_npr: 'NPR 80' },
+        { title: 'Special Local Chyang (मौलिक छ्याङ)', description: 'Fermented sweet rice beverage served cold in traditional earthen clay bowls.', price_npr: 'NPR 90' },
+      ],
+      review_themes: [
+        { sentiment: 'Historic Newari Taste', original_testimonial_summary: 'Patrons celebrate the unchanged, authentic generational flavor of Choila and Bara prepared right on ancient iron griddles.', customer_archetype: 'Heritage Enthusiast' },
+        { sentiment: 'Mangal Bazaar Landmark', original_testimonial_summary: 'An iconic must-visit spot in Patan Durbar Square offering fast, authentic hospitality and unmatched Newari ambiance.', customer_archetype: 'Local Regular' },
+      ],
+      faqs: [
+        { question: 'Where in Patan are you located?', answer: 'We are situated right behind Krishna Mandir inside Patan Durbar Square, Mangal Bazaar, Lalitpur.' },
+        { question: 'What are your opening hours?', answer: 'We serve hot Newari khaja daily from 8:30 AM to 7:30 PM.' },
+        { question: 'Can we order takeaway parcels?', answer: 'Yes, quick takeaway parcels for Choila, Bara, and Chiura are prepared fresh on request.' },
+      ],
+      local_seo_keywords: ['honacha patan', 'best newari khaja patan durbar square', 'honacha bara choila', 'famous newari restaurant lalitpur'],
+      nepali_content: {
+        hero_title: 'होनचा — पाटनको ऐतिहासिक र मौलिक नेवारी खाजा घर',
+        tagline: 'वि.सं. १९९३ देखि कृष्ण मन्दिर पछाडिको मौलिक स्वाद',
+        about_snippet: 'पाटन दरबार क्षेत्रको ऐतिहासिक पहिचान होनचामा यहाँहरुलाई हार्दिक स्वागत छ। पुस्तौंदेखिको मौलिक स्वादको आनन्द लिनुहोस्।'
+      }
+    };
+  }
+
+  const isThakkhola = b.name.toLowerCase().includes('thakkhola');
+  if (isThakkhola) {
+    return {
+      tagline: 'Authentic Mustang Flavors & Charred Sekuwa in Baneshwor',
+      hero_title: 'The Heritage Thakali Table of Baneshwor',
+      hero_subtitle: 'Fragrant Jimbu-tempered lentils, organic buckwheat dhindo, and tender charcoal sekuwa served with genuine mountain warmth.',
+      about_story: 'Located along Madan Bhandari Marg in New Baneshwor, Thakkhola Thakali Kitchen brings the unhurried warmth of the Annapurna and Mustang valleys to bustling Kathmandu. Our kitchen cooks with authentic mountain seasonings—sourcing wild Jimbu, Timur, and organic black lentils directly from high-altitude farmers to create Kathmandu’s most dependable comfort meal.',
+      brand_voice: 'Hearty, comforting, grounded, and generous',
+      primary_color: '#9A3412',
+      accent_color: '#EAB308',
+      signature_offerings: [
+        { title: 'Mustang Royal Thakali Thali (मुस्ताङ थकाली खाना)', description: 'Fluffy local rice served with black dal tempered in wild Jimbu ghee, gundruk sandheko, radish pickle, and tender mutton curry.', price_npr: 'NPR 480' },
+        { title: 'Charcoal Woodfire Mutton Sekuwa (खसीको सेकुवा)', description: 'Tender goat meat cubes marinated overnight in ginger, garlic, and Himalayan rock salt, skewered over glowing charcoal.', price_npr: 'NPR 560' },
+        { title: 'Buckwheat Dhindo Set with Village Chicken (ढिँडो र लोकल कुखुरा)', description: 'Traditional stone-ground buckwheat porridge served with spicy country chicken gravy and clarified cow ghee.', price_npr: 'NPR 520' },
+      ],
+      review_themes: [
+        { sentiment: 'Mustang Authenticity', original_testimonial_summary: 'Diners frequently praise the authentic Jimbu aroma, unlimited thali refills, and exceptional mutton curry tenderness.', customer_archetype: 'Family Diner' },
+        { sentiment: 'Warm Hospitality', original_testimonial_summary: 'Regarded as one of New Baneshwor’s cleanest and most welcoming dining destinations for quick or leisurely meals.', customer_archetype: 'Working Professional' },
+      ],
+      faqs: [
+        { question: 'Where in New Baneshwor are you located?', answer: 'We are on Madan Bhandari Marg, within walking distance of Eyeplex Mall and Baneshwor Chowk.' },
+        { question: 'Do you offer unlimited refills on Thakali Thali?', answer: 'Yes! Dal, rice, vegetables, and our signature chutneys are served with complimentary refills.' },
+      ],
+      local_seo_keywords: ['thakkhola new baneshwor', 'best thakali in baneshwor', 'thakali khana kathmandu', 'baneshwor sekuwa corner'],
+      nepali_content: {
+        hero_title: 'थक्खोला थकाली किचन — बानेश्वरमा मुस्ताङको मौलिक स्वाद',
+        tagline: 'जिम्बुले झानेको दाल र ताजा घिउको असली सुगन्ध',
+        about_snippet: 'नयाँ बानेश्वरमा मुस्ताङी स्वाद र परम्परागत आतिथ्यताको उत्कृष्ट संगम, थक्खोला थकालीमा स्वागत छ।'
+      }
+    };
+  }
+
+  const isKarma = b.name.toLowerCase().includes('karma');
+  if (isKarma) {
+    return {
+      tagline: 'Single-Origin Himalayan Arabica, Roasted with Purpose',
+      hero_title: 'Jhamsikhel’s Artisanal Coffee Sanctuary',
+      hero_subtitle: 'Hand-dripped single-estate Nepali coffees, small-batch ethical beans, and a tranquil courtyard in the heart of Jhamel.',
+      about_story: 'Concealed down the quiet bylanes of Jhamsikhel, Karma Coffee is an ode to Nepal’s specialty coffee revolution. We partner directly with smallholder farming families in Nuwakot, Gulmi, and Sindhupalchok to curate high-altitude Arabica cherries roasted in micro-batches right here in Lalitpur. Every cup poured supports local potteries, eco-crafts, and sustainable agriculture.',
+      brand_voice: 'Mindful, artisanal, quiet, and deeply community-rooted',
+      primary_color: '#451A03',
+      accent_color: '#D97706',
+      signature_offerings: [
+        { title: 'Single-Origin Nuwakot V60 Pour-Over', description: 'Lightly roasted high-grown Arabica highlighting tasting notes of mountain citrus, dark chocolate, and roasted hazelnut.', price_npr: 'NPR 320' },
+        { title: 'Himalayan Honey Cold Brew', description: 'Slow-steeped for 18 hours in cold filtered spring water and lightly kissed with organic wild honey from Solukhumbu.', price_npr: 'NPR 340' },
+        { title: 'Cortado in Artisanal Earthen Ceramic', description: 'Equal parts velvety microfoamed milk and bold double-shot espresso, served in custom handmade Patan pottery.', price_npr: 'NPR 250' },
+      ],
+      review_themes: [
+        { sentiment: 'Unmatched Coffee Quality', original_testimonial_summary: 'Patrons describe the single-origin pour-overs and espresso roasting profile as among the best in South Asia.', customer_archetype: 'Coffee Purist' },
+        { sentiment: 'Peaceful Courtyard Oasis', original_testimonial_summary: 'Celebrated as an inspiring, distraction-free haven for reading, creative work, and serene morning conversations.', customer_archetype: 'Creative Professional' },
+      ],
+      faqs: [
+        { question: 'Where in Jhamsikhel are you situated?', answer: 'We are tucked along Gyanodaya Marg in Jhamsikhel, Lalitpur, just off the main Restaurant Street.' },
+        { question: 'Do you sell roasted whole beans to take home?', answer: 'Yes! We package fresh-roasted whole beans with roast date stamps in biodegradable valve bags.' },
+      ],
+      local_seo_keywords: ['karma coffee jhamsikhel', 'specialty coffee lalitpur', 'best cafe jhamel', 'nepal single origin coffee'],
+      nepali_content: {
+        hero_title: 'कर्मा कफी — झम्सिखेलको मौलिक हिमालयन रोस्टरी',
+        tagline: 'नेपाली कफी किसानहरुको मेहनत र उत्कृष्ट स्वाद',
+        about_snippet: 'ललितपुरको झम्सिखेलमा प्राङ्गारिक नेपाली कफी र शान्त वातावरणको अनुभव लिनुहोस्।'
+      }
+    };
+  }
+
+  const isDoubleDorje = b.name.toLowerCase().includes('double dorje');
+  if (isDoubleDorje) {
+    return {
+      tagline: 'Decades of Comforting Tibetan Hearth Beneath Boudha Stupa',
+      hero_title: 'The Historic Tibetan Kitchen of Boudha',
+      hero_subtitle: 'Piping-hot hand-pulled Thenthuk, fluffy steamed Tingmo, and savory beef Shaphalay cooked with Himalayan devotion.',
+      about_story: 'Situated right outside the northern gateway of the sacred Boudhanath Stupa, Double Dorje has served as the unpretentious dining sanctuary for monks, pilgrims, and neighborhood regulars for decades. Our seasoned Tibetan cooks prepare everything fresh to order—from silky pull-cut noodles simmered in bone broth to golden crispy fried bread.',
+      brand_voice: 'Humble, deeply authentic, soulful, and heartwarming',
+      primary_color: '#7F1D1D',
+      accent_color: '#F59E0B',
+      signature_offerings: [
+        { title: 'Hand-Pulled Buff Thenthuk (हस्तनिर्मित थेन्थुक)', description: 'Torn flat dough noodles simmered in a steaming slow-cooked bone broth with shredded greens, radish, and Himalayan spices.', price_npr: 'NPR 220' },
+        { title: 'Golden Crispy Shaphalay (क्रिस्पी शाफाले)', description: 'Deep-fried crescent pastries stuffed with spiced minced meat, spring onions, and coriander, served with fiery chili dip.', price_npr: 'NPR 140' },
+        { title: 'Steamed Tingmo & Rich Veg Curry (ताजा तिङ्मो सेट)', description: 'Twisted steamed Tibetan flower buns soft as clouds, accompanied by a hearty seasoned vegetable gravy.', price_npr: 'NPR 180' },
+      ],
+      review_themes: [
+        { sentiment: 'Soul-Warming Soups', original_testimonial_summary: 'Regarded by locals and travelers alike as the most authentic, comforting bowl of Thukpa and Thenthuk in the Stupa precinct.', customer_archetype: 'Stupa Pilgrim' },
+        { sentiment: 'Generous & Budget-Friendly', original_testimonial_summary: 'Known for giant steaming portions, welcoming smiles, and genuine family-run Himalayan hospitality.', customer_archetype: 'Neighborhood Regular' },
+      ],
+      faqs: [
+        { question: 'Where in Boudha are you located?', answer: 'We are situated along Boudha Stupa North Gate Road, less than a minute walk from the circumambulation circle.' },
+        { question: 'Are vegetarian and vegan options available?', answer: 'Yes! We prepare fresh vegetable Thukpa, Thenthuk, Tingmo, and potato-stuffed pastries daily.' },
+      ],
+      local_seo_keywords: ['double dorje boudha', 'best thukpa boudhanath', 'tibetan restaurant boudha kathmandu', 'famous shaphalay boudha'],
+      nepali_content: {
+        hero_title: 'डबल दोर्जे — बौद्धनाथको ऐतिहासिक तिब्बती स्वाद',
+        tagline: 'दशकौंदेखि ताजा हस्तनिर्मित थेन्थुक, थुक्पा र शाफाले',
+        about_snippet: 'बौद्ध स्तूप नजिकै पारिवारिक न्यानोपन र प्रामाणिक तिब्बती परिकारहरुको स्वाद लिनुहोस्।'
+      }
+    };
+  }
 
   if (isRestaurant) {
     return {

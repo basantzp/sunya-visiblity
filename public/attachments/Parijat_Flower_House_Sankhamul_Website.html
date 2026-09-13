@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parijat Flower House & Nursery — Handcrafted Floral Art & Greenery | Sankhamul, Kathmandu</title>
+  <style>
+    :root {
+      --bg: #070e0a;
+      --card-bg: #0d1a13;
+      --border: #183324;
+      --accent: #10B981;
+      --gold: #F59E0B;
+      --text: #f5f5f4;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Sticky Draft Claim Banner */
+    .claim-banner {
+      background: linear-gradient(90deg, #181412 0%, #291d12 100%);
+      border-bottom: 1px solid #78350f;
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .claim-badge {
+      background-color: #F59E0B;
+      color: #0c0a09;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .claim-btn {
+      background-color: #10B981;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .brand-loc {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: monospace;
+    }
+    .lang-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .hero {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    @media (max-width: 840px) {
+      .hero { grid-template-columns: 1fr; }
+    }
+    .tagline-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background-color: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: 42px;
+      line-height: 1.15;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+    .hero-subtitle {
+      font-size: 16px;
+      color: #d1d5db;
+      margin-bottom: 24px;
+    }
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .primary-cta {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+    }
+    .secondary-cta {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .hero-img-container {
+      position: relative;
+    }
+    .hero-img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .section-wrap {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+    .section-heading {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 6px;
+    }
+    .section-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .product-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .product-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .product-price {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--gold);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .product-desc {
+      font-size: 13px;
+      color: #d1d5db;
+      margin-bottom: 20px;
+    }
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .stock-badge {
+      font-size: 11px;
+      color: #6ee7b7;
+    }
+    .order-btn {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .review-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .stars {
+      color: var(--gold);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .review-text {
+      font-size: 13px;
+      font-style: italic;
+      color: #e5e7eb;
+      margin-bottom: 12px;
+    }
+    .reviewer {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .location-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+    @media (max-width: 768px) {
+      .location-box { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .claim-banner { flex-direction: column; text-align: center; padding: 10px 14px; }
+      header { flex-direction: column; gap: 12px; text-align: center; padding: 16px 14px; }
+      .hero { margin: 24px auto; padding: 0 16px; gap: 24px; }
+      .hero-title { font-size: 28px; line-height: 1.2; }
+      .hero-subtitle { font-size: 14px; }
+      .hero-img { height: 260px; }
+      .cta-group { flex-direction: column; }
+      .primary-cta, .secondary-cta { width: 100%; box-sizing: border-box; justify-content: center; }
+      .stats-row { grid-template-columns: 1fr; text-align: center; gap: 12px; }
+      .section-wrap { margin: 36px auto; padding: 0 16px; }
+      .products-grid { grid-template-columns: 1fr; gap: 16px; }
+      .reviews-grid { grid-template-columns: 1fr; gap: 14px; }
+      .location-box { padding: 20px 16px; }
+      .mobile-sticky-whatsapp {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+        z-index: 999;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 14px;
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.5);
+        text-decoration: none;
+      }
+    }
+    .mobile-sticky-whatsapp { display: none; }
+    .map-frame {
+      width: 100%;
+      height: 240px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Offline Proof & Claim Bar -->
+  <div class="claim-banner">
+    <div>
+      <span class="claim-badge">OFFLINE DEMO</span>
+      <span style="margin-left: 8px; font-weight: 600; color: #fff;">Private Draft Prepared for Parijat Flower House & Nursery</span>
+      <span style="color: #a8a29e; margin-left: 6px;">· No Internet Required to Test</span>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <a href="http://localhost:3005/preview/parijat-flower-house-sankhamul" class="claim-btn" style="background-color: #2563eb;">
+        🌐 Open Live Cloud Preview
+      </a>
+      <a href="https://wa.me/9779867333080?text=Namaste%20Basant!%20I%20reviewed%20the%20website%20draft%20for%20Parijat%20Flower%20House%20and%20want%20to%20connect%20my%20domain." class="claim-btn">
+        ✓ Claim Official Website
+      </a>
+    </div>
+  </div>
+
+  <header>
+    <div>
+      <div class="brand-name">🌸 Parijat Flower House & Nursery</div>
+      <div class="brand-loc">Sankhamul Marg, Ward 10, Kathmandu 44600 · Near Riverside Park</div>
+    </div>
+    <div>
+      <button class="lang-btn" onclick="toggleLanguage()">🌐 Switch to नेपाली</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="tagline-pill" id="hero-tagline">✨ Kathmandu Valley’s Freshest Blooms & Living Greenery</div>
+        <h1 class="hero-title" id="hero-title">Handcrafted Floral Art & Living Plants in Sankhamul</h1>
+        <p class="hero-subtitle" id="hero-subtitle">Bespoke Dutch rose & lily bouquets, daily temple devotional garlands, and lush air-purifying houseplants delivered fresh across Kathmandu & Lalitpur.</p>
+        
+        <div class="cta-group">
+          <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House%20%26%20Nursery!%20I%20would%20like%20to%20order%20fresh%20flowers%20and%20inquire%20about%20bouquets." target="_blank" class="primary-cta">
+            💬 Order on WhatsApp &rarr;
+          </a>
+          <a href="#offerings" class="secondary-cta">Browse Floral Catalog</a>
+        </div>
+
+        <div class="stats-row">
+          <div>
+            <div class="stat-val">★ 4.8</div>
+            <div class="stat-label">184+ Google Reviews</div>
+          </div>
+          <div>
+            <div class="stat-val">100%</div>
+            <div class="stat-label">Fresh Valley Blooms</div>
+          </div>
+          <div>
+            <div class="stat-val">Same-Day</div>
+            <div class="stat-label">Doorstep Delivery</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-img-container">
+        <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1200&q=80" alt="Parijat Flower House & Nursery" class="hero-img" />
+      </div>
+    </section>
+
+    <!-- Heritage Story -->
+    <section class="section-wrap" style="border-top: 1px solid var(--border); padding-top: 40px;">
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 32px 40px;">
+        <div class="section-subtitle">Heritage & Botanical Craft</div>
+        <h2 style="font-size: 24px; color: #fff; margin: 8px 0 16px 0;">Rooted in Sankhamul Marg</h2>
+        <p style="color: #d1d5db; font-size: 15px; line-height: 1.7;" id="about-story">
+          Parijat Flower House & Nursery brings floral vitality, fragrant warmth, and tranquil botanical greenery to homes, ceremonial gatherings, and sacred spaces throughout Kathmandu Valley. Situated along Sankhamul Marg opposite the green riverside park corridor, our artisans curate daily morning harvests of fresh local and imported cut flowers, hand-tied celebration bouquets, and conditioned indoor houseplants that thrive in valley homes.
+        </p>
+      </div>
+    </section>
+
+    <!-- Catalog -->
+    <section class="section-wrap" id="offerings">
+      <div class="section-heading">
+        <div class="section-subtitle">Fresh Daily Harvest</div>
+        <h2 class="section-title">Signature Bouquets, Houseplants & Ceremonial Floral Sets</h2>
+      </div>
+      <div class="products-grid">
+        
+    <div class="product-card">
+      <div class="product-header">
+        <h3 class="product-title">Signature Royal Rose & Lily Hand Bouquet (रोयल गुलाब तथा लिली बुके)</h3>
+        <span class="product-price">NPR 1,500</span>
+      </div>
+      <p class="product-desc">Hand-tied arrangement of long-stem red Dutch roses, fragrant white Oriental lilies, and fresh eucalyptus in luxury matte wrap.</p>
+      <div class="product-footer">
+        <span class="stock-badge">🌿 Fresh Harvest / In Stock</span>
+        <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House%20%26%20Nursery!%20I%20want%20to%20order%3A%20Signature%20Royal%20Rose%20%26%20Lily%20Hand%20Bouquet%20(%E0%A4%B0%E0%A5%8B%E0%A4%AF%E0%A4%B2%20%E0%A4%97%E0%A5%81%E0%A4%B2%E0%A4%BE%E0%A4%AC%20%E0%A4%A4%E0%A4%A5%E0%A4%BE%20%E0%A4%B2%E0%A4%BF%E0%A4%B2%E0%A5%80%20%E0%A4%AC%E0%A5%81%E0%A4%95%E0%A5%87)%20(NPR%201%2C500)." target="_blank" class="order-btn">
+          Order via WhatsApp &rarr;
+        </a>
+      </div>
+    </div>
+  
+    <div class="product-card">
+      <div class="product-header">
+        <h3 class="product-title">Daily Temple Puja Garland & Lotus Basket (नित्य पूजा सयपत्री तथा कमलको टोकरी)</h3>
+        <span class="product-price">NPR 450</span>
+      </div>
+      <p class="product-desc">Freshly threaded orange marigolds, makhamali garlands, and pristine morning lotus buds for home altars and valley temples.</p>
+      <div class="product-footer">
+        <span class="stock-badge">🌿 Fresh Harvest / In Stock</span>
+        <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House%20%26%20Nursery!%20I%20want%20to%20order%3A%20Daily%20Temple%20Puja%20Garland%20%26%20Lotus%20Basket%20(%E0%A4%A8%E0%A4%BF%E0%A4%A4%E0%A5%8D%E0%A4%AF%20%E0%A4%AA%E0%A5%82%E0%A4%9C%E0%A4%BE%20%E0%A4%B8%E0%A4%AF%E0%A4%AA%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A5%80%20%E0%A4%A4%E0%A4%A5%E0%A4%BE%20%E0%A4%95%E0%A4%AE%E0%A4%B2%E0%A4%95%E0%A5%8B%20%E0%A4%9F%E0%A5%8B%E0%A4%95%E0%A4%B0%E0%A5%80)%20(NPR%20450)." target="_blank" class="order-btn">
+          Order via WhatsApp &rarr;
+        </a>
+      </div>
+    </div>
+  
+    <div class="product-card">
+      <div class="product-header">
+        <h3 class="product-title">Exotic Monstera Deliciosa & Ceramic Planter (मोन्स्टेरा इन्डोर प्लान्ट र गमला सेट)</h3>
+        <span class="product-price">NPR 1,200</span>
+      </div>
+      <p class="product-desc">Lush fenestrated Swiss cheese houseplant conditioned for valley indoor climates, potted in artisanal handcrafted ceramic.</p>
+      <div class="product-footer">
+        <span class="stock-badge">🌿 Fresh Harvest / In Stock</span>
+        <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House%20%26%20Nursery!%20I%20want%20to%20order%3A%20Exotic%20Monstera%20Deliciosa%20%26%20Ceramic%20Planter%20(%E0%A4%AE%E0%A5%8B%E0%A4%A8%E0%A5%8D%E0%A4%B8%E0%A5%8D%E0%A4%9F%E0%A5%87%E0%A4%B0%E0%A4%BE%20%E0%A4%87%E0%A4%A8%E0%A5%8D%E0%A4%A1%E0%A5%8B%E0%A4%B0%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%9F%20%E0%A4%B0%20%E0%A4%97%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%B8%E0%A5%87%E0%A4%9F)%20(NPR%201%2C200)." target="_blank" class="order-btn">
+          Order via WhatsApp &rarr;
+        </a>
+      </div>
+    </div>
+  
+    <div class="product-card">
+      <div class="product-header">
+        <h3 class="product-title">Celebration & Birthday Luxury Floral Basket (जन्मदिन र वार्षिकोत्सव गिफ्ट बास्केट)</h3>
+        <span class="product-price">NPR 2,500</span>
+      </div>
+      <p class="product-desc">Curated seasonal mix of sunflowers, carnations, baby’s breath, and premium Ferrero chocolates in an artisan woven basket.</p>
+      <div class="product-footer">
+        <span class="stock-badge">🌿 Fresh Harvest / In Stock</span>
+        <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House%20%26%20Nursery!%20I%20want%20to%20order%3A%20Celebration%20%26%20Birthday%20Luxury%20Floral%20Basket%20(%E0%A4%9C%E0%A4%A8%E0%A5%8D%E0%A4%AE%E0%A4%A6%E0%A4%BF%E0%A4%A8%20%E0%A4%B0%20%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%B7%E0%A4%BF%E0%A4%95%E0%A5%8B%E0%A4%A4%E0%A5%8D%E0%A4%B8%E0%A4%B5%20%E0%A4%97%E0%A4%BF%E0%A4%AB%E0%A5%8D%E0%A4%9F%20%E0%A4%AC%E0%A4%BE%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A5%87%E0%A4%9F)%20(NPR%202%2C500)." target="_blank" class="order-btn">
+          Order via WhatsApp &rarr;
+        </a>
+      </div>
+    </div>
+  
+    <div class="product-card">
+      <div class="product-header">
+        <h3 class="product-title">Ceremonial Wedding Mandap & Bridal Car Floral Decor (विवाह मण्डप तथा गाडी सजावट)</h3>
+        <span class="product-price">NPR 12,000</span>
+      </div>
+      <p class="product-desc">Grand seasonal floral styling for wedding vehicles and bespoke mandap arch arrangements curated for valley festivities.</p>
+      <div class="product-footer">
+        <span class="stock-badge">🌿 Fresh Harvest / In Stock</span>
+        <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House%20%26%20Nursery!%20I%20want%20to%20order%3A%20Ceremonial%20Wedding%20Mandap%20%26%20Bridal%20Car%20Floral%20Decor%20(%E0%A4%B5%E0%A4%BF%E0%A4%B5%E0%A4%BE%E0%A4%B9%20%E0%A4%AE%E0%A4%A3%E0%A5%8D%E0%A4%A1%E0%A4%AA%20%E0%A4%A4%E0%A4%A5%E0%A4%BE%20%E0%A4%97%E0%A4%BE%E0%A4%A1%E0%A5%80%20%E0%A4%B8%E0%A4%9C%E0%A4%BE%E0%A4%B5%E0%A4%9F)%20(NPR%2012%2C000)." target="_blank" class="order-btn">
+          Order via WhatsApp &rarr;
+        </a>
+      </div>
+    </div>
+  
+      </div>
+    </section>
+
+    <!-- Reviews -->
+    <section class="section-wrap">
+      <div class="section-heading">
+        <div class="section-subtitle">Local Patron Impressions</div>
+        <h2 class="section-title">Trusted by Kathmandu & Lalitpur Households</h2>
+      </div>
+      <div class="reviews-grid">
+        
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Patrons consistently highlight that bouquets remain vibrant and fragrant days longer than typical street-side flower vendors."</p>
+      <div class="reviewer">— Gift Buyer · Verified Local Patron</div>
+    </div>
+  
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Celebrated across Kathmandu and Lalitpur for rapid, careful same-day doorstep deliveries for urgent anniversaries and puja occasions."</p>
+      <div class="reviewer">— Neighborhood Regular · Verified Local Patron</div>
+    </div>
+  
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Frequently recommended on r/Nepal and Kathmandu lifestyle groups as the most authentic, reliable floral and nursery destination along Sankhamul Marg."</p>
+      <div class="reviewer">— Online Community Patron · Verified Local Patron</div>
+    </div>
+  
+      </div>
+    </section>
+
+    <!-- Location & Contact -->
+    <section class="section-wrap">
+      <div class="location-box">
+        <div>
+          <div class="section-subtitle">Visit Our Storefront</div>
+          <h2 style="color: #fff; font-size: 24px; margin: 6px 0 16px 0;">Parijat Flower House & Nursery</h2>
+          <p style="color: var(--muted); font-size: 14px; margin-bottom: 8px;">
+            📍 <strong>Address:</strong> Sankhamul Marg (Opposite Riverside Park), Ward 10, Kathmandu 44600
+          </p>
+          <p style="color: var(--muted); font-size: 14px; margin-bottom: 8px;">
+            🕒 <strong>Hours:</strong> Open Daily 7:00 AM – 8:00 PM (Morning Puja Deliveries from 7:00 AM)
+          </p>
+          <p style="color: var(--muted); font-size: 14px; margin-bottom: 20px;">
+            📞 <strong>Direct Phone & WhatsApp:</strong> +977-9867333080
+          </p>
+          <div style="display: flex; gap: 12px;">
+            <a href="tel:+9779867333080" class="primary-cta" style="padding: 10px 18px; font-size: 13px;">
+              Call Counter
+            </a>
+            <a href="https://wa.me/9779867333080?text=Namaste!%20Where%20in%20Sankhamul%20are%20you%20located?" target="_blank" class="secondary-cta" style="padding: 10px 18px; font-size: 13px;">
+              WhatsApp Directions
+            </a>
+          </div>
+        </div>
+
+        <div class="map-frame">
+          <iframe
+            title="Sankhamul Map"
+            width="100%"
+            height="100%"
+            frameborder="0"
+            scrolling="no"
+            src="https://maps.google.com/maps?q=Sankhamul+Kathmandu+Nepal&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            style="filter: grayscale(100%) invert(90%) contrast(120%);"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Parijat Flower House & Nursery · Sankhamul Marg, Ward 10, Kathmandu Valley, Nepal.</p>
+    <p style="margin-top: 6px; font-size: 11px; color: #6b7280;">Autonomous Local Web Architecture by Sunya (शून्य) · Founder: Basant Pokhrel (+977-9867333080)</p>
+  </footer>
+
+  <script>
+    let isNepali = false;
+    const enContent = {
+      tagline: "Kathmandu Valley’s Freshest Blooms & Living Greenery",
+      title: "Handcrafted Floral Art & Living Plants in Sankhamul",
+      subtitle: "Bespoke Dutch rose & lily bouquets, daily temple devotional garlands, and lush air-purifying houseplants delivered fresh across Kathmandu & Lalitpur.",
+      about: "Parijat Flower House & Nursery brings floral vitality, fragrant warmth, and tranquil botanical greenery to homes, ceremonial gatherings, and sacred spaces throughout Kathmandu Valley. Situated along Sankhamul Marg opposite the green riverside park corridor, our artisans curate daily morning harvests of fresh local and imported cut flowers, hand-tied celebration bouquets, and conditioned indoor houseplants that thrive in valley homes."
+    };
+    const npContent = {
+      tagline: "हरेक अवसरलाई स्मरणीय बनाउने ताजा सुगन्धित फूलहरु",
+      title: "पारिजात पुष्प गृह — शंखमुलमा ताजा फूल, बुके र सुन्दर इन्डोर प्लान्ट्स",
+      subtitle: "शंखमुल पार्क नजिकै दैनिक पूजा, विवाह, उत्सव तथा उपहारका लागि उत्कृष्ट ताजा फूल र बोटबिरुवाहरु उपलब्ध गराउँदै।",
+      about: "Parijat Flower House & Nursery brings floral vitality, fragrant warmth, and tranquil botanical greenery to homes, ceremonial gatherings, and sacred spaces throughout Kathmandu Valley. Situated along Sankhamul Marg opposite the green riverside park corridor, our artisans curate daily morning harvests of fresh local and imported cut flowers, hand-tied celebration bouquets, and conditioned indoor houseplants that thrive in valley homes."
+    };
+
+    function toggleLanguage() {
+      isNepali = !isNepali;
+      const btn = document.querySelector('.lang-btn');
+      if (isNepali) {
+        document.getElementById('hero-tagline').innerText = '✨ ' + npContent.tagline;
+        document.getElementById('hero-title').innerText = npContent.title;
+        document.getElementById('hero-subtitle').innerText = npContent.subtitle;
+        btn.innerText = '🌐 Switch to English';
+      } else {
+        document.getElementById('hero-tagline').innerText = '✨ ' + enContent.tagline;
+        document.getElementById('hero-title').innerText = enContent.title;
+        document.getElementById('hero-subtitle').innerText = enContent.subtitle;
+        btn.innerText = '🌐 Switch to नेपाली';
+      }
+    }
+  </script>
+
+  <!-- Mobile Sticky WhatsApp Bar -->
+  <a href="https://wa.me/9779867333080?text=Namaste%20Parijat%20Flower%20House!%20I%20would%20like%20to%20order%20flowers." target="_blank" class="mobile-sticky-whatsapp">
+    💬 Order on WhatsApp (अर्डर गर्नुहोस्) →
+  </a>
+</body>
+</html>

@@ -17,12 +17,24 @@ export interface PaymentRecord {
 }
 
 export const NEPAL_PAYMENT_CONFIG = {
-  setup_fee_npr: 12000,
+  setup_fee_npr: 9999,
   monthly_hosting_npr: 1500,
   merchant_qr: {
-    esewa_id: process.env.ESEWA_MERCHANT_ID || '9800000000',
-    khalti_id: process.env.KHALTI_MERCHANT_ID || '9800000000',
+    fonepay_ref: '9867333080',
+    fonepay_account_name: 'Basant Pokhrel / Sunya',
+    esewa_id: process.env.ESEWA_MERCHANT_ID || '9867333080',
+    esewa_account_name: 'Basant Pokhrel',
+    khalti_id: process.env.KHALTI_MERCHANT_ID || '9867333080',
+    khalti_account_name: 'Basant Pokhrel',
     fonepay_qr_url: '/assets/fonepay-qr-sunya.png',
+  },
+  contact: {
+    phone: '+977-9867333080',
+    phone_raw: '9867333080',
+    founder_whatsapp: '9779867333080',
+    founder_whatsapp_formatted: '+977-9867333080',
+    founder_name: 'Basant Pokhrel',
+    agency_name: 'Sunya',
   },
 };
 

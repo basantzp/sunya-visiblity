@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Sunya Visibility — Autonomous Local Website Agency Schema
+-- Sunya — Autonomous Local Website Agency Schema
 -- PostgreSQL Schema for Supabase
 -- Target: Kathmandu Valley (Kathmandu, Lalitpur, Bhaktapur)
 -- ==============================================================================

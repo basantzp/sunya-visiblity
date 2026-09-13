@@ -31,3 +31,10 @@ pnpm-debug.log*
 *.sw?
 .idea/
 .vscode/
+
+# Build and scratch artifacts
+tsconfig.tsbuildinfo
+scratch/
+public/email-mobile-*.png
+public/localhost-inspector-screen.png
+

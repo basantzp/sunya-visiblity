@@ -1,12 +1,14 @@
 /**
- * Sunya Visibility — Autonomous Pipeline CLI Runner
+ * Sunya — Autonomous Pipeline CLI Runner
  * Can be executed via CLI:
  *   pnpm pipeline:all
  *   pnpm pipeline:discover
  *   pnpm pipeline:enrich
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+dotenv.config();
 import { runAgencyPipeline } from '../src/lib/pipeline';
 
 async function main() {
@@ -23,7 +25,7 @@ async function main() {
   });
 
   console.log('\n==========================================');
-  console.log('Sunya Visibility Pipeline Results:');
+  console.log('Sunya Pipeline Results:');
   console.log(`Discovered:        ${summary.discovered}`);
   console.log(`Enriched:          ${summary.enriched}`);
   console.log(`Sites Generated:   ${summary.sitesGenerated}`);

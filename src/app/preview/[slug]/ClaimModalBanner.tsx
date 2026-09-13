@@ -14,7 +14,7 @@ export function ClaimModalBanner({ businessName, district, slug }: { businessNam
   const [isSending, setIsSending] = useState(false);
   const [mailSentResult, setMailSentResult] = useState<{ success: boolean; simulated?: boolean; message?: string } | null>(null);
 
-  const founderWhatsApp = '9779800000000';
+  const founderWhatsApp = '9779867333080';
   const cleanSlug = slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
   async function handleSendDirectMail(e: React.FormEvent) {

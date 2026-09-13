@@ -1,5 +1,5 @@
 /**
- * Sunya Visibility — Autonomous Agency Master Pipeline
+ * Sunya — Autonomous Agency Master Pipeline
  * Orchestrates Discovery -> Enrichment -> Site Generation -> Deployment -> Outreach -> Health Check.
  */
 
@@ -35,7 +35,7 @@ export async function runAgencyPipeline(opts: PipelineExecutionOptions = {}): Pr
     errors: [],
   };
 
-  console.log('🚀 [Sunya Visibility Pipeline] Starting Autonomous Cycle for Kathmandu Valley...');
+  console.log('🚀 [Sunya Pipeline] Starting Autonomous Cycle for Kathmandu Valley...');
 
   // Step 1: Discovery Engine
   const places = await discoverPlaces({
@@ -103,6 +103,6 @@ export async function runAgencyPipeline(opts: PipelineExecutionOptions = {}): Pr
     }
   }
 
-  console.log('✅ [Sunya Visibility Pipeline] Cycle complete.');
+  console.log('✅ [Sunya Pipeline] Cycle complete.');
   return summary;
 }

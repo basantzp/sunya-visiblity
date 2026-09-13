@@ -1,4 +1,4 @@
-# 🚀 Sunya Visibility (शून्य भिजिविलिटी)
+# 🚀 Sunya (शून्य)
 ### Autonomous Local Website & Lead-Generation Agency for Kathmandu Valley
 
 > **Autonomous local-business web agency operated by a solo founder with zero employees.** Automatically discovers top-rated businesses in Kathmandu, Lalitpur, and Bhaktapur that lack websites, generates custom Next.js web experiences across 4 distinct templates, deploys live previews, sends rate-limited outreach, and handles automated payment handoffs.
