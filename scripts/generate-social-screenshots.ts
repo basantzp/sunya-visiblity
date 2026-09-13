@@ -1,6 +1,6 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 
 const publicDir = path.join(process.cwd(), 'public');
 const tempDir = path.join(process.cwd(), 'scratch');
@@ -15,41 +15,40 @@ const redditHtml = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-  html, body { overflow: hidden; background-color: #0e1113; }
-  body { padding: 12px; display: flex; justify-content: center; }
+  html, body { overflow: hidden; background-color: #1a1a1b; margin: 0; padding: 0; }
+  body { display: flex; justify-content: center; }
   .reddit-card {
     background-color: #1a1a1b;
     border: 1px solid #343536;
-    border-radius: 12px;
-    width: 480px;
-    padding: 16px;
+    border-radius: 8px;
+    width: 440px;
+    padding: 12px 14px;
     color: #d7dadc;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
   }
-  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .sub-icon {
-    width: 32px; height: 32px; border-radius: 50%; background-color: #ff4500;
-    display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 16px;
+    width: 26px; height: 26px; border-radius: 50%; background-color: #ff4500;
+    display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 13px;
   }
-  .meta { font-size: 12px; color: #818384; line-height: 1.4; }
-  .subreddit { font-weight: 700; color: #d7dadc; font-size: 13px; }
+  .meta { font-size: 11px; color: #818384; line-height: 1.35; }
+  .subreddit { font-weight: 700; color: #d7dadc; font-size: 12px; }
   .flair {
     display: inline-block; background-color: #272729; color: #ff581a;
-    border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 700; margin-left: 6px;
+    border-radius: 4px; padding: 2px 5px; font-size: 9.5px; font-weight: 700; margin-left: 5px;
   }
-  .title { font-size: 15px; font-weight: 700; color: #f2f4f5; line-height: 1.4; margin-bottom: 10px; }
-  .body-text { font-size: 13px; line-height: 1.55; color: #d7dadc; margin-bottom: 14px; }
+  .title { font-size: 13.5px; font-weight: 700; color: #f2f4f5; line-height: 1.35; margin-bottom: 8px; }
+  .body-text { font-size: 11.5px; line-height: 1.45; color: #d7dadc; margin-bottom: 8px; }
   .body-text strong { color: #ffffff; font-weight: 600; }
   .highlight { color: #ff9800; font-weight: 600; }
-  .footer { display: flex; align-items: center; gap: 8px; border-top: 1px solid #272729; padding-top: 12px; }
+  .footer { display: flex; align-items: center; gap: 6px; border-top: 1px solid #272729; padding-top: 8px; margin-top: 8px; }
   .pill {
-    background-color: #272729; border-radius: 999px; padding: 5px 12px;
-    font-size: 12px; font-weight: 700; color: #d7dadc; display: flex; align-items: center; gap: 6px;
+    background-color: #272729; border-radius: 999px; padding: 4px 10px;
+    font-size: 11px; font-weight: 700; color: #d7dadc; display: flex; align-items: center; gap: 5px;
   }
   .upvote-active { color: #ff4500; font-weight: 800; }
   .comment-box {
-    margin-top: 12px; padding: 10px 12px; background-color: #121213; border-left: 2px solid #ff4500;
-    border-radius: 6px; font-size: 12px; line-height: 1.45; color: #b0b3b8;
+    margin-top: 8px; padding: 8px 10px; background-color: #121213; border-left: 2px solid #ff4500;
+    border-radius: 5px; font-size: 11px; line-height: 1.4; color: #b0b3b8;
   }
   .comment-box strong { color: #d7dadc; }
 </style>
@@ -74,19 +73,14 @@ const redditHtml = `<!DOCTYPE html>
     <strong>u/ktm_foodie</strong> (Top Comment):<br>
     "Bro 100% agreed. Their timur paste is legend tier. If they set up direct WhatsApp pickup, they'd make way more and save us all from waiting in the street crowd."
   </div>
-  <div class="footer" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <div class="pill">
-        <span class="upvote-active">▲</span>
-        <span class="upvote-active">248</span>
-        <span>▼</span>
-      </div>
-      <div class="pill">💬 43 Comments</div>
-      <div class="pill">↗ Share</div>
+  <div class="footer">
+    <div class="pill">
+      <span class="upvote-active">▲</span>
+      <span class="upvote-active">248</span>
+      <span>▼</span>
     </div>
-    <div style="color: #ff4500; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px;">
-      🔗 View original ↗
-    </div>
+    <div class="pill">💬 43 Comments</div>
+    <div class="pill">↗ Share</div>
   </div>
 </div>
 </body>
@@ -228,12 +222,17 @@ const redditPng = path.join(publicDir, 'social-proof-reddit-sandar.png');
 const xPng = path.join(publicDir, 'social-proof-x-sandar.png');
 const fbPng = path.join(publicDir, 'social-proof-fb-sandar.png');
 
-execSync(`google-chrome-stable --headless --disable-gpu --ozone-platform=x11 --window-size=510,540 --screenshot="${redditPng}" "${path.join(tempDir, 'reddit-proof.html')}"`);
-execSync(`google-chrome-stable --headless --disable-gpu --ozone-platform=x11 --window-size=510,480 --screenshot="${xPng}" "${path.join(tempDir, 'x-proof.html')}"`);
-execSync(`google-chrome-stable --headless --disable-gpu --ozone-platform=x11 --window-size=510,320 --screenshot="${fbPng}" "${path.join(tempDir, 'fb-proof.html')}"`);
+execSync(
+  `google-chrome-stable --headless --disable-gpu --ozone-platform=x11 --window-size=440,355 --screenshot="${redditPng}" "${path.join(tempDir, 'reddit-proof.html')}"`,
+);
+execSync(
+  `google-chrome-stable --headless --disable-gpu --ozone-platform=x11 --window-size=510,480 --screenshot="${xPng}" "${path.join(tempDir, 'x-proof.html')}"`,
+);
+execSync(
+  `google-chrome-stable --headless --disable-gpu --ozone-platform=x11 --window-size=510,320 --screenshot="${fbPng}" "${path.join(tempDir, 'fb-proof.html')}"`,
+);
 
 console.log('✅ Generated:');
 console.log(' - ' + redditPng + ' (' + fs.statSync(redditPng).size + ' bytes)');
 console.log(' - ' + xPng + ' (' + fs.statSync(xPng).size + ' bytes)');
 console.log(' - ' + fbPng + ' (' + fs.statSync(fbPng).size + ' bytes)');
-

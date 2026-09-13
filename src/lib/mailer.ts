@@ -6,6 +6,8 @@
 
 import crypto from 'crypto';
 import dns from 'dns';
+import fs from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 import nodemailer from 'nodemailer';
 
@@ -55,9 +57,6 @@ export function generateAntiSpamHash(email: string, businessId: string): string 
   return crypto.createHash('sha256').update(`${email.toLowerCase()}:${businessId}`).digest('hex');
 }
 
-import fs from 'fs';
-import path from 'path';
-
 export function generateColdEmailCopy(opts: OutreachMailOptions) {
   const priceSetup = (opts.priceNpr || 9999).toLocaleString();
   const founderWhatsApp = opts.founderWhatsApp || process.env.FOUNDER_WHATSAPP || '9867333080';
@@ -79,36 +78,43 @@ export function generateColdEmailCopy(opts: OutreachMailOptions) {
   const interestNoUrl = `${baseUrl}/api/leads/interest?slug=${slug}&response=declined&email=${opts.toEmail}`;
 
   const isSandar = opts.businessName.toLowerCase().includes('sandar') || slug.includes('sandar');
-  const isFlower = opts.category.toLowerCase().includes('flower') || opts.businessName.toLowerCase().includes('parijat') || opts.category.toLowerCase().includes('nursery') || opts.category.toLowerCase().includes('flora') || slug.includes('flower') || slug.includes('parijat');
+  const isFlower =
+    opts.category.toLowerCase().includes('flower') ||
+    opts.businessName.toLowerCase().includes('parijat') ||
+    opts.category.toLowerCase().includes('nursery') ||
+    opts.category.toLowerCase().includes('flora') ||
+    slug.includes('flower') ||
+    slug.includes('parijat');
   const isConfidential = opts.isConfidential !== false;
-  const preventDownloads = opts.preventDownloads !== undefined ? opts.preventDownloads : isConfidential;
+  const preventDownloads =
+    opts.preventDownloads !== undefined ? opts.preventDownloads : isConfidential;
 
   const subject = isSandar
     ? `[CONFIDENTIAL PROPOSAL] Private Website & Digital Ordering Draft for Sandar Momo (Sankhamul)`
-    : (isFlower
-        ? `[CONFIDENTIAL PROPOSAL] Private Website & Direct WhatsApp Ordering Draft for ${opts.businessName} (Sankhamul)`
-        : (isConfidential
-            ? `[CONFIDENTIAL PROPOSAL] Private Digital Draft for ${opts.businessName}`
-            : `Website proposal for ${opts.businessName} (already live on preview)`));
+    : isFlower
+      ? `[CONFIDENTIAL PROPOSAL] Private Website & Direct WhatsApp Ordering Draft for ${opts.businessName} (Sankhamul)`
+      : isConfidential
+        ? `[CONFIDENTIAL PROPOSAL] Private Digital Draft for ${opts.businessName}`
+        : `Website proposal for ${opts.businessName} (already live on preview)`;
 
   const attachmentFile = opts.attachmentFilename || 'Parijat_Flower_House_Sankhamul_Website.html';
 
   const localHook = isSandar
     ? 'You have an iconic 4.7★ rating (420+ reviews) near Sankhamul Bridge, and customers consistently praise your steaming buff momos and fiery timur paste.'
-    : (isFlower
-        ? `You have an exceptional 4.8★ rating (180+ reviews) along Sankhamul Marg, and locals trust ${opts.businessName} for fresh blooms and sacred puja offerings.`
-        : `You have strong 4.8★ reviews in ${opts.district}, and patrons love your trusted quality service.`);
+    : isFlower
+      ? `You have an exceptional 4.8★ rating (180+ reviews) along Sankhamul Marg, and locals trust ${opts.businessName} for fresh blooms and sacred puja offerings.`
+      : `You have strong 4.8★ reviews in ${opts.district}, and patrons love your trusted quality service.`;
 
   const socialResearchList = isSandar
     ? `• Facebook (MRR / Foodies): Voted best fiery timur achar & steaming buff momos.
 • Reddit (r/Nepal): Consistently recommended as an authentic Sankhamul gem.
 • Twitter/X: Praised for fast counter service and honest taste.`
-    : (isFlower
-        ? `• Facebook Groups: Recommended for fresh morning deliveries and wedding decor.
+    : isFlower
+      ? `• Facebook Groups: Recommended for fresh morning deliveries and wedding decor.
 • Reddit (r/Nepal): Praised for fair pricing and healthy indoor plants.
 • Twitter/X: Loved for reliable festive and temple puja orders.`
-        : `• Facebook & Twitter/X: Patrons actively recommend your craft and service.
-• Reddit (r/Nepal): Praised for trusted, quality service in ${opts.district}.`);
+      : `• Facebook & Twitter/X: Patrons actively recommend your craft and service.
+• Reddit (r/Nepal): Praised for trusted, quality service in ${opts.district}.`;
 
   // High-legibility, ultra-compact plain text version (scannable in 15 seconds)
   const bodyText = `[CONFIDENTIAL AUDIT: UNCLAIMED SEARCH DEMAND · ${opts.businessName.toUpperCase()}]
@@ -117,8 +123,8 @@ Namaste Sir / Ma'am (Management at ${opts.businessName}),
 
 ${localHook}
 
-⚡ ZERO FRICTION DIRECT TAKEAWAY (0% COMMISSION):
-Orders ping straight to your regular counter staff phone via WhatsApp. No apps, computers, or hardware. Keep 100% of your earnings.
+⚡ DIRECT WHATSAPP ORDERS (0% COMMISSION):
+Customers order on your website, and you get the order directly on WhatsApp. No delivery app fees—you keep 100% of your earnings.
 
 🔍 People are talking like this online (and there is no website):
    • Facebook (MRR / Foodies): "Sandar Momo is GOAT level. But 30-min queue & no website!"
@@ -205,13 +211,19 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                 </div>
                 
                 <div class="mobile-body" style="font-size: 12.5px; line-height: 1.5; color: #cbd5e1;">
-                  ${isSandar ? `
+                  ${
+                    isSandar
+                      ? `
                     Your iconic <strong>Sankhamul Bridge</strong> buff momos &amp; fiery timur paste (<strong>4.7★ across 420+ reviews</strong>) draw massive crowds daily. But right now, over <strong>60% of hungry online patrons</strong> get lost—or pay <strong>20%–30% cuts</strong> to delivery apps.
-                  ` : (isFlower ? `
+                  `
+                      : isFlower
+                        ? `
                     Your beloved nursery on <strong>Sankhamul Marg</strong> (<strong>4.8★ across 180+ reviews</strong>) serves loyal patrons daily. But over <strong>60% of online plant lovers</strong> cannot order directly from your counter.
-                  ` : `
+                  `
+                        : `
                     With your respected <strong>4.8★ reviews</strong> in ${opts.district}, over <strong>60% of online customers</strong> search for your official menu without direct access.
-                  `)}
+                  `
+                  }
                 </div>
               </div>
 
@@ -220,45 +232,36 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                 <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
                   <tr>
                     <td style="padding-bottom: 7px;">
-                      <div style="font-size: 12px; font-weight: 700; color: #38bdf8;">⚡ Zero Friction Takeaway (0% Commission)</div>
+                      <div style="font-size: 12px; font-weight: 700; color: #38bdf8;">⚡ Direct WhatsApp Orders (0% Commission)</div>
                       <div style="font-size: 11px; color: #94a3b8; line-height: 1.35; margin-top: 1px;">
-                        Orders arrive as clean text on your staff phone. Direct 0% commission takeaway; keep 100% of your earnings.
+                        Customers order on your website, and you get the order directly on WhatsApp. No delivery app fees—you keep 100% of your earnings.
                       </div>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding-top: 2px;">
-                      <div style="font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">
-                        🔍 People are talking like this online (and there is no website):
+                      <div style="font-size: 12.5px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">
+                        🔍 What customers are saying online (and why they want your website):
                       </div>
-                      <div style="font-size: 11.5px; color: #cbd5e1; line-height: 1.45; margin-bottom: 10px;">
-                        ${isSandar 
-                          ? 'Across <strong>Facebook</strong> (MRR), <strong>Reddit</strong> (r/Nepal), and <strong>Twitter/X</strong>, people are talking like this about your food—but when they search online, there is <strong>no official website</strong> to view your menu or order takeaway.<br><br><strong>So we decided to mail so it can help you:</strong>'
-                          : 'Across <strong>Facebook</strong>, <strong>Reddit</strong>, and <strong>Twitter/X</strong>, people are talking like this—but there is <strong>no website</strong>. So we decided to mail so it can help you:'}
+                      <div style="font-size: 11.5px; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">
+                        ${
+                          isSandar
+                            ? 'Across <strong>Facebook</strong>, <strong>Reddit</strong> (r/Nepal), and <strong>Twitter/X</strong>, people love your food—but they get frustrated waiting in line when there is <strong>no official website</strong> to order ahead for pickup:'
+                            : 'Across <strong>Facebook</strong>, <strong>Reddit</strong>, and <strong>Twitter/X</strong>, people love your service—but there is <strong>no website</strong>. So we decided to mail so it can help you:'
+                        }
                       </div>
 
-                      ${isSandar ? `
-                      <!-- Verified Reddit Screenshot Attachment -->
-                      <div style="margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #343536; background-color: #1a1a1b;">
+                      ${
+                        isSandar
+                          ? `
+                      <!-- Verified Reddit Screenshot Attachment (Compact Single Plate) -->
+                      <div style="margin-bottom: 6px; border-radius: 8px; overflow: hidden; border: 1px solid #343536; background-color: #1a1a1b; max-width: 440px; margin-left: auto; margin-right: auto;">
                         <a href="https://www.reddit.com/r/Nepal/search/?q=sandar%20momo%20sankhamul" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
-                          <img src="cid:redditproof" alt="Reddit r/Nepal Customer Conversation Screenshot" style="width: 100%; max-width: 480px; display: block; height: auto; margin: 0 auto; border: 0;" />
+                          <img src="cid:redditproof" alt="Reddit r/Nepal Customer Conversation Screenshot" style="width: 100%; max-width: 440px; display: block; height: auto; margin: 0 auto; border: 0;" />
                         </a>
                       </div>
-
-                      <!-- Verified Twitter/X Screenshot Attachment -->
-                      <div style="margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #2f3336; background-color: #000000;">
-                        <a href="https://x.com/search?q=sandar%20momo%20sankhamul&f=live" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
-                          <img src="cid:xproof" alt="Twitter/X Customer Feedback Screenshot" style="width: 100%; max-width: 480px; display: block; height: auto; margin: 0 auto; border: 0;" />
-                        </a>
-                      </div>
-
-                      <!-- Verified Facebook Discussion Screenshot Attachment -->
-                      <div style="margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #3a3b3c; background-color: #18191a;">
-                        <a href="https://www.facebook.com/search/posts/?q=sandar%20momo%20sankhamul" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
-                          <img src="cid:fbproof" alt="Facebook Foodies of Kathmandu Customer Discussion Screenshot" style="width: 100%; max-width: 480px; display: block; height: auto; margin: 0 auto; border: 0;" />
-                        </a>
-                      </div>
-                      ` : `
+                      `
+                          : `
                       <!-- Reddit Conversation Snippet Card -->
                       <div style="background-color: #12161f; border: 1px solid #283548; border-left: 3px solid #ff4500; border-radius: 7px; padding: 8px 10px; margin-bottom: 7px;">
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -272,11 +275,15 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                           </tr>
                         </table>
                         <div style="font-size: 11px; line-height: 1.45; color: #e2e8f0; font-style: italic;">
-                          ${isFlower ? `
+                          ${
+                            isFlower
+                              ? `
                             "Parijat Flower House on Sankhamul Marg has the healthiest plants and fresh puja flowers. But <strong>there is no official website or catalog online</strong>. Wish we could just browse their pots and order directly on WhatsApp!"
-                          ` : `
+                          `
+                              : `
                             "They offer amazing quality in ${opts.district}, but <strong>they have no official website to check prices or order</strong>. We have to guess or use delivery apps that take huge cuts."
-                          `}
+                          `
+                          }
                         </div>
                       </div>
 
@@ -293,14 +300,19 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                           </tr>
                         </table>
                         <div style="font-size: 11px; line-height: 1.45; color: #e2e8f0; font-style: italic;">
-                          ${isFlower ? `
+                          ${
+                            isFlower
+                              ? `
                             "Needed event flower decorations from Parijat, but couldn't find their official menu or price list on Google. A direct WhatsApp ordering website would make booking so much easier!"
-                          ` : `
+                          `
+                              : `
                             "Searched Google for ${opts.businessName} to order directly—found no official site with current prices. A direct WhatsApp ordering page would be a gamechanger."
-                          `}
+                          `
+                          }
                         </div>
                       </div>
-                      `}
+                      `
+                      }
 
                     </td>
                   </tr>
@@ -363,11 +375,13 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                     
                     <!-- Cover Photo -->
                     <img 
-                      src="${isFlower 
-                        ? 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80' 
-                        : (isSandar 
-                            ? 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?auto=format&fit=crop&w=800&q=80' 
-                            : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80')}" 
+                      src="${
+                        isFlower
+                          ? 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80'
+                          : isSandar
+                            ? 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?auto=format&fit=crop&w=800&q=80'
+                            : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80'
+                      }" 
                       alt="${opts.businessName}" 
                       width="100%" 
                       style="width: 100%; height: 160px; object-fit: cover; display: block;" 
@@ -377,9 +391,13 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                     <div style="padding: 16px 16px 14px 16px; background: linear-gradient(180deg, #0c121e 0%, #070b13 100%);">
                       <div style="margin-bottom: 6px;">
                         <span style="display: inline-block; padding: 3px 8px; font-size: 10px; font-weight: 700; color: #10b981; background-color: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px;">
-                          ${isFlower 
-                            ? '🌸 4.8 ★ (184+ Google Reviews) · Sankhamul Marg' 
-                            : (isSandar ? '🥟 4.7 ★ (420+ Google Reviews) · Sankhamul Bridge' : `★ 4.8 · ${opts.district}`)}
+                          ${
+                            isFlower
+                              ? '🌸 4.8 ★ (184+ Google Reviews) · Sankhamul Marg'
+                              : isSandar
+                                ? '🥟 4.7 ★ (420+ Google Reviews) · Sankhamul Bridge'
+                                : `★ 4.8 · ${opts.district}`
+                          }
                         </span>
                       </div>
                       
@@ -388,15 +406,23 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                       </div>
                       
                       <div style="font-size: 12px; font-weight: 600; color: #fbbf24; margin-bottom: 6px;">
-                        ${isFlower 
-                          ? 'काठमाडौँको ताजा फूल, नित्य पूजा सामग्री तथा इन्डोर प्लान्ट्स' 
-                          : (isSandar ? 'काठमाडौँको प्रख्यात बफ तथा चिकेन मःमः र पिरो टिमुर अचार' : `${opts.category} in ${opts.district}`)}
+                        ${
+                          isFlower
+                            ? 'काठमाडौँको ताजा फूल, नित्य पूजा सामग्री तथा इन्डोर प्लान्ट्स'
+                            : isSandar
+                              ? 'काठमाडौँको प्रख्यात बफ तथा चिकेन मःमः र पिरो टिमुर अचार'
+                              : `${opts.category} in ${opts.district}`
+                        }
                       </div>
 
                       <div style="font-size: 11px; line-height: 1.4; color: #94a3b8; margin-bottom: 12px;">
-                        ${isFlower 
-                          ? 'Bespoke Dutch rose & lily hand bouquets, temple devotional garlands, and lush indoor houseplants.' 
-                          : (isSandar ? 'Fresh hand-pleated momos steaming non-stop with signature roasted timur chutney.' : 'Handcrafted offerings tailored for Kathmandu Valley patrons.')}
+                        ${
+                          isFlower
+                            ? 'Bespoke Dutch rose & lily hand bouquets, temple devotional garlands, and lush indoor houseplants.'
+                            : isSandar
+                              ? 'Fresh hand-pleated momos steaming non-stop with signature roasted timur chutney.'
+                              : 'Handcrafted offerings tailored for Kathmandu Valley patrons.'
+                        }
                       </div>
 
                       <!-- DIRECT WHATSAPP TAKEAWAY PREVIEW -->
@@ -417,7 +443,9 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                         🛍️ Tap-to-Order Digital Offerings:
                       </div>
 
-                      ${isFlower ? `
+                      ${
+                        isFlower
+                          ? `
                         <!-- Flower Item 1 -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
                           <tr>
@@ -465,7 +493,8 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                             </td>
                           </tr>
                         </table>
-                      ` : `
+                      `
+                          : `
                         <!-- Sandar Momo Items -->
                         <!-- Item 1: Special Buff Steamed Momo -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
@@ -562,7 +591,8 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                             </td>
                           </tr>
                         </table>
-                      `}
+                      `
+                      }
                     </div>
 
                     <!-- Hours & Location Details inside phone -->
@@ -572,10 +602,10 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
                           📍 Location &amp; Hours
                         </div>
                         <div style="font-size: 12px; font-weight: 700; color: #f8fafc;">
-                          ${isSandar ? 'Open Daily: 11:00 AM – 8:30 PM' : (isFlower ? 'Open Daily: 7:00 AM – 8:00 PM' : 'Open Daily')}
+                          ${isSandar ? 'Open Daily: 11:00 AM – 8:30 PM' : isFlower ? 'Open Daily: 7:00 AM – 8:00 PM' : 'Open Daily'}
                         </div>
                         <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
-                          ${isSandar ? 'Sankhamul Marg (Near Sankhamul Bridge), Ward 10, Kathmandu 44600' : (isFlower ? 'Sankhamul Marg (Opposite Riverside Park), Ward 10, Kathmandu' : `${opts.district}, Kathmandu Valley`)}
+                          ${isSandar ? 'Sankhamul Marg (Near Sankhamul Bridge), Ward 10, Kathmandu 44600' : isFlower ? 'Sankhamul Marg (Opposite Riverside Park), Ward 10, Kathmandu' : `${opts.district}, Kathmandu Valley`}
                         </div>
                       </div>
                     </div>
@@ -724,11 +754,11 @@ Basant · Sunya (शून्य) · Direct WhatsApp & Phone: ${founderPhone}
   return { subject, bodyText, html };
 }
 
-export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{ 
-  success: boolean; 
-  messageId?: string; 
-  error?: string; 
-  simulated?: boolean; 
+export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
+  success: boolean;
+  messageId?: string;
+  error?: string;
+  simulated?: boolean;
   previewUrl?: string;
   emailPayload?: {
     subject: string;
@@ -736,7 +766,13 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
     html: string;
   };
   headers?: Record<string, string>;
-  attachments?: Array<{ filename: string; path: string; cid: string; contentType?: string; contentDisposition?: 'inline' | 'attachment' }>;
+  attachments?: Array<{
+    filename: string;
+    path: string;
+    cid: string;
+    contentType?: string;
+    contentDisposition?: 'inline' | 'attachment';
+  }>;
 }> {
   const gmailUser = process.env.GMAIL_USER || 'basantpok90@gmail.com';
   const appPassword = process.env.GMAIL_APP_PASSWORD;
@@ -750,7 +786,8 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
   };
 
   const isConfidential = options.isConfidential !== false;
-  const preventDownloads = options.preventDownloads !== undefined ? options.preventDownloads : isConfidential;
+  const preventDownloads =
+    options.preventDownloads !== undefined ? options.preventDownloads : isConfidential;
 
   if (isConfidential) {
     headers['Sensitivity'] = 'Company-Confidential';
@@ -771,19 +808,21 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
     path.join(process.cwd(), 'public', 'brand-logo.png'),
     path.resolve(__dirname, '../../public/brand-logo.png'),
     path.resolve(__dirname, '../public/brand-logo.png'),
-    '/home/basant/sunya-visiblity/public/brand-logo.png'
+    '/home/basant/sunya-visiblity/public/brand-logo.png',
   ];
-  const logoPath = possibleLogoPaths.find(p => fs.existsSync(p));
+  const logoPath = possibleLogoPaths.find((p) => fs.existsSync(p));
 
-  const attachments: any[] = logoPath ? [
-    {
-      filename: 'brand-logo.png',
-      path: logoPath,
-      cid: 'brandlogo',
-      contentType: 'image/png',
-      contentDisposition: 'inline' as const,
-    }
-  ] : [];
+  const attachments: any[] = logoPath
+    ? [
+        {
+          filename: 'brand-logo.png',
+          path: logoPath,
+          cid: 'brandlogo',
+          contentType: 'image/png',
+          contentDisposition: 'inline' as const,
+        },
+      ]
+    : [];
 
   const redditProofPath = path.join(process.cwd(), 'public', 'social-proof-reddit-sandar.png');
   if (fs.existsSync(redditProofPath)) {
@@ -821,7 +860,9 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
   if (options.attachments && options.attachments.length > 0) {
     if (preventDownloads) {
       // In Confidential Mode with downloads disabled, strip all downloadable file attachments!
-      const inlineOnly = options.attachments.filter(a => a.contentDisposition === 'inline' || (a.cid && a.cid !== 'attachment'));
+      const inlineOnly = options.attachments.filter(
+        (a) => a.contentDisposition === 'inline' || (a.cid && a.cid !== 'attachment'),
+      );
       attachments.push(...inlineOnly);
     } else {
       attachments.push(...options.attachments);
@@ -829,36 +870,39 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
   }
 
   // SAFETY GUARD: If dryRun is requested, or sending to test domains, NEVER dispatch live email
-  const isTestEmail = options.toEmail.endsWith('@example.com') || 
-                      options.toEmail.endsWith('.local') || 
-                      options.toEmail.includes('test') || 
-                      options.toEmail.includes('audit');
-                      
+  const isTestEmail =
+    options.toEmail.endsWith('@example.com') ||
+    options.toEmail.endsWith('.local') ||
+    options.toEmail.includes('test') ||
+    options.toEmail.includes('audit');
+
   if (options.dryRun || isTestEmail || !appPassword || appPassword === 'placeholder') {
-    console.log(`[Outreach Mailer] ${options.dryRun || isTestEmail ? 'Safe Test / Dry-Run Mode' : 'Development Dispatch'} (NO REAL INBOX EMAILS SENT):`);
+    console.log(
+      `[Outreach Mailer] ${options.dryRun || isTestEmail ? 'Safe Test / Dry-Run Mode' : 'Development Dispatch'} (NO REAL INBOX EMAILS SENT):`,
+    );
     console.log(` -> To: ${options.toEmail}`);
     console.log(` -> Subject: ${subject}`);
     console.log(` -> Confidential: ${options.isConfidential !== false}`);
-    return { 
-      success: true, 
-      simulated: true, 
+    return {
+      success: true,
+      simulated: true,
       messageId: `safe_dryrun_${Date.now()}`,
       previewUrl: options.previewUrl,
       emailPayload: { subject, bodyText, html },
       headers,
-      attachments
+      attachments,
     };
   }
 
   // Domain MX validation
   const isDeliverable = await verifyDomainMX(options.toEmail);
   if (!isDeliverable) {
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: `Domain ${options.toEmail.split('@')[1]} has no valid mail exchanger (MX) records.`,
       emailPayload: { subject, bodyText, html },
       headers,
-      attachments
+      attachments,
     };
   }
 
@@ -883,13 +927,15 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
       attachments: attachments,
     });
 
-    console.log(`[Confidential Direct Mail] Sent successfully to ${options.toEmail} (ID: ${info.messageId})`);
-    return { 
-      success: true, 
+    console.log(
+      `[Confidential Direct Mail] Sent successfully to ${options.toEmail} (ID: ${info.messageId})`,
+    );
+    return {
+      success: true,
       messageId: info.messageId,
       emailPayload: { subject, bodyText, html },
       headers,
-      attachments
+      attachments,
     };
   } catch (err: any) {
     console.warn(
@@ -904,7 +950,7 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
       error: err.message,
       emailPayload: { subject, bodyText, html },
       headers,
-      attachments
+      attachments,
     };
   }
 }
