@@ -67,21 +67,32 @@ export default function AgencyHomePage() {
       <nav className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/80 px-6 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-1.5 shadow-md shadow-blue-500/10">
-              <img src="/sunya-mark-white.png" alt="Sunya" className="w-full h-full object-contain" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 p-1.5 shadow-md shadow-blue-500/10">
+              <img
+                src="/sunya-mark-white.png"
+                alt="Sunya"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight text-white">Sunya</span>
-              <span className="hidden sm:inline-block ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="text-base font-extrabold tracking-tight text-white">Sunya</span>
+              <span className="ml-2 hidden rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-400 sm:inline-block">
                 Kathmandu Valley
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-semibold">
+          <div className="flex items-center gap-3 text-xs font-semibold">
+            <Link
+              href="/sunya"
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-2 text-white shadow-lg shadow-blue-600/20 transition-all hover:from-blue-500 hover:to-indigo-500"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-blue-200" />
+              <span>Sunya शून्य Tool</span>
+            </Link>
             <Link
               href="/admin"
-              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
             >
               <Cpu className="h-3.5 w-3.5" />
               <span>Founder Console</span>
@@ -98,29 +109,39 @@ export default function AgencyHomePage() {
         </div>
 
         <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
-          Giving Kathmandu&apos;s Best Businesses The Digital Presence They Deserve.
+          Zero-to-One Web Presence for{' '}
+          <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
+            Kathmandu
+          </span>{' '}
+          Enterprises.
         </h1>
 
-        <p className="mx-auto max-w-2xl text-lg leading-relaxed text-slate-400 sm:text-xl">
-          We identify top-rated local spots across Kathmandu, Lalitpur, and Bhaktapur that lack
-          websites, auto-generate bespoke Next.js mobile experiences, and deploy them live before
-          reaching out.
+        <p className="mx-auto max-w-2xl text-base text-slate-400 sm:text-lg">
+          We autonomously discover unrepresented local establishments, compose custom authentic
+          brand copy, and deploy high-converting websites in under 15 minutes.
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 pt-4">
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-sm">
+          <Link
+            href="/sunya"
+            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-7 py-3.5 font-bold text-white shadow-xl shadow-blue-600/25 transition-all hover:from-blue-500 hover:to-indigo-500"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Open Sunya शून्य Tool</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
           <a
             href="#live-previews"
-            className="flex items-center gap-2 rounded-2xl bg-white px-7 py-3.5 font-bold text-slate-950 shadow-xl transition-all hover:bg-slate-100"
+            className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/60 px-7 py-3.5 font-bold text-slate-200 transition-all hover:bg-slate-800"
           >
             <span>Explore Live Previews</span>
-            <ArrowRight className="h-4 w-4" />
           </a>
           <Link
             href="/admin"
-            className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/60 px-7 py-3.5 font-bold text-slate-200 transition-all hover:bg-slate-800"
+            className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/60 px-5 py-3.5 font-bold text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200"
           >
             <Cpu className="h-4 w-4 text-blue-400" />
-            <span>Open Pipeline Ops</span>
+            <span>Pipeline Ops</span>
           </Link>
         </div>
 
@@ -277,7 +298,7 @@ export default function AgencyHomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-slate-800 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-800 py-12 text-center text-xs text-slate-500">
         <p>© {new Date().getFullYear()} Sunya · Kathmandu Valley Autonomous Agency</p>
       </footer>
     </div>
