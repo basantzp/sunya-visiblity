@@ -19,9 +19,12 @@ import {
   Mail,
   MapPin,
   Maximize2,
+  MessageCircle,
   MessageSquare,
   Phone,
+  PhoneCall,
   RefreshCw,
+  RotateCcw,
   Search,
   Send,
   Share2,
@@ -31,6 +34,7 @@ import {
   Sparkles,
   Star,
   UtensilsCrossed,
+  Video,
   Zap,
 } from 'lucide-react';
 
@@ -64,12 +68,19 @@ interface WhatsAppResult {
   phone: string;
   message: string;
   directUrl: string;
+  templates?: {
+    bilingual: string;
+    nepali: string;
+    category: string;
+    short: string;
+  };
 }
 
 export default function SunyaToolPage() {
   // Query & Generation State
   const [query, setQuery] = useState('gym of sankhamul');
   const [generateEmail, setGenerateEmail] = useState(true);
+  const [generateWhatsApp, setGenerateWhatsApp] = useState(true);
   const [generateWebsite, setGenerateWebsite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +89,12 @@ export default function SunyaToolPage() {
   const [recipientEmail, setRecipientEmail] = useState('info@shankhamulfitness.com.np');
   const [recipientPhone, setRecipientPhone] = useState('+977 9867333080');
 
+  // WhatsApp Message Tone & Customization
+  const [whatsAppTone, setWhatsAppTone] = useState<'bilingual' | 'nepali' | 'category' | 'short'>(
+    'bilingual',
+  );
+  const [customWhatsAppText, setCustomWhatsAppText] = useState('');
+
   // Generated Payload
   const [business, setBusiness] = useState<BusinessLead | null>(null);
   const [emailData, setEmailData] = useState<EmailResult | null>(null);
@@ -85,8 +102,7 @@ export default function SunyaToolPage() {
   const [whatsAppData, setWhatsApp] = useState<WhatsAppResult | null>(null);
 
   // Mobile View State
-  const [mobileMode, setMobileMode] = useState<'email' | 'website'>('email');
-  const [deviceModel, setDeviceModel] = useState<'iphone' | 'pixel'>('iphone');
+  const [mobileMode, setMobileMode] = useState<'email' | 'whatsapp' | 'website'>('whatsapp');
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Direct Send Email State
@@ -100,32 +116,58 @@ export default function SunyaToolPage() {
 
   // Quick Preset Suggestions
   const quickPresets = [
-    { label: '🏋️‍♂️ Gym of Sankhamul', query: 'gym of sankhamul', email: true, website: false },
-    { label: '🥟 Momo in New Road', query: 'momo in new road', email: true, website: true },
+    {
+      label: '🏋️‍♂️ Gym of Sankhamul',
+      query: 'gym of sankhamul',
+      email: true,
+      whatsapp: true,
+      website: false,
+    },
+    {
+      label: '🥟 Momo in New Road',
+      query: 'momo in new road',
+      email: true,
+      whatsapp: true,
+      website: true,
+    },
     {
       label: '🌸 Flower Shop in Sankhamul',
       query: 'flower shop in sankhamul',
       email: true,
+      whatsapp: true,
       website: false,
     },
-    { label: '☕ Cafe in Boudha', query: 'cafe in boudha', email: true, website: true },
-    { label: '💆 Spa in Jhamsikhel', query: 'spa in jhamsikhel', email: true, website: true },
+    {
+      label: '☕ Cafe in Boudha',
+      query: 'cafe in boudha',
+      email: true,
+      whatsapp: true,
+      website: true,
+    },
+    {
+      label: '💆 Spa in Jhamsikhel',
+      query: 'spa in jhamsikhel',
+      email: true,
+      whatsapp: true,
+      website: true,
+    },
   ];
 
   // Auto-run initial query on mount
   useEffect(() => {
-    handleGenerate('gym of sankhamul', true, false);
+    handleGenerate('gym of sankhamul', true, true, false);
   }, []);
 
   async function handleGenerate(
     searchQuery = query,
     genEmail = generateEmail,
+    genWA = generateWhatsApp,
     genWebsite = generateWebsite,
     customMail = recipientEmail,
     customNum = recipientPhone,
   ) {
-    if (!genEmail && !genWebsite) {
-      setError('Please select at least one format: Email Template or Website.');
+    if (!genEmail && !genWA && !genWebsite) {
+      setError('Please select at least one format: Email, WhatsApp, or Website.');
       return;
     }
 
@@ -140,6 +182,7 @@ export default function SunyaToolPage() {
         body: JSON.stringify({
           query: searchQuery,
           generateEmail: genEmail,
+          generateWhatsApp: genWA,
           generateWebsite: genWebsite,
           customEmail: customMail,
           customPhone: customNum,
@@ -157,6 +200,12 @@ export default function SunyaToolPage() {
       setWebsiteData(data.website);
       setWhatsApp(data.whatsapp);
 
+      // Initialize WhatsApp message text with the current tone
+      if (data.whatsapp) {
+        const initialText = data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message;
+        setCustomWhatsAppText(initialText);
+      }
+
       // Update editable contact fields if default returned
       if (data.business) {
         setRecipientEmail(data.business.email || 'contact@business.com.np');
@@ -164,18 +213,25 @@ export default function SunyaToolPage() {
       }
 
       // Automatically select appropriate mobile view tab
-      if (genEmail && !genWebsite) {
+      if (genWA) {
+        setMobileMode('whatsapp');
+      } else if (genEmail) {
         setMobileMode('email');
-      } else if (!genEmail && genWebsite) {
+      } else if (genWebsite) {
         setMobileMode('website');
-      } else {
-        // Both enabled, default to email unless website only was previously active
-        setMobileMode((prev) => (prev === 'website' ? 'website' : 'email'));
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  // Tone Switcher for WhatsApp
+  function handleToneChange(tone: 'bilingual' | 'nepali' | 'category' | 'short') {
+    setWhatsAppTone(tone);
+    if (whatsAppData?.templates?.[tone]) {
+      setCustomWhatsAppText(whatsAppData.templates[tone]);
     }
   }
 
@@ -229,11 +285,9 @@ export default function SunyaToolPage() {
     }
   }
 
-  // Handle WhatsApp Direct Send
-  function handleOpenWhatsApp() {
-    if (!whatsAppData || !whatsAppData.directUrl) return;
-
-    // Recalculate direct URL with the current edited phone
+  // Handle WhatsApp Direct Send to Client
+  function handleOpenWhatsApp(type: 'web' | 'app' = 'web') {
+    const activeText = customWhatsAppText || whatsAppData?.message || '';
     const cleanDigits = recipientPhone.replace(/[^0-9]/g, '');
     const nepPhone = cleanDigits.startsWith('977')
       ? cleanDigits
@@ -241,7 +295,12 @@ export default function SunyaToolPage() {
         ? `977${cleanDigits}`
         : cleanDigits;
 
-    const url = `https://wa.me/${nepPhone}?text=${encodeURIComponent(whatsAppData.message)}`;
+    const encodedText = encodeURIComponent(activeText);
+    const url =
+      type === 'app'
+        ? `whatsapp://send?phone=${nepPhone}&text=${encodedText}`
+        : `https://wa.me/${nepPhone}?text=${encodedText}`;
+
     window.open(url, '_blank');
   }
 
@@ -313,7 +372,7 @@ export default function SunyaToolPage() {
       {/* Main Container */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-          {/* Left / Control Panel: Search, Toggles, Contact Details, Direct Send (5 cols) */}
+          {/* Left / Control Panel: Search, Toggles, Contact Details, Direct Send (6 cols) */}
           <div className="space-y-6 lg:col-span-6">
             {/* 1. Search Box Card */}
             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-xl backdrop-blur">
@@ -378,8 +437,14 @@ export default function SunyaToolPage() {
                         onClick={() => {
                           setQuery(preset.query);
                           setGenerateEmail(preset.email);
+                          setGenerateWhatsApp(preset.whatsapp);
                           setGenerateWebsite(preset.website);
-                          handleGenerate(preset.query, preset.email, preset.website);
+                          handleGenerate(
+                            preset.query,
+                            preset.email,
+                            preset.whatsapp,
+                            preset.website,
+                          );
                         }}
                         className={`rounded-lg border px-2.5 py-1 text-[11px] transition-all ${
                           query.toLowerCase() === preset.query.toLowerCase()
@@ -393,15 +458,15 @@ export default function SunyaToolPage() {
                   </div>
                 </div>
 
-                {/* 2. Generation Mode Checkboxes */}
+                {/* 2. Generation Mode Checkboxes (Choose formats) */}
                 <div className="border-t border-slate-800/80 pt-2">
                   <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-300">
-                    Generation Options (Choose format):
+                    Generation Options (Select formats to generate):
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                     {/* Checkbox: Email Template */}
                     <label
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-all ${
+                      className={`flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 transition-all ${
                         generateEmail
                           ? 'border-amber-500/40 bg-amber-500/10 text-white'
                           : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
@@ -411,22 +476,47 @@ export default function SunyaToolPage() {
                         type="checkbox"
                         checked={generateEmail}
                         onChange={(e) => setGenerateEmail(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-500/20"
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-500/20"
                       />
                       <div className="space-y-0.5">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
-                          <Mail className="h-3.5 w-3.5" />
-                          <span>Email Template</span>
+                        <div className="flex items-center gap-1 text-xs font-bold text-amber-400">
+                          <Mail className="h-3 w-3" />
+                          <span>Email Pitch</span>
                         </div>
                         <p className="text-[10px] leading-tight text-slate-400">
-                          Confidential high-converting audit & pitch for the owner.
+                          Confidential audit & pitch for the owner.
+                        </p>
+                      </div>
+                    </label>
+
+                    {/* Checkbox: Message to WhatsApp for Client */}
+                    <label
+                      className={`flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 transition-all ${
+                        generateWhatsApp
+                          ? 'border-emerald-500/40 bg-emerald-500/10 text-white'
+                          : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={generateWhatsApp}
+                        onChange={(e) => setGenerateWhatsApp(e.target.checked)}
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500/20"
+                      />
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-1 text-xs font-bold text-emerald-400">
+                          <MessageSquare className="h-3 w-3" />
+                          <span>WhatsApp Client</span>
+                        </div>
+                        <p className="text-[10px] leading-tight text-slate-400">
+                          1-tap direct WhatsApp message to client.
                         </p>
                       </div>
                     </label>
 
                     {/* Checkbox: Website Template */}
                     <label
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-all ${
+                      className={`flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 transition-all ${
                         generateWebsite
                           ? 'border-blue-500/40 bg-blue-500/10 text-white'
                           : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
@@ -436,15 +526,15 @@ export default function SunyaToolPage() {
                         type="checkbox"
                         checked={generateWebsite}
                         onChange={(e) => setGenerateWebsite(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-blue-500/20"
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-blue-500/20"
                       />
                       <div className="space-y-0.5">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
-                          <Globe className="h-3.5 w-3.5" />
-                          <span>Website Template</span>
+                        <div className="flex items-center gap-1 text-xs font-bold text-blue-400">
+                          <Globe className="h-3 w-3" />
+                          <span>Website Demo</span>
                         </div>
                         <p className="text-[10px] leading-tight text-slate-400">
-                          Live mobile-optimized website demo ready for customer.
+                          Live mobile-optimized website for client.
                         </p>
                       </div>
                     </label>
@@ -454,24 +544,26 @@ export default function SunyaToolPage() {
                 {/* Submit Action Button */}
                 <button
                   type="submit"
-                  disabled={loading || (!generateEmail && !generateWebsite)}
+                  disabled={loading || (!generateEmail && !generateWhatsApp && !generateWebsite)}
                   className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Generating Lead & Artifacts...</span>
+                      <span>Generating Lead & Client Materials...</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 text-blue-200" />
                       <span>
                         Generate{' '}
-                        {generateEmail && generateWebsite
-                          ? 'Email & Website'
-                          : generateEmail
-                            ? 'Email Template'
-                            : 'Website'}
+                        {[
+                          generateEmail ? 'Email' : null,
+                          generateWhatsApp ? 'WhatsApp' : null,
+                          generateWebsite ? 'Website' : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' + ') || 'Materials'}
                       </span>
                     </>
                   )}
@@ -517,7 +609,7 @@ export default function SunyaToolPage() {
                   </div>
                 </div>
 
-                {/* Direct Contact & Outreach Form */}
+                {/* Direct Outreach Channels */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-300">
                     <span>Direct Outreach Channels</span>
@@ -526,113 +618,90 @@ export default function SunyaToolPage() {
                     </span>
                   </div>
 
-                  {/* Channel A: Email Input & Direct Send */}
-                  <div className="space-y-2.5 rounded-xl border border-amber-500/20 bg-amber-950/10 p-3.5">
-                    <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
-                        <Mail className="h-3.5 w-3.5" />
-                        <span>Recipient Email</span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setRecipientEmail('iiambasant@gmail.com')}
-                        className="text-[10px] text-amber-400 underline hover:text-amber-300"
-                      >
-                        Use my email (test)
-                      </button>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <input
-                        type="email"
-                        value={recipientEmail}
-                        onChange={(e) => setRecipientEmail(e.target.value)}
-                        placeholder="recipient@business.com.np"
-                        className="flex-1 rounded-lg border border-slate-700/80 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSendDirectEmail}
-                        disabled={isSendingMail || !emailData}
-                        className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-amber-600/20 transition-all hover:bg-amber-500 disabled:opacity-50"
-                      >
-                        {isSendingMail ? (
-                          <>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            <span>Sending...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Send className="h-3.5 w-3.5" />
-                            <span>Send Email</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Email Dispatch Status Feedback */}
-                    {mailSendStatus && (
-                      <div
-                        className={`rounded-lg border p-2.5 text-xs ${
-                          mailSendStatus.success
-                            ? 'border-emerald-500/30 bg-emerald-950/30 text-emerald-300'
-                            : 'border-red-500/30 bg-red-950/30 text-red-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 font-bold">
-                          {mailSendStatus.success ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                          ) : (
-                            <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
-                          )}
-                          <span>{mailSendStatus.message}</span>
-                        </div>
-                        {mailSendStatus.timestamp && (
-                          <div className="mt-0.5 text-[10px] text-slate-400">
-                            Status logged at {mailSendStatus.timestamp}
-                          </div>
-                        )}
+                  {/* Channel A: Message to WhatsApp for Client */}
+                  {generateWhatsApp && (
+                    <div className="space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-950/15 p-4">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-1.5 text-xs font-bold text-emerald-300">
+                          <MessageSquare className="h-4 w-4 text-emerald-400" />
+                          <span>Message to WhatsApp (Client Outreach)</span>
+                        </label>
+                        <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+                          Nepal (+977)
+                        </span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Channel B: WhatsApp Input & Direct Message */}
-                  <div className="space-y-2.5 rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-3.5">
-                    <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-1.5 text-xs font-bold text-emerald-300">
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        <span>Recipient WhatsApp / Phone</span>
-                      </label>
-                      <span className="text-[10px] text-emerald-400">Nepal (+977)</span>
-                    </div>
+                      {/* Phone Number Input & Fast Actions */}
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={recipientPhone}
+                          onChange={(e) => setRecipientPhone(e.target.value)}
+                          placeholder="+977 9867333080"
+                          className="flex-1 rounded-lg border border-slate-700/80 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleOpenWhatsApp('web')}
+                          disabled={!whatsAppData}
+                          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-emerald-500 disabled:opacity-50"
+                          title="Open WhatsApp Web / Chat"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          <span>Direct WhatsApp</span>
+                        </button>
+                      </div>
 
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={recipientPhone}
-                        onChange={(e) => setRecipientPhone(e.target.value)}
-                        placeholder="+977 9867333080"
-                        className="flex-1 rounded-lg border border-slate-700/80 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleOpenWhatsApp}
-                        disabled={!whatsAppData}
-                        className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-emerald-500 disabled:opacity-50"
-                      >
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        <span>Direct WhatsApp</span>
-                      </button>
-                    </div>
-
-                    {/* Pre-written WhatsApp Message Accordion Preview */}
-                    {whatsAppData && (
-                      <div className="pt-1">
+                      {/* Pitch Tone Selector */}
+                      <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-[11px] text-slate-400">
-                          <span className="font-medium">Pre-composed pitch:</span>
+                          <span className="font-semibold text-slate-300">
+                            Select Pitch Tone for Client:
+                          </span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard(whatsAppData.message, 'whatsapp')}
+                            onClick={() => {
+                              if (whatsAppData?.templates?.[whatsAppTone]) {
+                                setCustomWhatsAppText(whatsAppData.templates[whatsAppTone]);
+                              }
+                            }}
+                            className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-200"
+                            title="Reset text to preset tone"
+                          >
+                            <RotateCcw className="h-2.5 w-2.5" />
+                            <span>Reset</span>
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                          {[
+                            { key: 'bilingual', label: '🌐 Bilingual' },
+                            { key: 'nepali', label: '🇳🇵 Local Nepali' },
+                            { key: 'category', label: '🏋️ Category Focus' },
+                            { key: 'short', label: '⚡ Short & Punchy' },
+                          ].map((t) => (
+                            <button
+                              key={t.key}
+                              type="button"
+                              onClick={() => handleToneChange(t.key as any)}
+                              className={`rounded-lg border px-2 py-1 text-[11px] font-semibold transition-all ${
+                                whatsAppTone === t.key
+                                  ? 'border-emerald-500/60 bg-emerald-600/30 text-emerald-300 shadow-sm'
+                                  : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                              }`}
+                            >
+                              {t.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Editable WhatsApp Pitch Textarea */}
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between text-[11px] text-slate-400">
+                          <span className="font-medium">Client Message Draft (Live-editable):</span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(customWhatsAppText, 'whatsapp')}
                             className="flex items-center gap-1 text-[10px] text-emerald-400 hover:text-emerald-300"
                           >
                             {copiedField === 'whatsapp' ? (
@@ -640,67 +709,136 @@ export default function SunyaToolPage() {
                             ) : (
                               <Copy className="h-3 w-3" />
                             )}
-                            <span>{copiedField === 'whatsapp' ? 'Copied' : 'Copy Text'}</span>
+                            <span>{copiedField === 'whatsapp' ? 'Copied!' : 'Copy Text'}</span>
                           </button>
                         </div>
-                        <div className="mt-1 max-h-24 overflow-y-auto whitespace-pre-wrap rounded-lg border border-slate-800 bg-slate-950/70 p-2 font-sans text-[11px] text-slate-300">
-                          {whatsAppData.message}
-                        </div>
+                        <textarea
+                          rows={4}
+                          value={customWhatsAppText}
+                          onChange={(e) => setCustomWhatsAppText(e.target.value)}
+                          className="w-full resize-y rounded-lg border border-slate-700/80 bg-slate-950 p-2.5 font-sans text-xs leading-relaxed text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                          placeholder="Compose custom WhatsApp message to client..."
+                        />
                       </div>
-                    )}
-                  </div>
+
+                      {/* WhatsApp Fast Dispatch Toolbar */}
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenWhatsApp('web')}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 py-1.5 text-xs font-bold text-emerald-300 transition-colors hover:bg-emerald-900/50"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span>Launch WhatsApp Web</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenWhatsApp('app')}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-800"
+                        >
+                          <Smartphone className="h-3 w-3" />
+                          <span>Open in App</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Channel B: Email Input & Direct Send */}
+                  {generateEmail && (
+                    <div className="space-y-2.5 rounded-xl border border-amber-500/20 bg-amber-950/10 p-3.5">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span>Recipient Email</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setRecipientEmail('iiambasant@gmail.com')}
+                          className="text-[10px] text-amber-400 underline hover:text-amber-300"
+                        >
+                          Use my email (test)
+                        </button>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="email"
+                          value={recipientEmail}
+                          onChange={(e) => setRecipientEmail(e.target.value)}
+                          placeholder="recipient@business.com.np"
+                          className="flex-1 rounded-lg border border-slate-700/80 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSendDirectEmail}
+                          disabled={isSendingMail || !emailData}
+                          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-amber-600/20 transition-all hover:bg-amber-500 disabled:opacity-50"
+                        >
+                          {isSendingMail ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              <span>Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-3.5 w-3.5" />
+                              <span>Send Email</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Email Dispatch Status Feedback */}
+                      {mailSendStatus && (
+                        <div
+                          className={`rounded-lg border p-2.5 text-xs ${
+                            mailSendStatus.success
+                              ? 'border-emerald-500/30 bg-emerald-950/30 text-emerald-300'
+                              : 'border-red-500/30 bg-red-950/30 text-red-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 font-bold">
+                            {mailSendStatus.success ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                            ) : (
+                              <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
+                            )}
+                            <span>{mailSendStatus.message}</span>
+                          </div>
+                          {mailSendStatus.timestamp && (
+                            <div className="mt-0.5 text-[10px] text-slate-400">
+                              Status logged at {mailSendStatus.timestamp}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Email Subject & Quick Copy */}
+                      {emailData && (
+                        <div className="space-y-1.5 border-t border-slate-800/80 pt-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-bold text-slate-400">Subject Line:</span>
+                            <button
+                              onClick={() => copyToClipboard(emailData.subject, 'subject')}
+                              className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300"
+                            >
+                              {copiedField === 'subject' ? (
+                                <Check className="h-3 w-3" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                              <span>{copiedField === 'subject' ? 'Copied' : 'Copy'}</span>
+                            </button>
+                          </div>
+                          <div className="truncate rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs font-semibold text-slate-200">
+                            {emailData.subject}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-
-                {/* Email Subject & Quick Copy Toolbar */}
-                {emailData && (
-                  <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-slate-400">Email Subject:</span>
-                      <button
-                        onClick={() => copyToClipboard(emailData.subject, 'subject')}
-                        className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300"
-                      >
-                        {copiedField === 'subject' ? (
-                          <Check className="h-3 w-3" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                        <span>{copiedField === 'subject' ? 'Copied' : 'Copy'}</span>
-                      </button>
-                    </div>
-                    <div className="rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-200">
-                      {emailData.subject}
-                    </div>
-
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        onClick={() => copyToClipboard(emailData.html, 'html')}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-slate-800"
-                      >
-                        {copiedField === 'html' ? (
-                          <Check className="h-3 w-3 text-emerald-400" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                        <span>{copiedField === 'html' ? 'Copied HTML' : 'Copy Full HTML'}</span>
-                      </button>
-
-                      <button
-                        onClick={() => copyToClipboard(emailData.bodyText, 'text')}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-slate-800"
-                      >
-                        {copiedField === 'text' ? (
-                          <Check className="h-3 w-3 text-emerald-400" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                        <span>
-                          {copiedField === 'text' ? 'Copied Plain Text' : 'Copy Plain Text'}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -708,40 +846,65 @@ export default function SunyaToolPage() {
           {/* Right / Interactive Mobile Viewport: Authentic Smartphone Frame (6 cols) */}
           <div className="flex flex-col items-center lg:col-span-6">
             {/* Viewport Control Bar */}
-            <div className="mb-3 flex w-full max-w-[420px] items-center justify-between">
-              {/* Tab Switcher (if both Email & Website are available) */}
-              <div className="inline-flex rounded-xl border border-slate-800 bg-slate-900 p-1">
+            <div className="mb-3 flex w-full max-w-[400px] items-center justify-between">
+              {/* Tab Switcher (Email vs WhatsApp vs Website) */}
+              <div className="inline-flex rounded-xl border border-slate-800 bg-slate-900 p-1 shadow">
+                <button
+                  type="button"
+                  onClick={() => setMobileMode('whatsapp')}
+                  disabled={!whatsAppData}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all ${
+                    mobileMode === 'whatsapp'
+                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                      : 'text-slate-400 hover:text-slate-200 disabled:opacity-30'
+                  }`}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span>WhatsApp</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setMobileMode('email')}
                   disabled={!emailData}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all ${
                     mobileMode === 'email'
                       ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                      : 'text-slate-400 hover:text-slate-200 disabled:opacity-40'
+                      : 'text-slate-400 hover:text-slate-200 disabled:opacity-30'
                   }`}
                 >
                   <Mail className="h-3.5 w-3.5" />
-                  <span>Email View</span>
+                  <span>Email</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setMobileMode('website')}
                   disabled={!websiteData}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all ${
                     mobileMode === 'website'
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                      : 'text-slate-400 hover:text-slate-200 disabled:opacity-40'
+                      : 'text-slate-400 hover:text-slate-200 disabled:opacity-30'
                   }`}
                 >
                   <Globe className="h-3.5 w-3.5" />
-                  <span>Website View</span>
+                  <span>Website</span>
                 </button>
               </div>
 
               {/* External Link */}
               <div className="flex items-center gap-2">
+                {mobileMode === 'whatsapp' && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenWhatsApp('web')}
+                    className="flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
+                    title="Send via WhatsApp Web"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span>Send Chat</span>
+                  </button>
+                )}
                 {mobileMode === 'email' && emailData && business && (
                   <a
                     href={`/api/email-preview/raw?business=${encodeURIComponent(business.name)}&category=${encodeURIComponent(business.category)}&slug=${business.slug}&district=${business.district}`}
@@ -784,7 +947,7 @@ export default function SunyaToolPage() {
                   {/* Dynamic Island pill */}
                   <div className="flex h-5 w-24 items-center justify-center gap-1.5 rounded-full border border-slate-800/60 bg-black">
                     <div className="h-2 w-2 rounded-full border border-slate-700 bg-slate-900" />
-                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500/40" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/40" />
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-slate-300">
                     <span>5G</span>
@@ -796,7 +959,103 @@ export default function SunyaToolPage() {
 
                 {/* Inside Screen Content */}
                 <div className="relative flex w-full flex-1 flex-col overflow-hidden bg-slate-950">
-                  {/* Active Mode A: Email View */}
+                  {/* Active Mode 1: WhatsApp Client Chat View */}
+                  {mobileMode === 'whatsapp' && (
+                    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#0b141a]">
+                      {/* Authentic WhatsApp Top Bar */}
+                      <div className="flex items-center justify-between border-b border-[#222d34] bg-[#202c33] px-3 py-2 text-white">
+                        <div className="flex items-center gap-2.5">
+                          <button type="button" className="text-slate-300 hover:text-white">
+                            <ArrowLeft className="h-4 w-4" />
+                          </button>
+                          {/* Business Avatar */}
+                          <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 font-bold text-white shadow">
+                            {business?.category.toLowerCase().includes('gym') ? (
+                              <Dumbbell className="h-4 w-4" />
+                            ) : business?.category.toLowerCase().includes('momo') ? (
+                              <UtensilsCrossed className="h-4 w-4" />
+                            ) : (
+                              <MessageSquare className="h-4 w-4" />
+                            )}
+                            <div className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-[#202c33] bg-emerald-400" />
+                          </div>
+                          <div className="leading-tight">
+                            <div className="max-w-[140px] truncate text-xs font-bold text-white">
+                              {business ? business.name : 'Client Business'}
+                            </div>
+                            <div className="text-[10px] text-emerald-400">online</div>
+                          </div>
+                        </div>
+
+                        {/* WhatsApp Top Actions */}
+                        <div className="flex items-center gap-3 text-slate-300">
+                          <Video className="h-4 w-4 cursor-pointer hover:text-white" />
+                          <PhoneCall className="h-3.5 w-3.5 cursor-pointer hover:text-white" />
+                        </div>
+                      </div>
+
+                      {/* Chat Messages Body with WhatsApp Style Wallpaper */}
+                      <div className="flex flex-1 flex-col justify-end space-y-3 overflow-y-auto p-3 text-xs">
+                        {/* Encryption Warning */}
+                        <div className="mx-auto rounded-lg bg-[#182229] px-3 py-1.5 text-center text-[10px] text-[#ffd279] shadow">
+                          🔒 Messages and calls are end-to-end encrypted.
+                        </div>
+
+                        {/* Date Pill */}
+                        <div className="mx-auto rounded-md bg-[#182229] px-2.5 py-0.5 text-[10px] font-semibold text-slate-400 shadow">
+                          TODAY
+                        </div>
+
+                        {/* Outgoing Message Bubble */}
+                        <div className="ml-auto max-w-[88%] space-y-1.5 rounded-2xl rounded-tr-none bg-[#005c4b] p-3 text-slate-100 shadow-md">
+                          <div className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-100">
+                            {customWhatsAppText ||
+                              whatsAppData?.message ||
+                              'Generating customized client pitch...'}
+                          </div>
+
+                          {/* Embedded Rich Preview Card for Preview URL */}
+                          <div className="mt-2 overflow-hidden rounded-xl border border-emerald-600/30 bg-[#024437]">
+                            <div className="p-2.5">
+                              <div className="text-[10px] font-bold text-emerald-300">
+                                🔗 {business?.name || 'Exclusive Website'}
+                              </div>
+                              <div className="truncate text-[10px] text-slate-300">
+                                Live Mobile Website Preview · Kathmandu Valley
+                              </div>
+                              <div className="mt-1 text-[9px] text-emerald-400/80">sunya.np</div>
+                            </div>
+                          </div>
+
+                          {/* Message Footer with Double Checkmarks */}
+                          <div className="flex items-center justify-end gap-1 pt-1 text-[10px] text-emerald-200/70">
+                            <span>9:41 AM</span>
+                            <span className="font-bold text-[#53bdeb]">✓✓</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Input Mockup Bar */}
+                      <div className="flex items-center gap-2 border-t border-[#222d34] bg-[#202c33] p-2">
+                        <div className="flex flex-1 items-center gap-2 rounded-full bg-[#2a3942] px-3 py-1.5 text-slate-400">
+                          <span className="text-sm">😊</span>
+                          <span className="truncate text-[11px] text-slate-400">
+                            Type a message...
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenWhatsApp('web')}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#00a884] text-white shadow transition-transform hover:scale-105"
+                          title="Send to client on WhatsApp"
+                        >
+                          <Send className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active Mode 2: Email View */}
                   {mobileMode === 'email' && (
                     <div className="flex h-full flex-1 flex-col overflow-hidden">
                       {/* Mobile Email App Header */}
@@ -847,7 +1106,7 @@ export default function SunyaToolPage() {
                     </div>
                   )}
 
-                  {/* Active Mode B: Website View */}
+                  {/* Active Mode 3: Website View */}
                   {mobileMode === 'website' && (
                     <div className="flex h-full flex-1 flex-col overflow-hidden">
                       {/* Mobile Safari Browser Bar */}

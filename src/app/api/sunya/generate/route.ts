@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     const query = (body.query || 'gym of sankhamul').trim();
     const generateEmail = body.generateEmail !== false;
     const generateWebsite = Boolean(body.generateWebsite);
+    const generateWhatsApp = body.generateWhatsApp !== false;
     const customEmail = body.customEmail?.trim();
     const customPhone = body.customPhone?.trim();
 
@@ -181,24 +182,79 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    // 3. Prepare WhatsApp Message
-    const cleanPhoneDigits = businessPhone.replace(/[^0-9]/g, '');
-    const nepPhone = cleanPhoneDigits.startsWith('977')
-      ? cleanPhoneDigits
-      : cleanPhoneDigits.length === 10
-        ? `977${cleanPhoneDigits}`
-        : `9779867333080`;
+    // 3. Prepare WhatsApp Message for Client
+    let whatsAppResult = null;
+    if (generateWhatsApp) {
+      const cleanPhoneDigits = businessPhone.replace(/[^0-9]/g, '');
+      const nepPhone = cleanPhoneDigits.startsWith('977')
+        ? cleanPhoneDigits
+        : cleanPhoneDigits.length === 10
+          ? `977${cleanPhoneDigits}`
+          : `9779867333080`;
 
-    const waMessage = generateWhatsAppMessage({
-      toPhone: nepPhone,
-      businessName: matched.name,
-      previewUrl,
-      specificDetail: matched.category,
-      district: matched.district,
-      priceNpr: 9999,
-    });
+      const bilingualPitch = generateWhatsAppMessage({
+        toPhone: nepPhone,
+        businessName: matched.name,
+        previewUrl,
+        specificDetail: matched.category,
+        district: matched.district,
+        priceNpr: 9999,
+      });
 
-    const directWhatsAppUrl = `https://wa.me/${nepPhone}?text=${encodeURIComponent(waMessage)}`;
+      // Authentic Kathmandu Nepali tone
+      const isGym =
+        matched.category.toLowerCase().includes('gym') ||
+        matched.name.toLowerCase().includes('fitness');
+      const categoryIcon = isGym ? '💪🏋️' : '🥟🍜';
+      const nepaliPitch = `नमस्ते ${matched.name} टिम! 🙏
+
+हामीले ${matched.district} मा हजुरहरूको ${matched.category} को ${matched.rating}★ उत्कृष्ट reviews देख्यौँ। गुगलमा खोज्ने नयाँ ग्राहकहरूले हजुरहरूको official mobile website नपाउने भएकाले, हामीले हजुरहरूका लागि एउटा live demo website तयार गरेका छौँ:
+
+🔗 ${previewUrl}
+
+यसमा समावेश छन्:
+✅ सिधै WhatsApp मा enquiry/booking आउने १-ट्याप बटन
+✅ काठमाडौं उपत्यका Google Local SEO अप्टिमाइजेसन
+✅ नेपाली र अंग्रेजी दुबै भाषामा सहज दृश्य
+✅ मोबाइलमा बिजुली जस्तै छिटो खुल्ने स्पिड
+
+हजुरहरूको आफ्नै ब्राण्डको .com.np डोमेनमा यसलाई जडान गर्न चाहनुहुन्छ भने हामीलाई यहीँ WhatsApp मा reply गर्नुहोला!`;
+
+      // Category-tailored Pitch
+      const categoryPitch = isGym
+        ? `Namaste ${matched.name} Coaches! ${categoryIcon}
+
+Every morning from 5:30 AM, fitness lovers in ${matched.district} look for gym shift hours, equipment, and monthly membership pricing on Google.
+
+We built an exclusive live website preview with 1-Tap WhatsApp Membership Enquiry for your gym:
+🔗 ${previewUrl}
+
+✅ Monthly / 3-Month Membership Showcase
+✅ 1-Tap WhatsApp Consultation
+✅ Zero complex apps needed — works on every phone
+
+Would you like to connect your domain today? Simply reply here!`
+        : bilingualPitch;
+
+      // Short & Direct Pitch
+      const shortPitch = `Namaste ${matched.name}! 🙏 We noticed you have fantastic ${matched.rating}★ reviews in ${matched.district}, but no mobile website on Google Maps. We built a free live preview for you to explore:
+🔗 ${previewUrl}
+Would you like to connect your custom domain this week?`;
+
+      const directWhatsAppUrl = `https://wa.me/${nepPhone}?text=${encodeURIComponent(bilingualPitch)}`;
+
+      whatsAppResult = {
+        phone: nepPhone,
+        message: bilingualPitch,
+        directUrl: directWhatsAppUrl,
+        templates: {
+          bilingual: bilingualPitch,
+          nepali: nepaliPitch,
+          category: categoryPitch,
+          short: shortPitch,
+        },
+      };
+    }
 
     return NextResponse.json({
       success: true,
@@ -216,11 +272,7 @@ export async function POST(req: NextRequest) {
       },
       email: emailResult,
       website: websiteResult,
-      whatsapp: {
-        phone: nepPhone,
-        message: waMessage,
-        directUrl: directWhatsAppUrl,
-      },
+      whatsapp: whatsAppResult,
     });
   } catch (err: any) {
     console.error('[Sunya Generate Error]:', err);
