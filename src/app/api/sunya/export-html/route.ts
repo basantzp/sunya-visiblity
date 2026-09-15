@@ -1,0 +1,173 @@
+import fs from 'fs';
+import path from 'path';
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const {
+      slug = 'shankhamul-health-club-fitness-centre',
+      businessName = 'Shankhamul Health Club & Fitness Centre',
+      category = 'gym',
+      district = 'Kathmandu',
+      phone = '+977-9867333080',
+      previewUrl = `http://localhost:3005/preview/${slug}`,
+    } = body;
+
+    const exportDir = path.join(process.cwd(), 'public', 'exports');
+    if (!fs.existsSync(exportDir)) {
+      fs.mkdirSync(exportDir, { recursive: true });
+    }
+
+    const fileName = `${slug}-mobile-view.html`;
+    const filePath = path.join(exportDir, fileName);
+
+    // Clean phone number
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const nepPhone = cleanPhone.startsWith('977')
+      ? cleanPhone
+      : cleanPhone.length === 10
+        ? `977${cleanPhone}`
+        : '9779867333080';
+
+    const isGym =
+      category.toLowerCase().includes('gym') || businessName.toLowerCase().includes('fitness');
+
+    // Generate standalone mobile HTML
+    const standaloneHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>${businessName} — Mobile Experience Preview</title>
+  <meta name="description" content="Exclusive live mobile preview website built for ${businessName} in ${district}.">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #030712; color: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 16px 12px 100px; -webkit-font-smoothing: antialiased; }
+    .mobile-container { width: 100%; max-width: 480px; background: #111827; border-radius: 28px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-amber { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-emerald { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: center; }
+    .title { font-size: 24px; font-weight: 900; color: #ffffff; margin: 12px 0 6px; letter-spacing: -0.02em; line-height: 1.2; }
+    .subtitle { font-size: 13px; color: #9ca3af; line-height: 1.4; }
+    .section { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #60a5fa; margin-bottom: 12px; }
+    .card { background: rgba(31,41,55,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 14px; font-weight: 700; color: #f9fafb; }
+    .card-desc { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+    .card-price { font-size: 14px; font-weight: 800; color: #10b981; }
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .stat-box { background: rgba(17,24,39,0.8); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 12px; text-align: center; }
+    .stat-num { font-size: 18px; font-weight: 900; color: #ffffff; }
+    .stat-lbl { font-size: 10px; color: #9ca3af; text-transform: uppercase; margin-top: 2px; }
+    .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(17,24,39,0.95); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; display: flex; justify-content: center; z-index: 999; }
+    .wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 460px; background: #25d366; color: #042f1a; font-size: 14px; font-weight: 800; padding: 14px 20px; border-radius: 16px; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(37,211,102,0.4); }
+    .footer { text-align: center; padding: 20px; font-size: 11px; color: #6b7280; }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-container">
+    <div class="header">
+      <span class="badge ${isGym ? 'badge-amber' : 'badge-emerald'}">${category} · ${district}</span>
+      <h1 class="title">${businessName}</h1>
+      <p class="subtitle">Official Mobile Web Experience & 1-Tap WhatsApp Inquiries</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Established Reputation</div>
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-num">★ 4.6</div>
+          <div class="stat-lbl">Google Rating</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">140+</div>
+          <div class="stat-lbl">Verified Members</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">${isGym ? 'Membership Packages' : 'Featured Services'}</div>
+      
+      ${
+        isGym
+          ? `
+      <div class="card">
+        <div>
+          <div class="card-title">Monthly Cardio & Weights</div>
+          <div class="card-desc">5:30 AM – 8:30 PM full floor access</div>
+        </div>
+        <div class="card-price">NPR 2,500</div>
+      </div>
+      <div class="card">
+        <div>
+          <div class="card-title">Quarterly Season Pass (3 Mo)</div>
+          <div class="card-desc">Popular value · locker & steam access</div>
+        </div>
+        <div class="card-price">NPR 6,500</div>
+      </div>
+      <div class="card">
+        <div>
+          <div class="card-title">Personal Trainer 1-on-1</div>
+          <div class="card-desc">12 structured sessions with certified coach</div>
+        </div>
+        <div class="card-price">NPR 6,000</div>
+      </div>
+      `
+          : `
+      <div class="card">
+        <div>
+          <div class="card-title">Signature Special</div>
+          <div class="card-desc">Crafted fresh daily with local ingredients</div>
+        </div>
+        <div class="card-price">Fresh Today</div>
+      </div>
+      `
+      }
+    </div>
+
+    <div class="section">
+      <div class="section-title">Shift Timings & Location</div>
+      <div style="font-size: 13px; color: #d1d5db; line-height: 1.6;">
+        <p>⏰ <strong>Morning Shift:</strong> 5:30 AM – 10:00 AM</p>
+        <p>⏰ <strong>Evening Shift:</strong> 4:00 PM – 8:30 PM</p>
+        <p>📍 <strong>Location:</strong> Sankhamul Marg (Near Riverside Park), Kathmandu</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Sunya शून्य · Autonomous Web Presence Engine for Kathmandu Valley</p>
+      <p style="margin-top: 4px;"><a href="${previewUrl}" style="color: #60a5fa; text-decoration: none;">View Live Domain Preview &rarr;</a></p>
+    </div>
+  </div>
+
+  <div class="sticky-bar">
+    <a href="https://wa.me/${nepPhone}?text=${encodeURIComponent(
+      `Namaste ${businessName}! I saw your mobile preview and would like to inquire about membership.`,
+    )}" class="wa-btn" target="_blank">
+      <span>💬</span> <span>Inquire on WhatsApp with ${businessName}</span>
+    </a>
+  </div>
+
+</body>
+</html>`;
+
+    fs.writeFileSync(filePath, standaloneHtml, 'utf-8');
+    const stats = fs.statSync(filePath);
+    const sizeKb = Math.round(stats.size / 1024);
+
+    return NextResponse.json({
+      success: true,
+      fileName,
+      sizeKb,
+      downloadUrl: `/exports/${fileName}`,
+      publicUrl: `${req.nextUrl.origin}/exports/${fileName}`,
+    });
+  } catch (err: any) {
+    console.error('[Export HTML Error]:', err);
+    return NextResponse.json({ error: err.message || 'Failed to export HTML' }, { status: 500 });
+  }
+}

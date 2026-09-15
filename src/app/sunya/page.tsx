@@ -9,8 +9,10 @@ import {
   CheckCircle2,
   Copy,
   Cpu,
+  Download,
   Dumbbell,
   ExternalLink,
+  FileCode,
   Flame,
   Globe,
   HelpCircle,
@@ -21,6 +23,7 @@ import {
   Maximize2,
   MessageCircle,
   MessageSquare,
+  Paperclip,
   Phone,
   PhoneCall,
   RefreshCw,
@@ -76,6 +79,13 @@ interface WhatsAppResult {
   };
 }
 
+interface ExportedHtmlResult {
+  fileName: string;
+  sizeKb: number;
+  downloadUrl: string;
+  publicUrl: string;
+}
+
 export default function SunyaToolPage() {
   // Query & Generation State
   const [query, setQuery] = useState('gym of sankhamul');
@@ -94,6 +104,8 @@ export default function SunyaToolPage() {
     'bilingual',
   );
   const [customWhatsAppText, setCustomWhatsAppText] = useState('');
+  const [includeHtmlNotice, setIncludeHtmlNotice] = useState(true);
+  const [exportedHtml, setExportedHtml] = useState<ExportedHtmlResult | null>(null);
 
   // Generated Payload
   const [business, setBusiness] = useState<BusinessLead | null>(null);
@@ -200,16 +212,43 @@ export default function SunyaToolPage() {
       setWebsiteData(data.website);
       setWhatsApp(data.whatsapp);
 
-      // Initialize WhatsApp message text with the current tone
-      if (data.whatsapp) {
-        const initialText = data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message;
-        setCustomWhatsAppText(initialText);
-      }
-
       // Update editable contact fields if default returned
       if (data.business) {
         setRecipientEmail(data.business.email || 'contact@business.com.np');
         setRecipientPhone(data.business.phone || '+977 9867333080');
+
+        // Auto-generate standalone mobile HTML file for WhatsApp attachment
+        try {
+          const exportRes = await fetch('/api/sunya/export-html', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              slug: data.business.slug,
+              businessName: data.business.name,
+              category: data.business.category,
+              district: data.business.district,
+              phone: data.business.phone,
+              previewUrl: data.website?.previewUrl || `/preview/${data.business.slug}`,
+            }),
+          });
+          if (exportRes.ok) {
+            const expData: ExportedHtmlResult = await exportRes.json();
+            setExportedHtml(expData);
+
+            if (data.whatsapp) {
+              const baseText = data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message;
+              const textWithFile = `${baseText}\n\n📁 Attached Demo: "${expData.fileName}" (Tap to open & test your mobile website directly in your browser!)`;
+              setCustomWhatsAppText(textWithFile);
+            }
+          } else if (data.whatsapp) {
+            setCustomWhatsAppText(data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message);
+          }
+        } catch (exportErr) {
+          console.warn('[Auto-export mobile HTML warning]:', exportErr);
+          if (data.whatsapp) {
+            setCustomWhatsAppText(data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message);
+          }
+        }
       }
 
       // Automatically select appropriate mobile view tab
@@ -231,7 +270,14 @@ export default function SunyaToolPage() {
   function handleToneChange(tone: 'bilingual' | 'nepali' | 'category' | 'short') {
     setWhatsAppTone(tone);
     if (whatsAppData?.templates?.[tone]) {
-      setCustomWhatsAppText(whatsAppData.templates[tone]);
+      const baseText = whatsAppData.templates[tone];
+      if (exportedHtml && includeHtmlNotice) {
+        setCustomWhatsAppText(
+          `${baseText}\n\n📁 Attached Demo: "${exportedHtml.fileName}" (Tap to open & test your mobile website directly in your browser!)`,
+        );
+      } else {
+        setCustomWhatsAppText(baseText);
+      }
     }
   }
 
@@ -317,10 +363,10 @@ export default function SunyaToolPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="group flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 p-1.5 shadow-md shadow-blue-500/10 transition-colors group-hover:border-blue-500/40">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 bg-white p-1 shadow-md shadow-blue-500/10 transition-colors group-hover:border-blue-400">
                 <img
-                  src="/sunya-mark-white.png"
-                  alt="Sunya"
+                  src="/sunya-user-logo.png"
+                  alt="Sunya Logo"
                   className="h-full w-full object-contain"
                 />
               </div>
@@ -721,6 +767,53 @@ export default function SunyaToolPage() {
                         />
                       </div>
 
+                      {/* Standalone Mobile View HTML File for WhatsApp Attachment */}
+                      {exportedHtml && (
+                        <div className="space-y-2 rounded-xl border border-emerald-500/25 bg-emerald-950/20 p-3">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="flex items-center gap-1.5 font-bold text-emerald-300">
+                              <FileCode className="h-4 w-4 text-emerald-400" />
+                              <span>Mobile View HTML File (for WhatsApp attachment):</span>
+                            </span>
+                            <span className="font-mono text-[10px] text-slate-400">
+                              {exportedHtml.sizeKb} KB
+                            </span>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <a
+                              href={exportedHtml.downloadUrl}
+                              download={exportedHtml.fileName}
+                              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-emerald-500"
+                              title="Download HTML file to attach to client chat"
+                            >
+                              <FileCode className="h-3.5 w-3.5" />
+                              <span>Download Mobile HTML File</span>
+                              <Download className="h-3.5 w-3.5" />
+                            </a>
+
+                            <a
+                              href={exportedHtml.downloadUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white"
+                              title="Preview standalone HTML in browser"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              <span>Preview</span>
+                            </a>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                            <Paperclip className="h-3 w-3 shrink-0 text-emerald-400" />
+                            <span>
+                              Drag & drop or attach this <strong>.html</strong> file in WhatsApp so
+                              the client can open their website directly on their phone!
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* WhatsApp Fast Dispatch Toolbar */}
                       <div className="flex flex-wrap gap-2 pt-1">
                         <button
@@ -1026,6 +1119,29 @@ export default function SunyaToolPage() {
                               <div className="mt-1 text-[9px] text-emerald-400/80">sunya.np</div>
                             </div>
                           </div>
+
+                          {/* Standalone Mobile HTML Document Attachment Card */}
+                          {exportedHtml && (
+                            <a
+                              href={exportedHtml.downloadUrl}
+                              download={exportedHtml.fileName}
+                              className="mt-2 flex cursor-pointer items-center gap-2.5 rounded-xl border border-emerald-500/40 bg-[#023d32] p-2 text-left text-white transition-colors hover:bg-[#034d3f]"
+                              title="Tap to download standalone mobile HTML document"
+                            >
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-700 text-white shadow">
+                                <FileCode className="h-4 w-4 text-emerald-200" />
+                              </div>
+                              <div className="flex-1 overflow-hidden leading-tight">
+                                <div className="truncate text-[10px] font-bold text-emerald-100">
+                                  {exportedHtml.fileName}
+                                </div>
+                                <div className="mt-0.5 text-[8.5px] text-emerald-300/80">
+                                  {exportedHtml.sizeKb} KB · HTML Mobile View Demo
+                                </div>
+                              </div>
+                              <Download className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
+                            </a>
+                          )}
 
                           {/* Message Footer with Double Checkmarks */}
                           <div className="flex items-center justify-end gap-1 pt-1 text-[10px] text-emerald-200/70">

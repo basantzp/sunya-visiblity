@@ -161,9 +161,9 @@ export default function AdminDashboard() {
       <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-center">
         <div>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 p-1">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 bg-white p-0.5">
               <img
-                src="/sunya-mark-white.png"
+                src="/sunya-user-logo.png"
                 alt="Sunya"
                 className="h-full w-full object-contain"
               />

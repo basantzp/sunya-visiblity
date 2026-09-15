@@ -67,9 +67,9 @@ export default function AgencyHomePage() {
       <nav className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/80 px-6 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 p-1.5 shadow-md shadow-blue-500/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 bg-white p-1 shadow-md shadow-blue-500/10">
               <img
-                src="/sunya-mark-white.png"
+                src="/sunya-user-logo.png"
                 alt="Sunya"
                 className="h-full w-full object-contain"
               />
