@@ -51,25 +51,48 @@ const KATHMANDU_VALLEY_BOUNDS = {
  */
 async function queryOpenStreetMapOverpass(options: DiscoveryOptions): Promise<GooglePlaceResult[]> {
   const category = (options.category || 'all').toLowerCase();
-  
+
   // Map user search category to OSM tags
   let osmFilter = '';
   if (category.includes('flower') || category.includes('florist')) {
     osmFilter = 'node["shop"="florist"](BBOX);node["shop"="flower"](BBOX);';
-  } else if (category.includes('restaurant') || category.includes('momo') || category.includes('food')) {
+  } else if (
+    category.includes('restaurant') ||
+    category.includes('momo') ||
+    category.includes('food')
+  ) {
     osmFilter = 'node["amenity"="restaurant"](BBOX);node["amenity"="fast_food"](BBOX);';
-  } else if (category.includes('cafe') || category.includes('coffee') || category.includes('bakery')) {
+  } else if (
+    category.includes('cafe') ||
+    category.includes('coffee') ||
+    category.includes('bakery')
+  ) {
     osmFilter = 'node["amenity"="cafe"](BBOX);node["shop"="bakery"](BBOX);';
-  } else if (category.includes('spa') || category.includes('massage') || category.includes('wellness')) {
-    osmFilter = 'node["leisure"="spa"](BBOX);node["shop"="massage"](BBOX);node["shop"="beauty"](BBOX);';
-  } else if (category.includes('clinic') || category.includes('hospital') || category.includes('doctor')) {
+  } else if (
+    category.includes('spa') ||
+    category.includes('massage') ||
+    category.includes('wellness')
+  ) {
+    osmFilter =
+      'node["leisure"="spa"](BBOX);node["shop"="massage"](BBOX);node["shop"="beauty"](BBOX);';
+  } else if (
+    category.includes('clinic') ||
+    category.includes('hospital') ||
+    category.includes('doctor')
+  ) {
     osmFilter = 'node["amenity"="clinic"](BBOX);node["amenity"="doctors"](BBOX);';
   } else if (category.includes('gym') || category.includes('fitness')) {
     osmFilter = 'node["leisure"="fitness_centre"](BBOX);';
-  } else if (category.includes('boutique') || category.includes('craft') || category.includes('clothing')) {
-    osmFilter = 'node["shop"="boutique"](BBOX);node["shop"="clothes"](BBOX);node["shop"="craft"](BBOX);';
+  } else if (
+    category.includes('boutique') ||
+    category.includes('craft') ||
+    category.includes('clothing')
+  ) {
+    osmFilter =
+      'node["shop"="boutique"](BBOX);node["shop"="clothes"](BBOX);node["shop"="craft"](BBOX);';
   } else {
-    osmFilter = 'node["amenity"="restaurant"](BBOX);node["amenity"="cafe"](BBOX);node["shop"="florist"](BBOX);';
+    osmFilter =
+      'node["amenity"="restaurant"](BBOX);node["amenity"="cafe"](BBOX);node["shop"="florist"](BBOX);';
   }
 
   // Define Bounding Boxes for Kathmandu Valley: minLat, minLon, maxLat, maxLon
@@ -152,7 +175,7 @@ async function queryOpenStreetMapOverpass(options: DiscoveryOptions): Promise<Go
       const phone = tags.phone || tags['contact:phone'] || tags['contact:mobile'] || undefined;
       const street = tags['addr:street'] || tags['addr:place'] || tags['addr:quarter'] || '';
       const city = tags['addr:city'] || '';
-      
+
       let district: 'Kathmandu' | 'Lalitpur' | 'Bhaktapur' = 'Kathmandu';
       if (options.district && options.district !== 'All') {
         district = options.district;
@@ -169,13 +192,17 @@ async function queryOpenStreetMapOverpass(options: DiscoveryOptions): Promise<Go
       if (tags.shop === 'florist' || tags.shop === 'flower') photos = categoryPhotos.flower;
       else if (tags.amenity === 'cafe' || tags.shop === 'bakery') photos = categoryPhotos.cafe;
       else if (tags.leisure === 'spa' || tags.shop === 'massage') photos = categoryPhotos.spa;
-      else if (tags.amenity === 'clinic' || tags.amenity === 'doctors') photos = categoryPhotos.clinic;
+      else if (tags.amenity === 'clinic' || tags.amenity === 'doctors')
+        photos = categoryPhotos.clinic;
       else if (tags.leisure === 'fitness_centre') photos = categoryPhotos.gym;
 
       results.push({
         place_id: `osm_${el.id}`,
         name: name,
-        category: options.category === 'all' ? (tags.amenity || tags.shop || 'Local Business') : options.category,
+        category:
+          options.category === 'all'
+            ? tags.amenity || tags.shop || 'Local Business'
+            : options.category,
         address: address,
         district: district,
         phone: phone,
@@ -201,20 +228,25 @@ export async function discoverPlaces(options: DiscoveryOptions): Promise<GoogleP
   const minReviews = options.minReviews ?? 15;
 
   if (zeroApiFees) {
-    console.log('⚡ [Zero-Fee Discovery Engine] Active · Paid Google Places API billing disabled (API Cost: NPR 0.00 / $0.00).');
-    const osmLeads = await queryOpenStreetMapOverpass(options);
+    console.log(
+      '⚡ [Zero-Fee Discovery Engine] Active · Paid Google Places API billing disabled (API Cost: NPR 0.00 / $0.00).',
+    );
+    const isTest = process.env.NODE_ENV === 'test';
+    const osmLeads = isTest ? [] : await queryOpenStreetMapOverpass(options);
     const mockLeads = getKathmanduMockLeads(options);
 
     const combined = [...mockLeads];
     for (const ol of osmLeads) {
-      const alreadyExists = combined.some(c => c.name.toLowerCase() === ol.name.toLowerCase());
+      const alreadyExists = combined.some((c) => c.name.toLowerCase() === ol.name.toLowerCase());
       if (!alreadyExists) {
         combined.push(ol);
       }
     }
 
     const limit = options.limit || 20;
-    console.log(`⚡ [Zero-Fee Discovery] Returning ${Math.min(combined.length, limit)} qualified Kathmandu leads (Cost: NPR 0.00).`);
+    console.log(
+      `⚡ [Zero-Fee Discovery] Returning ${Math.min(combined.length, limit)} qualified Kathmandu leads (Cost: NPR 0.00).`,
+    );
     return combined.slice(0, limit);
   }
 
@@ -301,6 +333,23 @@ export async function discoverPlaces(options: DiscoveryOptions): Promise<GoogleP
 function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
   const mockDatabase: GooglePlaceResult[] = [
     {
+      place_id: 'ktm_shankhamul_fitness_centre',
+      name: 'Shankhamul Health Club & Fitness Centre',
+      category: 'gym',
+      address: 'Sankhamul Marg (Opposite Riverside Park), Ward 10, Kathmandu 44600',
+      district: 'Kathmandu',
+      phone: '+977-9867333080',
+      rating: 4.6,
+      user_ratings_total: 148,
+      google_maps_url: 'https://maps.google.com/?q=Shankhamul+Health+Club+Fitness+Centre+Kathmandu',
+      location: { lat: 27.6835, lng: 85.332 },
+      photos: [
+        'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+      ],
+    },
+    {
       place_id: 'ktm_parijat_flora_sankhamul',
       name: 'Parijat Flower House & Nursery',
       category: 'flower shop',
@@ -315,8 +364,8 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
         'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_himalayan_flora_lazimpat',
@@ -331,8 +380,8 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       location: { lat: 27.7208, lng: 85.3182 },
       photos: [
         'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_sandar_momo_sankhamul',
@@ -344,11 +393,11 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       rating: 4.7,
       user_ratings_total: 420,
       google_maps_url: 'https://maps.google.com/?q=Sandar+Momo+Sankhamul+Kathmandu',
-      location: { lat: 27.6830, lng: 85.3315 },
+      location: { lat: 27.683, lng: 85.3315 },
       photos: [
         'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_honacha_patan',
@@ -363,8 +412,8 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       location: { lat: 27.6728, lng: 85.3256 },
       photos: [
         'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_thakkhola_baneshwor',
@@ -379,8 +428,8 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       location: { lat: 27.6918, lng: 85.3425 },
       photos: [
         'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_karma_coffee_jhamsikhel',
@@ -395,8 +444,8 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       location: { lat: 27.6795, lng: 85.3115 },
       photos: [
         'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_double_dorje_boudha',
@@ -411,8 +460,8 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
       location: { lat: 27.7225, lng: 85.3625 },
       photos: [
         'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80'
-      ]
+        'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+      ],
     },
     {
       place_id: 'ktm_place_001',
@@ -582,9 +631,15 @@ function getKathmanduMockLeads(options: DiscoveryOptions): GooglePlaceResult[] {
 
 export async function getPlaceBySlug(slug: string): Promise<GooglePlaceResult | null> {
   const allLeads = await discoverPlaces({ category: 'all', district: 'All' });
-  const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  const matched = allLeads.find(l => {
-    const s = l.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const cleanSlug = slug
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  const matched = allLeads.find((l) => {
+    const s = l.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
     return s === cleanSlug || cleanSlug.includes(s) || s.includes(cleanSlug);
   });
   return matched || null;

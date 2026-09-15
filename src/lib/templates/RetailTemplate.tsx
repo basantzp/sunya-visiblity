@@ -60,25 +60,29 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
       <div className="pointer-events-none absolute right-1/4 top-0 -z-10 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
 
       {/* Editorial Luxury Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#0d0d11]/90 border-b border-white/10 px-4 sm:px-6 py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#0d0d11]/90 px-4 py-3.5 backdrop-blur-xl sm:flex-nowrap sm:px-6">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-base sm:text-xl font-black tracking-widest uppercase text-white truncate">{business.name}</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-              {business.category.toLowerCase().includes('flower') || business.category.toLowerCase().includes('nursery') || business.category.toLowerCase().includes('flora')
+            <span className="truncate text-base font-black uppercase tracking-widest text-white sm:text-xl">
+              {business.name}
+            </span>
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+              {business.category.toLowerCase().includes('flower') ||
+              business.category.toLowerCase().includes('nursery') ||
+              business.category.toLowerCase().includes('flora')
                 ? 'Floral Boutique & Plant Nursery'
                 : 'Curated Boutique'}
             </span>
           </div>
-          <span className="block text-[11px] font-medium tracking-wider text-stone-400 uppercase mt-0.5 truncate">
+          <span className="mt-0.5 block truncate text-[11px] font-medium uppercase tracking-wider text-stone-400">
             {business.address || `${business.district}, Kathmandu Valley`}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 text-xs">
+        <div className="flex items-center gap-2 text-xs sm:gap-3">
           <button
-            onClick={() => setLang(l => (l === 'en' ? 'np' : 'en'))}
-            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 border border-white/15 rounded-xl text-stone-300 hover:text-white bg-white/5 transition-colors"
+            onClick={() => setLang((l) => (l === 'en' ? 'np' : 'en'))}
+            className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-stone-300 transition-colors hover:text-white sm:px-3"
           >
             <Globe className="h-3.5 w-3.5" />
             <span>{lang === 'en' ? 'नेपाली' : 'English'}</span>
@@ -88,7 +92,7 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
             href={whatsappCatalogUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 rounded-xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-stone-950 shadow-lg shadow-amber-500/20 hover:scale-[1.02] transition-transform text-xs"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-2 text-xs font-bold text-stone-950 shadow-lg shadow-amber-500/20 transition-transform hover:scale-[1.02] sm:gap-2 sm:px-5"
           >
             <ShoppingBag className="h-3.5 w-3.5 fill-stone-950" />
             <span>Inquire Catalog</span>
@@ -97,35 +101,41 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
       </header>
 
       {/* Hero */}
-      <section className="pt-8 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        <div className="lg:col-span-6 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card-gold text-amber-300 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+      <section className="mx-auto grid max-w-7xl items-center gap-8 px-4 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-16 lg:grid-cols-12 lg:gap-12">
+        <div className="space-y-6 lg:col-span-6">
+          <div className="glass-card-gold inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold text-amber-300">
+            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
             <span>{lang === 'en' ? copy.tagline : copy.nepali_content.tagline}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
             {lang === 'en' ? (
               <>
-                <span className="block">{copy.hero_title || `Curated Floral Art & Craft at ${business.name}`}</span>
+                <span className="block">
+                  {copy.hero_title || `Curated Floral Art & Craft at ${business.name}`}
+                </span>
               </>
             ) : (
               <>
-                <span className="gold-gradient-text">{copy.nepali_content?.hero_title || `${business.name} मा विशिष्ट शैली र मौलिकता`}</span>
+                <span className="gold-gradient-text">
+                  {copy.nepali_content?.hero_title || `${business.name} मा विशिष्ट शैली र मौलिकता`}
+                </span>
               </>
             )}
           </h1>
 
-          <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
-            {lang === 'en' ? copy.hero_subtitle : copy.nepali_content?.about_snippet || copy.hero_subtitle}
+          <p className="text-sm leading-relaxed text-stone-300 sm:text-base">
+            {lang === 'en'
+              ? copy.hero_subtitle
+              : copy.nepali_content?.about_snippet || copy.hero_subtitle}
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 sm:pt-4">
+          <div className="flex flex-wrap items-center gap-3 pt-2 sm:gap-4 sm:pt-4">
             <a
               href={whatsappCatalogUrl}
               target="_blank"
               rel="noreferrer"
-              className="w-full sm:w-auto justify-center px-6 py-3.5 sm:py-4 rounded-2xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 text-stone-950 flex items-center gap-2 shadow-xl shadow-amber-500/25 hover:scale-105 transition-all"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 px-6 py-3.5 text-sm font-bold text-stone-950 shadow-xl shadow-amber-500/25 transition-all hover:scale-105 sm:w-auto sm:py-4"
             >
               <MessageSquare className="h-4 w-4 fill-stone-950" />
               <span>Direct WhatsApp Orders</span>
@@ -134,27 +144,29 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
 
             <a
               href="#lookbook"
-              className="w-full sm:w-auto text-center px-6 py-3.5 sm:py-4 rounded-2xl font-semibold text-sm glass-card hover:bg-white/10 text-white transition-all"
+              className="glass-card w-full rounded-2xl px-6 py-3.5 text-center text-sm font-semibold text-white transition-all hover:bg-white/10 sm:w-auto sm:py-4"
             >
               <span>Explore Catalog</span>
             </a>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-white/10 max-w-md">
+          <div className="grid max-w-md grid-cols-3 gap-2 border-t border-white/10 pt-6 sm:gap-4">
             <div>
-              <div className="flex items-center gap-1 text-amber-400 font-extrabold text-lg sm:text-xl">
-                <Star className="w-4 h-4 fill-amber-400" />
+              <div className="flex items-center gap-1 text-lg font-extrabold text-amber-400 sm:text-xl">
+                <Star className="h-4 w-4 fill-amber-400" />
                 <span>{business.rating || 4.8}</span>
               </div>
-              <span className="text-[10px] sm:text-[11px] text-stone-400">Verified ({business.reviews_count || 184})</span>
+              <span className="text-[10px] text-stone-400 sm:text-[11px]">
+                Verified ({business.reviews_count || 184})
+              </span>
             </div>
             <div>
-              <div className="text-white font-extrabold text-lg sm:text-xl">100%</div>
-              <span className="text-[10px] sm:text-[11px] text-stone-400">Fresh Guaranteed</span>
+              <div className="text-lg font-extrabold text-white sm:text-xl">100%</div>
+              <span className="text-[10px] text-stone-400 sm:text-[11px]">Fresh Guaranteed</span>
             </div>
             <div>
-              <div className="text-emerald-400 font-extrabold text-lg sm:text-xl">Same-Day</div>
-              <span className="text-[10px] sm:text-[11px] text-stone-400">Valley Delivery</span>
+              <div className="text-lg font-extrabold text-emerald-400 sm:text-xl">Same-Day</div>
+              <span className="text-[10px] text-stone-400 sm:text-[11px]">Valley Delivery</span>
             </div>
           </div>
         </div>
@@ -164,7 +176,7 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
             <img
               src={heroImage}
               alt={business.name}
-              className="w-full h-[260px] sm:h-[420px] lg:h-[480px] object-cover rounded-2xl"
+              className="h-[260px] w-full rounded-2xl object-cover sm:h-[420px] lg:h-[480px]"
             />
           </div>
         </div>
@@ -172,11 +184,15 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
 
       {/* About Story */}
       {copy.about_story && (
-        <section className="py-16 px-6 max-w-5xl mx-auto border-t border-white/10">
-          <div className="glass-card p-8 sm:p-12 rounded-3xl space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">Heritage & Craft</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">Rooted in {business.address || business.district}</h2>
-            <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
+        <section className="mx-auto max-w-5xl border-t border-white/10 px-6 py-16">
+          <div className="glass-card space-y-4 rounded-3xl p-8 sm:p-12">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
+              Heritage & Craft
+            </span>
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">
+              Rooted in {business.address || business.district}
+            </h2>
+            <p className="text-sm leading-relaxed text-stone-300 sm:text-base">
               {copy.about_story}
             </p>
           </div>
@@ -184,10 +200,14 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
       )}
 
       {/* Lookbook / Collections */}
-      <section id="lookbook" className="py-20 px-6 max-w-7xl mx-auto space-y-12">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-400">Curated Offerings</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Fresh Bouquets & Living Collections</h2>
+      <section id="lookbook" className="mx-auto max-w-7xl space-y-12 px-6 py-20">
+        <div className="mx-auto max-w-2xl space-y-2 text-center">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
+            Curated Offerings
+          </span>
+          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+            Fresh Bouquets & Living Collections
+          </h2>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -210,21 +230,21 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
                 </p>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-white/[0.06] flex items-center justify-between">
-                <span className="text-[11px] text-stone-500 flex items-center gap-1">
-                  <PackageCheck className="w-3.5 h-3.5 text-emerald-400" /> In Stock & Fresh
+              <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-6">
+                <span className="flex items-center gap-1 text-[11px] text-stone-500">
+                  <PackageCheck className="h-3.5 w-3.5 text-emerald-400" /> In Stock & Fresh
                 </span>
 
                 <a
                   href={`https://wa.me/${targetPhone}?text=${encodeURIComponent(
-                    `Namaste ${business.name}! I would like to order: ${item.title} (${item.price_npr || 'as per catalog'}).`
+                    `Namaste ${business.name}! I would like to order: ${item.title} (${item.price_npr || 'as per catalog'}).`,
                   )}`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1 text-xs font-bold text-amber-400 transition-colors hover:text-amber-300"
                 >
                   <span>Order via WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </a>
               </div>
             </div>
@@ -234,22 +254,28 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
 
       {/* Patron Praise / Reviews */}
       {copy.review_themes && copy.review_themes.length > 0 && (
-        <section className="py-16 px-6 max-w-7xl mx-auto border-t border-white/10">
-          <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">Patron Impressions</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">What Kathmandu & Lalitpur Patrons Say</h2>
+        <section className="mx-auto max-w-7xl border-t border-white/10 px-6 py-16">
+          <div className="mx-auto mb-10 max-w-2xl space-y-2 text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
+              Patron Impressions
+            </span>
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">
+              What Kathmandu & Lalitpur Patrons Say
+            </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             {copy.review_themes.map((review, idx) => (
-              <div key={idx} className="glass-card p-6 rounded-3xl space-y-3">
+              <div key={idx} className="glass-card space-y-3 rounded-3xl p-6">
                 <div className="flex items-center gap-1 text-amber-400">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                    <Star key={i} className="h-4 w-4 fill-amber-400" />
                   ))}
                 </div>
-                <p className="text-stone-300 text-sm italic">"{review.original_testimonial_summary}"</p>
-                <div className="text-[11px] text-stone-500 font-semibold uppercase tracking-wider">
+                <p className="text-sm italic text-stone-300">
+                  &quot;{review.original_testimonial_summary}&quot;
+                </p>
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
                   — {review.customer_archetype} · Verified Patron
                 </div>
               </div>
@@ -259,23 +285,25 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
       )}
 
       {/* Location & Directions */}
-      <section className="py-16 px-6 max-w-5xl mx-auto border-t border-white/10">
-        <div className="glass-card p-8 rounded-3xl grid sm:grid-cols-2 gap-8 items-center">
+      <section className="mx-auto max-w-5xl border-t border-white/10 px-6 py-16">
+        <div className="glass-card grid items-center gap-8 rounded-3xl p-8 sm:grid-cols-2">
           <div className="space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">Visit Our Store</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
+              Visit Our Store
+            </span>
             <h3 className="text-2xl font-bold text-white">{business.name}</h3>
-            <p className="text-stone-400 text-sm flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-1" />
+            <p className="flex items-start gap-2 text-sm text-stone-400">
+              <MapPin className="mt-1 h-4 w-4 shrink-0 text-amber-400" />
               <span>{business.address || `${business.district}, Kathmandu Valley`}</span>
             </p>
-            <p className="text-stone-400 text-sm flex items-center gap-2">
-              <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
+            <p className="flex items-center gap-2 text-sm text-stone-400">
+              <Phone className="h-4 w-4 shrink-0 text-emerald-400" />
               <span>{business.phone || '+977-9867333080'}</span>
             </p>
-            <div className="pt-2 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 pt-2">
               <a
                 href={business.phone ? `tel:${business.phone}` : 'tel:+9779867333080'}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 text-white transition-colors"
+                className="rounded-xl bg-white/10 px-5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-white/15"
               >
                 Call Store
               </a>
@@ -283,13 +311,13 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
                 href={whatsappCatalogUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-400 text-stone-950 hover:bg-amber-300 transition-colors"
+                className="rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-bold text-stone-950 transition-colors hover:bg-amber-300"
               >
                 WhatsApp Us
               </a>
             </div>
           </div>
-          <div className="h-56 rounded-2xl overflow-hidden border border-white/10 relative">
+          <div className="relative h-56 overflow-hidden rounded-2xl border border-white/10">
             <iframe
               title="Location Map"
               width="100%"
@@ -299,7 +327,7 @@ export function RetailTemplate({ business, copy }: TemplateProps) {
               marginHeight={0}
               marginWidth={0}
               src={`https://maps.google.com/maps?q=${encodeURIComponent(business.address || 'Sankhamul Kathmandu')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-              className="grayscale contrast-125 opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-80 contrast-125 grayscale transition-opacity hover:opacity-100"
             />
           </div>
         </div>

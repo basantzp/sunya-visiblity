@@ -433,6 +433,21 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Admin Footer with Company Logo */}
+      <footer className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-slate-800/80 pt-6 text-xs text-slate-500 sm:flex-row">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg border border-slate-700 bg-white p-0.5 shadow-sm">
+            <img
+              src="/sunya-user-logo.png"
+              alt="Sunya Logo"
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <span className="font-bold text-slate-300">Sunya · Founder Ops Console</span>
+        </div>
+        <p>© {new Date().getFullYear()} Sunya (शून्य) · Autonomous Local Outreach</p>
+      </footer>
     </div>
   );
 }

@@ -192,14 +192,22 @@ export async function POST(req: NextRequest) {
           ? `977${cleanPhoneDigits}`
           : `9779867333080`;
 
-      const bilingualPitch = generateWhatsAppMessage({
-        toPhone: nepPhone,
-        businessName: matched.name,
-        previewUrl,
-        specificDetail: matched.category,
-        district: matched.district,
-        priceNpr: 9999,
-      });
+      const pdfFileName = `${slug}-proposal.pdf`;
+
+      const bilingualPitch = `Namaste ${matched.name}! 🙏
+
+We noticed ${matched.name} has fantastic ${matched.rating}★ reviews in ${matched.district}, but no official mobile website for patrons searching on Google.
+
+📄 Attached Below: Official Mobile Website Design & Proposal PDF ("${pdfFileName}").
+You can open it directly in WhatsApp to preview:
+✅ Full mobile website visual design
+✅ 1-Tap WhatsApp membership & inquiry button
+✅ Shift hours & packages showcase
+✅ Google Local SEO for Kathmandu Valley
+
+Transparent pricing: NPR 9,999 one-time setup + NPR 1,500/month cloud hosting. (eSewa / Khalti / FonePay accepted).
+
+Would you like to connect your own domain (e.g. ${slug}.com.np) this week? Simply reply to this chat!`;
 
       // Authentic Kathmandu Nepali tone
       const isGym =
@@ -208,15 +216,14 @@ export async function POST(req: NextRequest) {
       const categoryIcon = isGym ? '💪🏋️' : '🥟🍜';
       const nepaliPitch = `नमस्ते ${matched.name} टिम! 🙏
 
-हामीले ${matched.district} मा हजुरहरूको ${matched.category} को ${matched.rating}★ उत्कृष्ट reviews देख्यौँ। गुगलमा खोज्ने नयाँ ग्राहकहरूले हजुरहरूको official mobile website नपाउने भएकाले, हामीले हजुरहरूका लागि एउटा live demo website तयार गरेका छौँ:
+हामीले ${matched.district} मा हजुरहरूको ${matched.category} को ${matched.rating}★ उत्कृष्ट reviews देख्यौँ। Google मा खोज्ने नयाँ ग्राहकहरूका लागि official mobile website नभएकोले, हामीले हजुरहरूका लागि एउटा सम्पूर्ण मोबाइल वेबसाइट डिजाइन तयार गरेका छौँ।
 
-🔗 ${previewUrl}
-
-यसमा समावेश छन्:
+📄 सँगै Attached छ: हजुरहरूको Official Mobile Website Design & Proposal PDF ("${pdfFileName}")।
+यहीँ WhatsApp मा खोलेर हेर्न सक्नुहुन्छ:
 ✅ सिधै WhatsApp मा enquiry/booking आउने १-ट्याप बटन
 ✅ काठमाडौं उपत्यका Google Local SEO अप्टिमाइजेसन
+✅ सम्पूर्ण सिफ्ट समय र सदस्यता शुल्क विवरण
 ✅ नेपाली र अंग्रेजी दुबै भाषामा सहज दृश्य
-✅ मोबाइलमा बिजुली जस्तै छिटो खुल्ने स्पिड
 
 हजुरहरूको आफ्नै ब्राण्डको .com.np डोमेनमा यसलाई जडान गर्न चाहनुहुन्छ भने हामीलाई यहीँ WhatsApp मा reply गर्नुहोला!`;
 
@@ -224,22 +231,22 @@ export async function POST(req: NextRequest) {
       const categoryPitch = isGym
         ? `Namaste ${matched.name} Coaches! ${categoryIcon}
 
-Every morning from 5:30 AM, fitness lovers in ${matched.district} look for gym shift hours, equipment, and monthly membership pricing on Google.
+Every morning from 5:30 AM, fitness lovers in ${matched.district} search for gym shift timings, equipment, and monthly membership pricing on Google.
 
-We built an exclusive live website preview with 1-Tap WhatsApp Membership Enquiry for your gym:
-🔗 ${previewUrl}
+📄 Attached: Official Mobile Website Design & Proposal PDF ("${pdfFileName}").
+Tap to open directly in WhatsApp to see:
+✅ Monthly / 3-Month Membership Showcase (NPR 2,500 / NPR 6,500)
+✅ 1-Tap WhatsApp Membership Consultation
+✅ Morning (5:30 AM) & Evening (4:00 PM) shift hours
+✅ Zero complex apps needed — opens directly on every phone
 
-✅ Monthly / 3-Month Membership Showcase
-✅ 1-Tap WhatsApp Consultation
-✅ Zero complex apps needed — works on every phone
-
-Would you like to connect your domain today? Simply reply here!`
+Would you like to activate your own domain this week? Simply reply here!`
         : bilingualPitch;
 
       // Short & Direct Pitch
-      const shortPitch = `Namaste ${matched.name}! 🙏 We noticed you have fantastic ${matched.rating}★ reviews in ${matched.district}, but no mobile website on Google Maps. We built a free live preview for you to explore:
-🔗 ${previewUrl}
-Would you like to connect your custom domain this week?`;
+      const shortPitch = `Namaste ${matched.name}! 🙏 We noticed you have fantastic ${matched.rating}★ reviews in ${matched.district}, but no official mobile website.
+📄 Attached below: Your official Mobile Website Design & Proposal PDF ("${pdfFileName}"). Tap to open and view the design directly in WhatsApp!
+Can we connect your custom domain this week?`;
 
       const directWhatsAppUrl = `https://wa.me/${nepPhone}?text=${encodeURIComponent(bilingualPitch)}`;
 

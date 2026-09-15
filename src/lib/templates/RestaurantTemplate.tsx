@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowUpRight,
   Calendar,
@@ -9,19 +9,21 @@ import {
   ChevronRight,
   Clock,
   Compass,
+  Flame,
   Globe,
+  Info,
+  Leaf,
   MapPin,
   MessageSquare,
+  Minus,
   Navigation,
   Phone,
-  ShieldCheck,
-  UtensilsCrossed,
   Plus,
-  Minus,
+  ShieldCheck,
   ShoppingBag,
-  Flame,
-  Leaf,
-  Info
+  Sparkles,
+  Star,
+  UtensilsCrossed,
 } from 'lucide-react';
 
 interface TemplateProps {
@@ -84,7 +86,7 @@ export function normalizeDisplayPhone(rawPhone?: string): string {
 // e.g., "Signature Buff Steamed Momo (शानदार बफ मःमः - NPR 160)" -> "Buff Steamed Momo"
 export function cleanDishNameForOrder(rawTitle: string): string {
   let cleaned = rawTitle
-    .replace(/\s*\([^)]*\)/g, '')   // Remove parenthetical notes/Devanagari
+    .replace(/\s*\([^)]*\)/g, '') // Remove parenthetical notes/Devanagari
     .replace(/\s*-\s*NPR.*$/i, '') // Remove trailing price if outside parens
     .trim();
 
@@ -108,7 +110,7 @@ export function formatWhatsAppOrderMessage(
   businessName: string,
   rawTitle: string,
   quantity: number,
-  orderType: 'takeaway' | 'dine-in' = 'takeaway'
+  orderType: 'takeaway' | 'dine-in' = 'takeaway',
 ): string {
   const cleanBusiness = businessName.toLowerCase().includes('sandar')
     ? 'Sandar Momo'
@@ -143,15 +145,18 @@ const SANDAR_AUTHENTIC_ITEMS: MenuItemData[] = [
     nepaliTitle: 'शानदार बफ मःमः',
     price_npr: 'NPR 160',
     priceNumeric: 160,
-    description: '10 juicy hand-pleated momos filled with seasoned fresh buffalo mince, mountain ginger, and scallions. Served piping hot with Sandar’s legendary fire-roasted timur and tomato chutney.',
-    nepaliDescription: '१० वटा रसिला बफ मःमः, ताजा मसला र अदुवाको सुगन्धित मिश्रण सहित। प्रख्यात पिरो टिमुर गोलभेडाको अचारसँग पस्किएको।',
+    description:
+      '10 juicy hand-pleated momos filled with seasoned fresh buffalo mince, mountain ginger, and scallions. Served piping hot with Sandar’s legendary fire-roasted timur and tomato chutney.',
+    nepaliDescription:
+      '१० वटा रसिला बफ मःमः, ताजा मसला र अदुवाको सुगन्धित मिश्रण सहित। प्रख्यात पिरो टिमुर गोलभेडाको अचारसँग पस्किएको।',
     category: 'Chef Specials',
     badge: 'Legendary Bestseller',
     spiceLevel: 3,
     spiceLabel: 'High Timur Kick',
     dietary: 'Buff',
     unit: 'plate',
-    image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'buff-c-momo',
@@ -159,15 +164,18 @@ const SANDAR_AUTHENTIC_ITEMS: MenuItemData[] = [
     nepaliTitle: 'सी मःमः',
     price_npr: 'NPR 210',
     priceNumeric: 210,
-    description: 'Crispy wok-tossed buffalo momos glazed in fiery red chili sauce, crunchy bell peppers, charred shallots, hot green chilies, and garlic shoots. Kathmandu’s favorite evening rush comfort.',
-    nepaliDescription: 'तातो कराहीमा भुटिएको क्रिस्पी बफ सी मःमः, हरियो क्याप्सिकम, प्याज र पिरो खुर्सानीको विशेष सस सहित।',
+    description:
+      'Crispy wok-tossed buffalo momos glazed in fiery red chili sauce, crunchy bell peppers, charred shallots, hot green chilies, and garlic shoots. Kathmandu’s favorite evening rush comfort.',
+    nepaliDescription:
+      'तातो कराहीमा भुटिएको क्रिस्पी बफ सी मःमः, हरियो क्याप्सिकम, प्याज र पिरो खुर्सानीको विशेष सस सहित।',
     category: 'Chef Specials',
     badge: 'Fiery Wok Sauté',
     spiceLevel: 4,
     spiceLabel: 'Extra Hot',
     dietary: 'Buff',
     unit: 'plate',
-    image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'chicken-jhol',
@@ -175,15 +183,18 @@ const SANDAR_AUTHENTIC_ITEMS: MenuItemData[] = [
     nepaliTitle: 'चिकेन झोल मःमः',
     price_npr: 'NPR 240',
     priceNumeric: 240,
-    description: 'Tender chicken dumplings steeped in our slow-simmered, rich nutty sesame and roasted soybean (bhatmas) jhol broth, infused with fresh cilantro and crushed timur pepper.',
-    nepaliDescription: 'नरम चिकेन मःमः, भुटेको तिल र भटमासको स्वादिलो बाक्लो झोल, हरियो धनियाँ र टिमुरको बास्ना सहित।',
+    description:
+      'Tender chicken dumplings steeped in our slow-simmered, rich nutty sesame and roasted soybean (bhatmas) jhol broth, infused with fresh cilantro and crushed timur pepper.',
+    nepaliDescription:
+      'नरम चिकेन मःमः, भुटेको तिल र भटमासको स्वादिलो बाक्लो झोल, हरियो धनियाँ र टिमुरको बास्ना सहित।',
     category: 'Traditional Plates',
     badge: 'Soulful Jhol Broth',
     spiceLevel: 2,
     spiceLabel: 'Medium Spiced',
     dietary: 'Chicken',
     unit: 'plate',
-    image: 'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'veg-paneer',
@@ -191,15 +202,18 @@ const SANDAR_AUTHENTIC_ITEMS: MenuItemData[] = [
     nepaliTitle: 'ताजा भेज पनिर मःमः',
     price_npr: 'NPR 180',
     priceNumeric: 180,
-    description: 'Delicate hand-folded momos stuffed with rich fresh dairy paneer, shredded hill cabbage, carrots, ginger, and subtle mountain herbs. Paired with sweet-and-sour sesame dip.',
-    nepaliDescription: 'ताजा पनिर, बन्दा र गाजरको हल्का मसलादार मिश्रण। शुद्ध शाकाहारी पारखीहरूका लागि उत्कृष्ट रोजाइ।',
+    description:
+      'Delicate hand-folded momos stuffed with rich fresh dairy paneer, shredded hill cabbage, carrots, ginger, and subtle mountain herbs. Paired with sweet-and-sour sesame dip.',
+    nepaliDescription:
+      'ताजा पनिर, बन्दा र गाजरको हल्का मसलादार मिश्रण। शुद्ध शाकाहारी पारखीहरूका लागि उत्कृष्ट रोजाइ।',
     category: 'Traditional Plates',
     badge: 'Pure Vegetarian',
     spiceLevel: 1,
     spiceLabel: 'Mild Aromatic',
     dietary: 'Veg',
     unit: 'plate',
-    image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'timur-chutney-jar',
@@ -207,15 +221,18 @@ const SANDAR_AUTHENTIC_ITEMS: MenuItemData[] = [
     nepaliTitle: 'शानदार टिमुर अचार जार',
     price_npr: 'NPR 40',
     priceNumeric: 40,
-    description: 'The taste that made Sankhamul famous: an extra takeaway jar of Sandar’s authentic house-ground chutney with wild Himalayan timur berries, fire-roasted plum tomatoes, and pure mustard oil.',
-    nepaliDescription: 'शंखमुलको चर्चित पिरो टिमुर अचारको थप जार। पार्सल तथा घरमा समेत स्वाद लिनको लागि उपयुक्त।',
+    description:
+      'The taste that made Sankhamul famous: an extra takeaway jar of Sandar’s authentic house-ground chutney with wild Himalayan timur berries, fire-roasted plum tomatoes, and pure mustard oil.',
+    nepaliDescription:
+      'शंखमुलको चर्चित पिरो टिमुर अचारको थप जार। पार्सल तथा घरमा समेत स्वाद लिनको लागि उपयुक्त।',
     category: 'Extras & Chutney',
     badge: 'Signature Condiment',
     spiceLevel: 4,
     spiceLabel: 'Pure Timur Fire',
     dietary: 'Sides',
     unit: 'jar',
-    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
   },
 ];
 
@@ -284,7 +301,8 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
   });
 
   // Identify if this is Sandar Momo
-  const isSandar = business.name.toLowerCase().includes('sandar') || business.name.toLowerCase().includes('momo');
+  const isSandar =
+    business.name.toLowerCase().includes('sandar') || business.name.toLowerCase().includes('momo');
   const brandName = isSandar ? 'Sandar Momo' : business.name;
 
   // Normalized phone handling
@@ -298,7 +316,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
   const baseWhatsAppUrl = `https://wa.me/${targetPhone}?text=`;
 
   const reservationUrl = `${baseWhatsAppUrl}${encodeURIComponent(
-    `Hello ${brandName}! I would like to reserve a table for ${guestCount} guests at ${selectedTime} (${diningMode === 'takeaway' ? 'Advance Takeaway Pickup' : 'Dine-In'}).`
+    `Hello ${brandName}! I would like to reserve a table for ${guestCount} guests at ${selectedTime} (${diningMode === 'takeaway' ? 'Advance Takeaway Pickup' : 'Dine-In'}).`,
   )}`;
 
   const mapQuery = encodeURIComponent(`${business.name} ${business.address} Kathmandu Nepal`);
@@ -324,15 +342,25 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
           price_npr: item.price_npr || `NPR ${priceNum}`,
           priceNumeric: priceNum,
           description: item.description,
-          category: idx === 0 || idx === 1 ? 'Chef Specials' : isJar ? 'Extras & Chutney' : 'Traditional Plates',
+          category:
+            idx === 0 || idx === 1
+              ? 'Chef Specials'
+              : isJar
+                ? 'Extras & Chutney'
+                : 'Traditional Plates',
           badge: idx === 0 ? 'Chef Signature' : 'Popular Choice',
           spiceLevel: 2,
           spiceLabel: 'Traditional Spicing',
-          dietary: /veg|paneer/i.test(item.title) ? 'Veg' : /chicken/i.test(item.title) ? 'Chicken' : 'Buff',
+          dietary: /veg|paneer/i.test(item.title)
+            ? 'Veg'
+            : /chicken/i.test(item.title)
+              ? 'Chicken'
+              : 'Buff',
           unit: isJar ? 'jar' : 'plate',
-          image: idx === 0
-            ? 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80'
-            : 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+          image:
+            idx === 0
+              ? 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80'
+              : 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
         };
       });
     }
@@ -345,11 +373,11 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
   const filteredItems = useMemo(() => {
     if (activeTab === 'All') return menuItems;
-    return menuItems.filter(item => item.category === activeTab);
+    return menuItems.filter((item) => item.category === activeTab);
   }, [activeTab, menuItems]);
 
   const updateQuantity = (id: string, delta: number) => {
-    setItemQuantities(prev => {
+    setItemQuantities((prev) => {
       const current = prev[id] ?? 1;
       const next = Math.max(1, Math.min(20, current + delta));
       return { ...prev, [id]: next };
@@ -357,16 +385,19 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
   };
 
   const toggleOrderType = (id: string, type: 'takeaway' | 'dine-in') => {
-    setItemOrderTypes(prev => ({ ...prev, [id]: type }));
+    setItemOrderTypes((prev) => ({ ...prev, [id]: type }));
   };
 
   // Aggregated Takeaway Tray calculation
   const selectedTraySummary = useMemo(() => {
-    const selected = menuItems.filter(item => (itemQuantities[item.id] ?? 0) > 0);
+    const selected = menuItems.filter((item) => (itemQuantities[item.id] ?? 0) > 0);
     const totalCount = selected.reduce((sum, item) => sum + (itemQuantities[item.id] ?? 0), 0);
-    const totalNpr = selected.reduce((sum, item) => sum + item.priceNumeric * (itemQuantities[item.id] ?? 0), 0);
+    const totalNpr = selected.reduce(
+      (sum, item) => sum + item.priceNumeric * (itemQuantities[item.id] ?? 0),
+      0,
+    );
 
-    const textItems = selected.map(item => {
+    const textItems = selected.map((item) => {
       const qty = itemQuantities[item.id] ?? 1;
       const cleanName = cleanDishNameForOrder(item.title);
       const unit = getItemUnit(cleanName, qty);
@@ -393,11 +424,11 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-semibold text-lg tracking-tight text-white flex items-center gap-2">
-              <UtensilsCrossed className="w-5 h-5 text-amber-500" />
+            <span className="flex items-center gap-2 text-lg font-semibold tracking-tight text-white">
+              <UtensilsCrossed className="h-5 w-5 text-amber-500" />
               <span>{business.name}</span>
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/5 border border-white/10 text-[#86868B]">
+            <span className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-[#86868B] sm:inline-flex">
               {business.district || 'Sankhamul'} · Kathmandu
             </span>
           </div>
@@ -413,9 +444,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             {/* Direct Telephone link defaulting to +977-9867333080 */}
             <a
               href={`tel:${displayPhone}`}
-              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[#86868B] hover:text-white transition-colors"
+              className="hidden items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[#86868B] transition-colors hover:text-white md:inline-flex"
             >
-              <Phone className="w-3.5 h-3.5 text-emerald-400" />
+              <Phone className="h-3.5 w-3.5 text-emerald-400" />
               <span>{displayPhone}</span>
             </a>
 
@@ -425,9 +456,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               href={reservationUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-4 sm:px-5 py-2 rounded-full font-medium text-xs sm:text-sm bg-white text-black hover:bg-[#F5F5F7] transition-all shadow-md flex items-center gap-1.5"
+              className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-medium text-black shadow-md transition-all hover:bg-[#F5F5F7] sm:px-5 sm:text-sm"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+              <MessageSquare className="h-3.5 w-3.5 text-emerald-600" />
               <span>{lang === 'en' ? 'Book Table' : 'टेबुल बुक'}</span>
             </motion.a>
           </div>
@@ -435,9 +466,8 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       </motion.nav>
 
       {/* Hero Section — Apple Keynote Scale */}
-      <section className="relative pt-16 sm:pt-24 pb-20 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="space-y-6 max-w-4xl">
-          
+      <section className="relative mx-auto max-w-7xl px-6 pb-20 pt-16 sm:pt-24 lg:px-12">
+        <div className="max-w-4xl space-y-6">
           {/* Dynamic Island Style Status Pill */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -445,13 +475,13 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#161617] px-3.5 py-1.5 text-xs text-[#86868B] shadow-sm"
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-stone-300 font-medium">Sankhamul Marg · Kathmandu</span>
+            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+            <span className="font-medium text-stone-300">Sankhamul Marg · Kathmandu</span>
             <span className="text-stone-600">|</span>
-            <span className="text-amber-400 font-semibold flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-amber-400 inline" /> 4.7 ★ Google Verified
+            <span className="flex items-center gap-1 font-semibold text-amber-400">
+              <Star className="inline h-3.5 w-3.5 fill-amber-400" /> 4.7 ★ Google Verified
             </span>
-            <span className="hidden sm:inline text-stone-500">(420+ Patrons)</span>
+            <span className="hidden text-stone-500 sm:inline">(420+ Patrons)</span>
           </motion.div>
 
           {/* Big Confident Apple Headline */}
@@ -481,8 +511,10 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             className="max-w-2xl text-lg font-normal leading-relaxed tracking-tight text-[#86868B] sm:text-xl"
           >
             {lang === 'en'
-              ? (copy.hero_subtitle || 'Hand-pleated buffalo and chicken momos paired with Kathmandu’s most addictive fire-roasted timur chutney. Steaming non-stop in Sankhamul.')
-              : (copy.nepali_content?.about_snippet || 'शंखमुल पुल नजिकै दशकौंदेखि लाखौं ग्राहकको मन जित्न सफल शानदार मःमःमा यहाँहरुलाई हार्दिक स्वागत छ।')}
+              ? copy.hero_subtitle ||
+                'Hand-pleated buffalo and chicken momos paired with Kathmandu’s most addictive fire-roasted timur chutney. Steaming non-stop in Sankhamul.'
+              : copy.nepali_content?.about_snippet ||
+                'शंखमुल पुल नजिकै दशकौंदेखि लाखौं ग्राहकको मन जित्न सफल शानदार मःमःमा यहाँहरुलाई हार्दिक स्वागत छ।'}
           </motion.p>
 
           {/* Action CTAs */}
@@ -500,17 +532,19 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               rel="noreferrer"
               className="flex items-center gap-2 rounded-full bg-[#0071E3] px-6 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#0071E3]/25 transition-colors hover:bg-[#0077ED]"
             >
-              <span>{lang === 'en' ? 'Reserve Table on WhatsApp' : 'ह्वाट्सएपमा टेबुल बुक गर्नुहोस्'}</span>
-              <ArrowUpRight className="w-4 h-4" />
+              <span>
+                {lang === 'en' ? 'Reserve Table on WhatsApp' : 'ह्वाट्सएपमा टेबुल बुक गर्नुहोस्'}
+              </span>
+              <ArrowUpRight className="h-4 w-4" />
             </motion.a>
 
             <motion.a
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               href="#menu"
-              className="px-6 py-3.5 rounded-full font-medium text-sm bg-[#161617] hover:bg-[#202022] border border-white/10 text-white transition-colors flex items-center gap-2"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-[#161617] px-6 py-3.5 text-sm font-medium text-white transition-colors hover:bg-[#202022]"
             >
-              <UtensilsCrossed className="w-4 h-4 text-amber-400" />
+              <UtensilsCrossed className="h-4 w-4 text-amber-400" />
               <span>{lang === 'en' ? 'Explore Authentic Menu' : 'हाम्रो मेनु हेर्नुहोस्'}</span>
             </motion.a>
 
@@ -518,7 +552,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               href="#location"
               className="flex items-center gap-1.5 px-4 py-3.5 text-xs text-[#86868B] transition-colors hover:text-white"
             >
-              <Navigation className="w-3.5 h-3.5 text-[#0071E3]" />
+              <Navigation className="h-3.5 w-3.5 text-[#0071E3]" />
               <span>Sankhamul Bridge Location</span>
             </a>
           </motion.div>
@@ -542,29 +576,31 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                  <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 font-mono text-xs uppercase tracking-widest text-amber-400">
                     Culinary Landmark
                   </span>
                   <span className="text-xs text-stone-400">Est. Sankhamul</span>
                 </div>
-                <h3 className="text-2xl sm:text-4xl font-semibold text-white tracking-tight mt-1.5">
+                <h3 className="mt-1.5 text-2xl font-semibold tracking-tight text-white sm:text-4xl">
                   {business.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-300 mt-1 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#0071E3]" />
-                  <span>{business.address || 'Sankhamul Marg (Near Sankhamul Bridge), Kathmandu'}</span>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-stone-300 sm:text-sm">
+                  <MapPin className="h-3.5 w-3.5 text-[#0071E3]" />
+                  <span>
+                    {business.address || 'Sankhamul Marg (Near Sankhamul Bridge), Kathmandu'}
+                  </span>
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 bg-black/70 backdrop-blur-xl border border-white/10 px-4 py-2.5 rounded-full text-xs text-white">
-                <span className="flex items-center gap-1 text-amber-400 font-bold">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
+              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-2.5 text-xs text-white backdrop-blur-xl">
+                <span className="flex items-center gap-1 font-bold text-amber-400">
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
                   <span>{business.rating || 4.7}</span>
                 </span>
                 <span className="text-stone-500">•</span>
                 <span className="text-stone-300">{business.reviews_count || 420}+ Reviews</span>
                 <span className="text-stone-500">•</span>
-                <span className="text-emerald-400 font-medium">Hot Parcel Takeaway Ready</span>
+                <span className="font-medium text-emerald-400">Hot Parcel Takeaway Ready</span>
               </div>
             </div>
           </div>
@@ -572,17 +608,17 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       </section>
 
       {/* Menu Showcase with Apple-style Fluid Tabs and Dynamic WhatsApp Ordering */}
-      <section id="menu" className="py-24 px-6 lg:px-12 max-w-7xl mx-auto space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0071E3]/10 border border-[#0071E3]/20 text-xs font-semibold text-[#0071E3] uppercase tracking-wider">
-              <Sparkles className="w-3 h-3" />
+      <section id="menu" className="mx-auto max-w-7xl space-y-12 px-6 py-24 lg:px-12">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div className="max-w-xl space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#0071E3]/20 bg-[#0071E3]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#0071E3]">
+              <Sparkles className="h-3 w-3" />
               <span>Authentic Sankhamul Menu</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
               {lang === 'en' ? 'Signature Offerings.' : 'हाम्रा विशिष्ट परिकारहरू'}
             </h2>
-            <p className="text-[#86868B] text-sm sm:text-base">
+            <p className="text-sm text-[#86868B] sm:text-base">
               {lang === 'en'
                 ? 'Hand-crafted daily with generational spices, thin hand-rolled dough, and our signature fire-roasted timur achar.'
                 : 'दैनिक ताजा मसला, पातलो मःमःको खोल र ऐतिहासिक पिरो टिमुर अचार सहित तयार पारिएको।'}
@@ -595,8 +631,8 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative px-4 py-2 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-                  activeTab === tab ? 'text-black font-semibold' : 'text-[#86868B] hover:text-white'
+                className={`relative whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                  activeTab === tab ? 'font-semibold text-black' : 'text-[#86868B] hover:text-white'
                 }`}
               >
                 {activeTab === tab && (
@@ -613,98 +649,110 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
         </div>
 
         {/* Bento Grid with Spotlight Cards & Dynamic Ordering */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map(item => {
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredItems.map((item) => {
             const quantity = itemQuantities[item.id] ?? (item.unit === 'jar' ? 1 : 2);
             const orderType = itemOrderTypes[item.id] ?? 'takeaway';
-            const dynamicMessage = formatWhatsAppOrderMessage(brandName, item.title, quantity, orderType);
+            const dynamicMessage = formatWhatsAppOrderMessage(
+              brandName,
+              item.title,
+              quantity,
+              orderType,
+            );
             const itemWhatsAppUrl = `${baseWhatsAppUrl}${encodeURIComponent(dynamicMessage)}`;
             const cleanDish = cleanDishNameForOrder(item.title);
             const unitLabel = getItemUnit(cleanDish, quantity);
 
             return (
-              <SpotlightCard key={item.id} className="p-6 sm:p-7 flex flex-col justify-between h-full group">
+              <SpotlightCard
+                key={item.id}
+                className="group flex h-full flex-col justify-between p-6 sm:p-7"
+              >
                 <div className="space-y-4">
-                  
                   {/* Photo & Badges */}
-                  <div className="relative aspect-[16/10] rounded-2xl overflow-hidden border border-white/[0.08] bg-stone-900">
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/[0.08] bg-stone-900">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    
+
                     {/* Top Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center gap-1">
-                        {item.dietary === 'Veg' && <Leaf className="w-3 h-3 text-emerald-400" />}
-                        {item.dietary === 'Buff' && <Flame className="w-3 h-3 text-amber-400" />}
-                        {item.dietary === 'Chicken' && <Flame className="w-3 h-3 text-orange-400" />}
+                    <div className="absolute left-3 right-3 top-3 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
+                        {item.dietary === 'Veg' && <Leaf className="h-3 w-3 text-emerald-400" />}
+                        {item.dietary === 'Buff' && <Flame className="h-3 w-3 text-amber-400" />}
+                        {item.dietary === 'Chicken' && (
+                          <Flame className="h-3 w-3 text-orange-400" />
+                        )}
                         <span>{item.badge || item.dietary}</span>
                       </span>
 
-                      <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white shrink-0 shadow-lg">
+                      <span className="shrink-0 rounded-full border border-white/20 bg-black/80 px-3 py-1 font-mono text-xs font-bold text-white shadow-lg backdrop-blur-md">
                         {item.price_npr}
                       </span>
                     </div>
 
                     {/* Spice Level Indicator */}
-                    <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 text-[11px] text-amber-400 bg-black/60 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10">
+                    <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-2.5 py-0.5 text-[11px] text-amber-400 backdrop-blur-md">
                       <span>{'🌶️'.repeat(item.spiceLevel)}</span>
-                      <span className="text-stone-300 font-medium text-[10px]">{item.spiceLabel}</span>
+                      <span className="text-[10px] font-medium text-stone-300">
+                        {item.spiceLabel}
+                      </span>
                     </div>
                   </div>
 
                   {/* Title & Nepali subtitle */}
                   <div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-white tracking-tight group-hover:text-[#0071E3] transition-colors">
+                    <h3 className="text-lg font-semibold tracking-tight text-white transition-colors group-hover:text-[#0071E3] sm:text-xl">
                       {cleanDish}
                     </h3>
                     {item.nepaliTitle && (
-                      <p className="text-xs text-amber-500/90 font-medium mt-0.5">
+                      <p className="mt-0.5 text-xs font-medium text-amber-500/90">
                         {item.nepaliTitle}
                       </p>
                     )}
-                    <p className="text-xs sm:text-sm text-[#86868B] leading-relaxed mt-2 line-clamp-3">
-                      {lang === 'en' ? item.description : (item.nepaliDescription || item.description)}
+                    <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[#86868B] sm:text-sm">
+                      {lang === 'en'
+                        ? item.description
+                        : item.nepaliDescription || item.description}
                     </p>
                   </div>
                 </div>
 
                 {/* Dynamic Item Ordering Controls */}
-                <div className="pt-5 mt-5 border-t border-white/[0.08] space-y-3.5">
-                  
+                <div className="mt-5 space-y-3.5 border-t border-white/[0.08] pt-5">
                   {/* Quantity and Order Type Selector */}
                   <div className="flex items-center justify-between gap-2">
                     {/* Stepper */}
-                    <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1 text-xs">
+                    <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1 text-xs">
                       <button
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-6 h-6 rounded-full hover:bg-white/15 text-stone-300 flex items-center justify-center transition-colors"
+                        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-300 transition-colors hover:bg-white/15"
                         aria-label="Decrease quantity"
                       >
-                        <Minus className="w-3 h-3" />
+                        <Minus className="h-3 w-3" />
                       </button>
-                      <span className="px-2.5 font-mono font-semibold text-white min-w-[70px] text-center text-[11px]">
+                      <span className="min-w-[70px] px-2.5 text-center font-mono text-[11px] font-semibold text-white">
                         {quantity} {unitLabel}
                       </span>
                       <button
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-6 h-6 rounded-full hover:bg-white/15 text-stone-300 flex items-center justify-center transition-colors"
+                        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-300 transition-colors hover:bg-white/15"
                         aria-label="Increase quantity"
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus className="h-3 w-3" />
                       </button>
                     </div>
 
                     {/* Takeaway vs Dine-in Toggle */}
-                    <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1 text-[11px]">
+                    <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1 text-[11px]">
                       <button
                         onClick={() => toggleOrderType(item.id, 'takeaway')}
-                        className={`px-2.5 py-1 rounded-full transition-all ${
+                        className={`rounded-full px-2.5 py-1 transition-all ${
                           orderType === 'takeaway'
-                            ? 'bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30'
+                            ? 'border border-amber-500/30 bg-amber-500/20 font-semibold text-amber-300'
                             : 'text-stone-400 hover:text-white'
                         }`}
                       >
@@ -712,9 +760,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                       </button>
                       <button
                         onClick={() => toggleOrderType(item.id, 'dine-in')}
-                        className={`px-2.5 py-1 rounded-full transition-all ${
+                        className={`rounded-full px-2.5 py-1 transition-all ${
                           orderType === 'dine-in'
-                            ? 'bg-[#0071E3]/20 text-[#0071E3] font-semibold border border-[#0071E3]/30'
+                            ? 'border border-[#0071E3]/30 bg-[#0071E3]/20 font-semibold text-[#0071E3]'
                             : 'text-stone-400 hover:text-white'
                         }`}
                       >
@@ -730,20 +778,23 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                     href={itemWhatsAppUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full py-2.5 px-4 rounded-full font-medium text-xs bg-[#0071E3] hover:bg-[#0077ED] text-white flex items-center justify-between shadow-md transition-all group/btn"
+                    className="group/btn flex w-full items-center justify-between rounded-full bg-[#0071E3] px-4 py-2.5 text-xs font-medium text-white shadow-md transition-all hover:bg-[#0077ED]"
                   >
                     <span className="flex items-center gap-1.5">
-                      <MessageSquare className="w-3.5 h-3.5 text-emerald-300" />
+                      <MessageSquare className="h-3.5 w-3.5 text-emerald-300" />
                       <span>Order on WhatsApp</span>
                     </span>
-                    <span className="font-mono text-[11px] text-white/90 flex items-center gap-1">
+                    <span className="flex items-center gap-1 font-mono text-[11px] text-white/90">
                       <span>NPR {item.priceNumeric * quantity}</span>
-                      <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                      <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
                     </span>
                   </motion.a>
 
                   {/* Dynamic Message Preview Pill */}
-                  <div className="text-[10px] text-stone-500 font-mono truncate px-1" title={dynamicMessage}>
+                  <div
+                    className="truncate px-1 font-mono text-[10px] text-stone-500"
+                    title={dynamicMessage}
+                  >
                     💬 &quot;{dynamicMessage}&quot;
                   </div>
                 </div>
@@ -757,18 +808,19 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sticky bottom-6 z-30 max-w-3xl mx-auto bg-[#161617]/95 backdrop-blur-xl border border-white/20 p-4 rounded-full shadow-2xl flex flex-wrap items-center justify-between gap-3 text-xs"
+            className="sticky bottom-6 z-30 mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-full border border-white/20 bg-[#161617]/95 p-4 text-xs shadow-2xl backdrop-blur-xl"
           >
             <div className="flex items-center gap-3 pl-2">
-              <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-                <ShoppingBag className="w-4 h-4" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/20 text-amber-400">
+                <ShoppingBag className="h-4 w-4" />
               </span>
               <div>
-                <p className="font-semibold text-white text-sm">
+                <p className="text-sm font-semibold text-white">
                   Takeaway Order: {selectedTraySummary.count} Items
                 </p>
-                <p className="text-[11px] text-stone-400 font-mono">
-                  Estimated Total: <span className="text-white font-bold">NPR {selectedTraySummary.totalNpr}</span>
+                <p className="font-mono text-[11px] text-stone-400">
+                  Estimated Total:{' '}
+                  <span className="font-bold text-white">NPR {selectedTraySummary.totalNpr}</span>
                 </p>
               </div>
             </div>
@@ -779,87 +831,90 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               href={selectedTraySummary.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-6 py-2.5 rounded-full font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 transition-colors shadow-lg shadow-emerald-900/30"
+              className="flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-xs font-medium text-white shadow-lg shadow-emerald-900/30 transition-colors hover:bg-emerald-500"
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className="h-3.5 w-3.5" />
               <span>Send Complete Order on WhatsApp</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </motion.a>
           </motion.div>
         )}
       </section>
 
       {/* Sankhamul Heritage & Craftsmanship Story */}
-      <section className="py-20 px-6 lg:px-12 max-w-7xl mx-auto border-t border-white/[0.08]">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 space-y-6">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-400">
+      <section className="mx-auto max-w-7xl border-t border-white/[0.08] px-6 py-20 lg:px-12">
+        <div className="grid items-center gap-12 lg:grid-cols-12">
+          <div className="space-y-6 lg:col-span-6">
+            <span className="font-mono text-xs uppercase tracking-widest text-amber-400">
               The Sandar Tradition · Sankhamul
             </span>
-            <h2 className="text-3xl sm:text-5xl font-semibold text-white tracking-tight leading-tight">
+            <h2 className="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
               {lang === 'en'
                 ? 'Generations of Hand-Pleated Craftsmanship.'
                 : 'दशकौंदेखि जोगाइएको मौलिक मःमःको परम्परा'}
             </h2>
-            <p className="text-[#86868B] text-sm sm:text-base leading-relaxed">
+            <p className="text-sm leading-relaxed text-[#86868B] sm:text-base">
               {lang === 'en'
-                ? (copy.about_story || 'Sandar Momo stands as an undisputed culinary landmark of Sankhamul. Built on generations of dedication to honest flavor, our kitchen serves hundreds of bustling plates every single day to students, neighborhood families, and momo pilgrims from across Kathmandu and Lalitpur. We source only fresh, quality cuts, finely minced and seasoned with authentic mountain spices, wrapped thin, and steamed to juicy perfection.')
-                : (copy.nepali_content?.about_snippet || 'शंखमुल पुल नजिकै दशकौंदेखि लाखौं ग्राहकको मन जित्न सफल शानदार मःमःमा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो मौलिक स्वादको अनुभव लिनुहोस्।')}
+                ? copy.about_story ||
+                  'Sandar Momo stands as an undisputed culinary landmark of Sankhamul. Built on generations of dedication to honest flavor, our kitchen serves hundreds of bustling plates every single day to students, neighborhood families, and momo pilgrims from across Kathmandu and Lalitpur. We source only fresh, quality cuts, finely minced and seasoned with authentic mountain spices, wrapped thin, and steamed to juicy perfection.'
+                : copy.nepali_content?.about_snippet ||
+                  'शंखमुल पुल नजिकै दशकौंदेखि लाखौं ग्राहकको मन जित्न सफल शानदार मःमःमा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो मौलिक स्वादको अनुभव लिनुहोस्।'}
             </p>
 
-            <div className="grid sm:grid-cols-3 gap-4 pt-2">
-              <div className="p-4 rounded-2xl bg-[#161617] border border-white/[0.08]">
-                <p className="text-2xl font-mono font-bold text-white">100%</p>
-                <p className="text-xs text-[#86868B] mt-1">Fresh Ground Daily</p>
+            <div className="grid gap-4 pt-2 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/[0.08] bg-[#161617] p-4">
+                <p className="font-mono text-2xl font-bold text-white">100%</p>
+                <p className="mt-1 text-xs text-[#86868B]">Fresh Ground Daily</p>
               </div>
-              <div className="p-4 rounded-2xl bg-[#161617] border border-white/[0.08]">
-                <p className="text-2xl font-mono font-bold text-amber-400">420+</p>
-                <p className="text-xs text-[#86868B] mt-1">Local Verified Reviews</p>
+              <div className="rounded-2xl border border-white/[0.08] bg-[#161617] p-4">
+                <p className="font-mono text-2xl font-bold text-amber-400">420+</p>
+                <p className="mt-1 text-xs text-[#86868B]">Local Verified Reviews</p>
               </div>
-              <div className="p-4 rounded-2xl bg-[#161617] border border-white/[0.08]">
-                <p className="text-2xl font-mono font-bold text-emerald-400">30 Sec</p>
-                <p className="text-xs text-[#86868B] mt-1">Sankhamul Bridge Walk</p>
+              <div className="rounded-2xl border border-white/[0.08] bg-[#161617] p-4">
+                <p className="font-mono text-2xl font-bold text-emerald-400">30 Sec</p>
+                <p className="mt-1 text-xs text-[#86868B]">Sankhamul Bridge Walk</p>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 lg:col-span-6">
             <div className="space-y-4">
-              <div className="rounded-2xl overflow-hidden border border-white/[0.08] aspect-square">
+              <div className="aspect-square overflow-hidden rounded-2xl border border-white/[0.08]">
                 <img
                   src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80"
                   alt="Momo Steaming"
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
-              <div className="p-5 rounded-2xl bg-[#161617] border border-white/[0.08] space-y-2">
+              <div className="space-y-2 rounded-2xl border border-white/[0.08] bg-[#161617] p-5">
                 <div className="flex items-center gap-1.5 text-amber-400">
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
+                  <Star className="h-4 w-4 fill-amber-400" />
+                  <Star className="h-4 w-4 fill-amber-400" />
+                  <Star className="h-4 w-4 fill-amber-400" />
+                  <Star className="h-4 w-4 fill-amber-400" />
+                  <Star className="h-4 w-4 fill-amber-400" />
                 </div>
-                <p className="text-xs text-stone-300 font-medium">
-                  &quot;The fiery timur achar is simply unmatched in the entire Kathmandu valley.&quot;
+                <p className="text-xs font-medium text-stone-300">
+                  &quot;The fiery timur achar is simply unmatched in the entire Kathmandu
+                  valley.&quot;
                 </p>
-                <p className="text-[10px] text-stone-500 font-mono">— Sankhamul Regular</p>
+                <p className="font-mono text-[10px] text-stone-500">— Sankhamul Regular</p>
               </div>
             </div>
 
             <div className="space-y-4 pt-8">
-              <div className="p-5 rounded-2xl bg-[#161617] border border-white/[0.08] space-y-2">
-                <ShieldCheck className="w-5 h-5 text-[#0071E3]" />
+              <div className="space-y-2 rounded-2xl border border-white/[0.08] bg-[#161617] p-5">
+                <ShieldCheck className="h-5 w-5 text-[#0071E3]" />
                 <p className="text-xs font-semibold text-white">Hygienic Preparation</p>
                 <p className="text-[11px] text-stone-400">
                   Clean stainless steel multi-tier steamers, fresh local cuts, and purified water.
                 </p>
               </div>
-              <div className="rounded-2xl overflow-hidden border border-white/[0.08] aspect-square">
+              <div className="aspect-square overflow-hidden rounded-2xl border border-white/[0.08]">
                 <img
                   src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80"
                   alt="Fresh Momo Preparation"
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
             </div>
@@ -980,12 +1035,13 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       <section id="location" className="mx-auto max-w-7xl space-y-12 px-6 py-24 lg:px-12">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-[#0071E3] uppercase tracking-wider">Find Us</p>
-            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0071E3]">Find Us</p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
               Directions & Map.
             </h2>
-            <p className="text-[#86868B] text-sm">
-              {business.address || 'Sankhamul Marg (Near Sankhamul Bridge), Kathmandu'} · Open daily 11:00 — 20:30
+            <p className="text-sm text-[#86868B]">
+              {business.address || 'Sankhamul Marg (Near Sankhamul Bridge), Kathmandu'} · Open daily
+              11:00 — 20:30
             </p>
           </div>
 
@@ -997,7 +1053,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             rel="noreferrer"
             className="flex items-center gap-2 self-start rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-xs font-medium text-white transition-all hover:bg-white/20 md:self-auto"
           >
-            <Compass className="w-4 h-4 text-[#0071E3]" />
+            <Compass className="h-4 w-4 text-[#0071E3]" />
             <span>Open in Google Maps</span>
           </motion.a>
         </div>
@@ -1021,10 +1077,10 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
           <div className="flex flex-col justify-between space-y-8 border-t border-white/[0.08] p-8 sm:p-10 lg:col-span-4 lg:border-l lg:border-t-0">
             <div className="space-y-6">
               <div>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#86868B] block">
+                <span className="block font-mono text-[11px] uppercase tracking-wider text-[#86868B]">
                   Location & Landmark
                 </span>
-                <p className="text-lg font-semibold text-white mt-1">
+                <p className="mt-1 text-lg font-semibold text-white">
                   {business.address || 'Sankhamul Marg, Ward 10'}
                 </p>
                 <span className="text-xs text-[#86868B]">
@@ -1036,20 +1092,24 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 <span className="block font-mono text-[11px] uppercase tracking-wider text-[#86868B]">
                   Service Hours
                 </span>
-                <p className="text-xs text-stone-200 mt-1 font-mono">Sunday — Friday: 11:00 — 20:30</p>
-                <p className="text-xs text-stone-200 font-mono">Saturday: 10:30 — 21:00</p>
-                <span className="text-[11px] text-emerald-400 mt-1 block">● Hot steamers running non-stop</span>
+                <p className="mt-1 font-mono text-xs text-stone-200">
+                  Sunday — Friday: 11:00 — 20:30
+                </p>
+                <p className="font-mono text-xs text-stone-200">Saturday: 10:30 — 21:00</p>
+                <span className="mt-1 block text-[11px] text-emerald-400">
+                  ● Hot steamers running non-stop
+                </span>
               </div>
 
               <div>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#86868B] block">
+                <span className="block font-mono text-[11px] uppercase tracking-wider text-[#86868B]">
                   Direct Telephone & Orders
                 </span>
                 <a
                   href={`tel:${displayPhone}`}
-                  className="text-sm font-mono text-white hover:text-[#0071E3] transition-colors flex items-center gap-2 mt-1"
+                  className="mt-1 flex items-center gap-2 font-mono text-sm text-white transition-colors hover:text-[#0071E3]"
                 >
-                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  <Phone className="h-3.5 w-3.5 text-emerald-400" />
                   <span>{displayPhone}</span>
                 </a>
               </div>
@@ -1062,7 +1122,7 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 href={googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3.5 rounded-full text-xs font-semibold bg-[#0071E3] hover:bg-[#0077ED] text-white flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#0071E3]/20"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0071E3] py-3.5 text-xs font-semibold text-white shadow-lg shadow-[#0071E3]/20 transition-colors hover:bg-[#0077ED]"
               >
                 <Navigation className="h-3.5 w-3.5" />
                 <span>Turn-by-Turn Directions</span>
@@ -1070,13 +1130,13 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
               <a
                 href={`${baseWhatsAppUrl}${encodeURIComponent(
-                  `Hello ${brandName}! I have an inquiry about opening hours, table availability, and takeaway parcel pickup at Sankhamul.`
+                  `Hello ${brandName}! I have an inquiry about opening hours, table availability, and takeaway parcel pickup at Sankhamul.`,
                 )}`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex w-full items-center justify-center gap-2 rounded-full border border-white/10 py-3 text-xs font-medium text-[#86868B] transition-colors hover:border-white/20 hover:text-white"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                <MessageSquare className="h-3.5 w-3.5 text-emerald-400" />
                 <span>Chat with Staff on WhatsApp</span>
               </a>
             </div>
@@ -1088,29 +1148,30 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       <section className="mx-auto max-w-4xl px-6 py-20 lg:px-12">
         <SpotlightCard className="space-y-8 p-8 sm:p-12">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400">
-              <Check className="w-3 h-3" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+              <Check className="h-3 w-3" />
               <span>Instant Confirmation on WhatsApp</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Reserve a Table or Pre-Order Takeaway.
             </h2>
-            <p className="text-[#86868B] text-sm">
-              Skip the evening rush. Zero booking charges. Direct WhatsApp coordination with Sankhamul staff.
+            <p className="text-sm text-[#86868B]">
+              Skip the evening rush. Zero booking charges. Direct WhatsApp coordination with
+              Sankhamul staff.
             </p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-xs text-[#86868B] font-medium block">Party Size</label>
+              <label className="block text-xs font-medium text-[#86868B]">Party Size</label>
               <div className="flex items-center gap-2">
-                {[1, 2, 4, 6, 8].map(count => (
+                {[1, 2, 4, 6, 8].map((count) => (
                   <button
                     key={count}
                     onClick={() => setGuestCount(count)}
                     className={`flex-1 rounded-xl border py-2.5 text-xs font-medium transition-all ${
                       guestCount === count
-                        ? 'border-[#0071E3] bg-[#0071E3]/20 text-white font-semibold'
+                        ? 'border-[#0071E3] bg-[#0071E3]/20 font-semibold text-white'
                         : 'border-white/10 text-[#86868B] hover:border-white/20'
                     }`}
                   >
@@ -1121,13 +1182,13 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-[#86868B] font-medium block">Service Mode</label>
+              <label className="block text-xs font-medium text-[#86868B]">Service Mode</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setDiningMode('takeaway')}
-                  className={`py-2 px-3 rounded-xl text-xs font-medium border text-center transition-all ${
+                  className={`rounded-xl border px-3 py-2 text-center text-xs font-medium transition-all ${
                     diningMode === 'takeaway'
-                      ? 'border-amber-500 bg-amber-500/20 text-white font-semibold'
+                      ? 'border-amber-500 bg-amber-500/20 font-semibold text-white'
                       : 'border-white/10 text-[#86868B] hover:border-white/20'
                   }`}
                 >
@@ -1135,9 +1196,9 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
                 </button>
                 <button
                   onClick={() => setDiningMode('dine-in')}
-                  className={`py-2 px-3 rounded-xl text-xs font-medium border text-center transition-all ${
+                  className={`rounded-xl border px-3 py-2 text-center text-xs font-medium transition-all ${
                     diningMode === 'dine-in'
-                      ? 'border-[#0071E3] bg-[#0071E3]/20 text-white font-semibold'
+                      ? 'border-[#0071E3] bg-[#0071E3]/20 font-semibold text-white'
                       : 'border-white/10 text-[#86868B] hover:border-white/20'
                   }`}
                 >
@@ -1146,21 +1207,23 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
               </div>
             </div>
 
-            <div className="sm:col-span-2 space-y-2">
-              <label className="text-xs text-[#86868B] font-medium block">Preferred Time Window</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="space-y-2 sm:col-span-2">
+              <label className="block text-xs font-medium text-[#86868B]">
+                Preferred Time Window
+              </label>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[
                   'Lunch (12:30)',
                   'Afternoon (15:30)',
                   'Evening Rush (18:00)',
                   'Dinner (19:30)',
-                ].map(time => (
+                ].map((time) => (
                   <button
                     key={time}
                     onClick={() => setSelectedTime(time)}
-                    className={`py-2 px-3 rounded-xl text-xs font-medium border text-center transition-all ${
+                    className={`rounded-xl border px-3 py-2 text-center text-xs font-medium transition-all ${
                       selectedTime === time
-                        ? 'border-[#0071E3] bg-[#0071E3]/20 text-white font-semibold'
+                        ? 'border-[#0071E3] bg-[#0071E3]/20 font-semibold text-white'
                         : 'border-white/10 text-[#86868B] hover:border-white/20'
                     }`}
                   >
@@ -1177,11 +1240,11 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             href={reservationUrl}
             target="_blank"
             rel="noreferrer"
-            className="w-full py-4 rounded-full font-medium text-sm bg-white text-black hover:bg-[#F5F5F7] flex items-center justify-center gap-2 transition-colors shadow-xl"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-white py-4 text-sm font-medium text-black shadow-xl transition-colors hover:bg-[#F5F5F7]"
           >
-            <MessageSquare className="w-4 h-4 text-emerald-600" />
+            <MessageSquare className="h-4 w-4 text-emerald-600" />
             <span>Confirm Booking on WhatsApp ({displayPhone})</span>
-            <ArrowUpRight className="w-4 h-4" />
+            <ArrowUpRight className="h-4 w-4" />
           </motion.a>
         </SpotlightCard>
       </section>
@@ -1210,13 +1273,23 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
       )}
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.08] py-12 px-6 lg:px-12 text-center text-xs text-[#86868B] space-y-2">
-        <p className="text-white font-medium">{business.name}</p>
+      <footer className="space-y-2 border-t border-white/[0.08] px-6 py-12 text-center text-xs text-[#86868B] lg:px-12">
+        <p className="font-medium text-white">{business.name}</p>
         <p>{business.address || 'Sankhamul Marg (Near Sankhamul Bridge), Kathmandu'}</p>
-        <p className="text-stone-400 font-mono">Tel: {displayPhone}</p>
-        <p className="text-stone-600 text-[11px] pt-4">
-          © {new Date().getFullYear()} {business.name}. All rights reserved. Powered by Sunya.
-        </p>
+        <p className="font-mono text-stone-400">Tel: {displayPhone}</p>
+        <div className="flex items-center justify-center gap-2 pt-4 text-[11px] text-stone-500">
+          <div className="flex h-5 w-5 items-center justify-center rounded border border-stone-700 bg-white p-0.5 shadow-sm">
+            <img
+              src="/sunya-user-logo.png"
+              alt="Sunya Logo"
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <span>
+            © {new Date().getFullYear()} {business.name}. All rights reserved. Powered by{' '}
+            <strong>Sunya (शून्य)</strong>.
+          </span>
+        </div>
       </footer>
     </div>
   );

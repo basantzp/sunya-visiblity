@@ -103,8 +103,12 @@ export default function AgencyHomePage() {
 
       {/* Hero Section */}
       <section className="mx-auto max-w-5xl space-y-8 px-6 py-24 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-blue-400">
-          <Sparkles className="h-3.5 w-3.5" />
+        <div className="inline-flex items-center gap-2.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-blue-400 shadow-sm">
+          <img
+            src="/sunya-user-logo.png"
+            alt="Sunya Logo"
+            className="h-4 w-4 rounded bg-white object-contain p-0.5"
+          />
           <span>Autonomous Local-Business Website & Lead Agency</span>
         </div>
 
@@ -299,7 +303,19 @@ export default function AgencyHomePage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 py-12 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} Sunya · Kathmandu Valley Autonomous Agency</p>
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700 bg-white p-0.5 shadow-sm">
+              <img
+                src="/sunya-user-logo.png"
+                alt="Sunya Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <span className="font-bold text-slate-300">Sunya (शून्य) Digital Engine</span>
+          </div>
+          <p>© {new Date().getFullYear()} Sunya · Kathmandu Valley Autonomous Agency</p>
+        </div>
       </footer>
     </div>
   );

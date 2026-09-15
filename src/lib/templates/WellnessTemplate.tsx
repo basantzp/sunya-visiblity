@@ -293,12 +293,24 @@ export function WellnessTemplate({ business, copy }: TemplateProps) {
       </section>
 
       {/* Footer */}
-      <footer className="space-y-4 border-t border-white/[0.08] px-4 py-12 text-center text-xs text-stone-500">
+      <footer className="space-y-3 border-t border-white/[0.08] px-4 py-12 text-center text-xs text-stone-500">
         <p>
           © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
-        <p className="text-[11px] text-stone-600">
-          Serving {business.district}, Kathmandu Valley with verified healthcare & wellness
+        <div className="flex items-center justify-center gap-2 text-[11px] text-stone-400">
+          <div className="flex h-5 w-5 items-center justify-center rounded border border-stone-700 bg-white p-0.5 shadow-sm">
+            <img
+              src="/sunya-user-logo.png"
+              alt="Sunya Logo"
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <span>
+            Powered by <strong>Sunya (शून्य)</strong> · Kathmandu Valley
+          </span>
+        </div>
+        <p className="text-[10.5px] text-stone-600">
+          Serving {business.district}, Kathmandu Valley with verified healthcare &amp; wellness
           standards.
         </p>
       </footer>

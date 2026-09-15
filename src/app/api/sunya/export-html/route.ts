@@ -33,6 +33,14 @@ export async function POST(req: NextRequest) {
     const isGym =
       category.toLowerCase().includes('gym') || businessName.toLowerCase().includes('fitness');
 
+    // Logo base64
+    const logoPath = path.join(process.cwd(), 'public', 'sunya-user-logo.png');
+    let logoSrc = '/sunya-user-logo.png';
+    if (fs.existsSync(logoPath)) {
+      const logoBuffer = fs.readFileSync(logoPath);
+      logoSrc = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+    }
+
     // Generate standalone mobile HTML
     const standaloneHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -70,6 +78,10 @@ export async function POST(req: NextRequest) {
 
   <div class="mobile-container">
     <div class="header">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px;">
+        <img src="${logoSrc}" alt="Sunya Logo" style="width: 26px; height: 26px; border-radius: 8px; background: #ffffff; padding: 2px; object-fit: contain;" />
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.12em; color: #94a3b8; text-transform: uppercase;">Sunya शून्य Mobile Demo</span>
+      </div>
       <span class="badge ${isGym ? 'badge-amber' : 'badge-emerald'}">${category} · ${district}</span>
       <h1 class="title">${businessName}</h1>
       <p class="subtitle">Official Mobile Web Experience & 1-Tap WhatsApp Inquiries</p>
@@ -139,7 +151,11 @@ export async function POST(req: NextRequest) {
     </div>
 
     <div class="footer">
-      <p>Sunya शून्य · Autonomous Web Presence Engine for Kathmandu Valley</p>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+        <img src="${logoSrc}" alt="Sunya Logo" style="width: 20px; height: 20px; border-radius: 6px; background: #ffffff; padding: 2px; object-fit: contain;" />
+        <span style="font-weight: 800; color: #cbd5e1; font-size: 12px;">Sunya (शून्य) Digital Engine</span>
+      </div>
+      <p>Autonomous Web Presence & Lead Generation for Kathmandu Valley</p>
       <p style="margin-top: 4px;"><a href="${previewUrl}" style="color: #60a5fa; text-decoration: none;">View Live Domain Preview &rarr;</a></p>
     </div>
   </div>

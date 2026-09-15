@@ -13,6 +13,7 @@ import {
   Dumbbell,
   ExternalLink,
   FileCode,
+  FileText,
   Flame,
   Globe,
   HelpCircle,
@@ -86,6 +87,13 @@ interface ExportedHtmlResult {
   publicUrl: string;
 }
 
+interface ExportedPdfResult {
+  fileName: string;
+  sizeKb: number;
+  downloadUrl: string;
+  publicUrl: string;
+}
+
 export default function SunyaToolPage() {
   // Query & Generation State
   const [query, setQuery] = useState('gym of sankhamul');
@@ -106,6 +114,7 @@ export default function SunyaToolPage() {
   const [customWhatsAppText, setCustomWhatsAppText] = useState('');
   const [includeHtmlNotice, setIncludeHtmlNotice] = useState(true);
   const [exportedHtml, setExportedHtml] = useState<ExportedHtmlResult | null>(null);
+  const [exportedPdf, setExportedPdf] = useState<ExportedPdfResult | null>(null);
 
   // Generated Payload
   const [business, setBusiness] = useState<BusinessLead | null>(null);
@@ -217,7 +226,30 @@ export default function SunyaToolPage() {
         setRecipientEmail(data.business.email || 'contact@business.com.np');
         setRecipientPhone(data.business.phone || '+977 9867333080');
 
-        // Auto-generate standalone mobile HTML file for WhatsApp attachment
+        // 1. Auto-generate executive Proposal PDF for WhatsApp
+        try {
+          const pdfRes = await fetch('/api/sunya/export-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              slug: data.business.slug,
+              businessName: data.business.name,
+              category: data.business.category,
+              district: data.business.district,
+              phone: data.business.phone,
+              rating: data.business.rating,
+              reviewsCount: data.business.reviewsCount,
+            }),
+          });
+          if (pdfRes.ok) {
+            const pdfData: ExportedPdfResult = await pdfRes.json();
+            setExportedPdf(pdfData);
+          }
+        } catch (pdfErr) {
+          console.warn('[Auto-export PDF warning]:', pdfErr);
+        }
+
+        // 2. Auto-generate standalone mobile HTML file
         try {
           const exportRes = await fetch('/api/sunya/export-html', {
             method: 'POST',
@@ -234,20 +266,14 @@ export default function SunyaToolPage() {
           if (exportRes.ok) {
             const expData: ExportedHtmlResult = await exportRes.json();
             setExportedHtml(expData);
-
-            if (data.whatsapp) {
-              const baseText = data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message;
-              const textWithFile = `${baseText}\n\n📁 Attached Demo: "${expData.fileName}" (Tap to open & test your mobile website directly in your browser!)`;
-              setCustomWhatsAppText(textWithFile);
-            }
-          } else if (data.whatsapp) {
-            setCustomWhatsAppText(data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message);
           }
         } catch (exportErr) {
           console.warn('[Auto-export mobile HTML warning]:', exportErr);
-          if (data.whatsapp) {
-            setCustomWhatsAppText(data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message);
-          }
+        }
+
+        if (data.whatsapp) {
+          const initialText = data.whatsapp.templates?.[whatsAppTone] || data.whatsapp.message;
+          setCustomWhatsAppText(initialText);
         }
       }
 
@@ -270,14 +296,7 @@ export default function SunyaToolPage() {
   function handleToneChange(tone: 'bilingual' | 'nepali' | 'category' | 'short') {
     setWhatsAppTone(tone);
     if (whatsAppData?.templates?.[tone]) {
-      const baseText = whatsAppData.templates[tone];
-      if (exportedHtml && includeHtmlNotice) {
-        setCustomWhatsAppText(
-          `${baseText}\n\n📁 Attached Demo: "${exportedHtml.fileName}" (Tap to open & test your mobile website directly in your browser!)`,
-        );
-      } else {
-        setCustomWhatsAppText(baseText);
-      }
+      setCustomWhatsAppText(whatsAppData.templates[tone]);
     }
   }
 
@@ -424,8 +443,12 @@ export default function SunyaToolPage() {
             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-xl backdrop-blur">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400">
-                    <Search className="h-4 w-4" />
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700 bg-white p-0.5 shadow-sm">
+                    <img
+                      src="/sunya-user-logo.png"
+                      alt="Sunya Logo"
+                      className="h-full w-full object-contain"
+                    />
                   </div>
                   <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">
                     Local Business Search
@@ -632,6 +655,14 @@ export default function SunyaToolPage() {
                 <div className="flex items-start justify-between border-b border-slate-800 pb-3">
                   <div>
                     <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-300">
+                        <img
+                          src="/sunya-user-logo.png"
+                          alt="Sunya"
+                          className="h-3.5 w-3.5 rounded bg-white object-contain p-0.5"
+                        />
+                        <span>Sunya Lead Intel</span>
+                      </div>
                       <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-emerald-400">
                         {business.category}
                       </span>
@@ -767,13 +798,73 @@ export default function SunyaToolPage() {
                         />
                       </div>
 
+                      {/* Standalone Proposal PDF for WhatsApp Outreach */}
+                      {exportedPdf && (
+                        <div className="space-y-2 rounded-xl border border-red-500/35 bg-gradient-to-r from-red-950/20 via-slate-900 to-slate-900 p-3.5 shadow-md">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="flex items-center gap-2 font-bold text-red-300">
+                              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-red-500/40 bg-white p-0.5">
+                                <img
+                                  src="/sunya-user-logo.png"
+                                  alt="Sunya Logo"
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
+                              <span>Official Proposal PDF (Send in WhatsApp):</span>
+                            </span>
+                            <span className="rounded border border-red-500/30 bg-red-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-red-200">
+                              {exportedPdf.sizeKb} KB · PDF
+                            </span>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <a
+                              href={exportedPdf.downloadUrl}
+                              download={exportedPdf.fileName}
+                              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 transition-all hover:bg-red-500"
+                              title="Download Proposal PDF to send in WhatsApp"
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                              <span>Download Proposal PDF</span>
+                              <Download className="h-3.5 w-3.5" />
+                            </a>
+
+                            <a
+                              href={exportedPdf.downloadUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-white"
+                              title="View Proposal PDF in browser"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              <span>View PDF</span>
+                            </a>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                            <span>💡</span>
+                            <span>
+                              <strong>Clients can&apos;t open localhost links.</strong> Send this
+                              PDF in WhatsApp so they can open &amp; view the complete mobile design
+                              directly on their phone!
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Standalone Mobile View HTML File for WhatsApp Attachment */}
                       {exportedHtml && (
                         <div className="space-y-2 rounded-xl border border-emerald-500/25 bg-emerald-950/20 p-3">
                           <div className="flex items-center justify-between text-[11px]">
-                            <span className="flex items-center gap-1.5 font-bold text-emerald-300">
-                              <FileCode className="h-4 w-4 text-emerald-400" />
-                              <span>Mobile View HTML File (for WhatsApp attachment):</span>
+                            <span className="flex items-center gap-2 font-bold text-emerald-300">
+                              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-emerald-500/40 bg-white p-0.5">
+                                <img
+                                  src="/sunya-user-logo.png"
+                                  alt="Sunya Logo"
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
+                              <span>Mobile View HTML File (Optional Demo):</span>
                             </span>
                             <span className="font-mono text-[10px] text-slate-400">
                               {exportedHtml.sizeKb} KB
@@ -788,7 +879,7 @@ export default function SunyaToolPage() {
                               title="Download HTML file to attach to client chat"
                             >
                               <FileCode className="h-3.5 w-3.5" />
-                              <span>Download Mobile HTML File</span>
+                              <span>Download Mobile HTML</span>
                               <Download className="h-3.5 w-3.5" />
                             </a>
 
@@ -802,14 +893,6 @@ export default function SunyaToolPage() {
                               <ExternalLink className="h-3.5 w-3.5" />
                               <span>Preview</span>
                             </a>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                            <Paperclip className="h-3 w-3 shrink-0 text-emerald-400" />
-                            <span>
-                              Drag & drop or attach this <strong>.html</strong> file in WhatsApp so
-                              the client can open their website directly on their phone!
-                            </span>
                           </div>
                         </div>
                       )}
@@ -1109,16 +1192,61 @@ export default function SunyaToolPage() {
 
                           {/* Embedded Rich Preview Card for Preview URL */}
                           <div className="mt-2 overflow-hidden rounded-xl border border-emerald-600/30 bg-[#024437]">
-                            <div className="p-2.5">
-                              <div className="text-[10px] font-bold text-emerald-300">
-                                🔗 {business?.name || 'Exclusive Website'}
+                            <div className="flex items-center gap-2.5 p-2.5">
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-500/40 bg-white p-1 shadow">
+                                <img
+                                  src="/sunya-user-logo.png"
+                                  alt="Sunya"
+                                  className="h-full w-full object-contain"
+                                />
                               </div>
-                              <div className="truncate text-[10px] text-slate-300">
-                                Live Mobile Website Preview · Kathmandu Valley
+                              <div className="flex-1 overflow-hidden leading-tight">
+                                <div className="truncate text-[10px] font-bold text-emerald-300">
+                                  🔗 {business?.name || 'Exclusive Website'}
+                                </div>
+                                <div className="mt-0.5 truncate text-[9.5px] text-slate-300">
+                                  Live Mobile Website Preview · Kathmandu Valley
+                                </div>
+                                <div className="mt-1 text-[8.5px] font-medium text-emerald-400/90">
+                                  sunya.np
+                                </div>
                               </div>
-                              <div className="mt-1 text-[9px] text-emerald-400/80">sunya.np</div>
                             </div>
                           </div>
+
+                          {/* Standalone Proposal PDF Document Attachment Card */}
+                          {exportedPdf && (
+                            <a
+                              href={exportedPdf.downloadUrl}
+                              download={exportedPdf.fileName}
+                              className="mt-2 flex cursor-pointer items-center gap-2.5 rounded-xl border border-red-500/40 bg-[#1e2329] p-2.5 text-left text-white shadow-sm transition-colors hover:bg-[#283038]"
+                              title="Tap to download or open Proposal PDF"
+                            >
+                              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-500/40 bg-white p-1 shadow">
+                                <img
+                                  src="/sunya-user-logo.png"
+                                  alt="Sunya Logo"
+                                  className="h-full w-full object-contain"
+                                />
+                                <span className="absolute -bottom-1 -right-1 rounded bg-red-600 px-1 text-[7.5px] font-black text-white">
+                                  PDF
+                                </span>
+                              </div>
+                              <div className="flex-1 overflow-hidden leading-tight">
+                                <div className="truncate text-[11px] font-bold text-slate-100">
+                                  {exportedPdf.fileName}
+                                </div>
+                                <div className="mt-0.5 flex items-center gap-1.5 text-[9px] text-red-300/90">
+                                  <span>{exportedPdf.sizeKb} KB</span>
+                                  <span>•</span>
+                                  <span>Sunya Executive Proposal</span>
+                                </div>
+                              </div>
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-800 text-red-300 hover:bg-slate-700">
+                                <Download className="h-3.5 w-3.5" />
+                              </div>
+                            </a>
+                          )}
 
                           {/* Standalone Mobile HTML Document Attachment Card */}
                           {exportedHtml && (
@@ -1177,7 +1305,16 @@ export default function SunyaToolPage() {
                       {/* Mobile Email App Header */}
                       <div className="border-b border-slate-800 bg-slate-900/90 px-3.5 py-2.5 text-xs">
                         <div className="flex items-center justify-between text-[11px] text-slate-400">
-                          <span className="font-semibold text-slate-200">Sunya Mail Client</span>
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-700 bg-white p-0.5 shadow-sm">
+                              <img
+                                src="/sunya-user-logo.png"
+                                alt="Sunya Logo"
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                            <span className="font-semibold text-slate-200">Sunya Mail Client</span>
+                          </div>
                           <span className="text-[10px]">Just now</span>
                         </div>
                         <div className="mt-1">
@@ -1227,10 +1364,17 @@ export default function SunyaToolPage() {
                     <div className="flex h-full flex-1 flex-col overflow-hidden">
                       {/* Mobile Safari Browser Bar */}
                       <div className="flex items-center gap-2 border-b border-slate-800 bg-slate-900/90 px-3 py-2">
-                        <div className="flex flex-1 items-center justify-between rounded-lg border border-slate-800 bg-slate-950 px-3 py-1 text-[11px] text-slate-300">
-                          <span className="truncate text-slate-400">
-                            sunya.np/preview/{business?.slug || 'lead'}
-                          </span>
+                        <div className="flex flex-1 items-center justify-between rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1 text-[11px] text-slate-300">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <img
+                              src="/sunya-user-logo.png"
+                              alt="Favicon"
+                              className="h-3.5 w-3.5 rounded-sm bg-white object-contain p-0.5"
+                            />
+                            <span className="truncate text-slate-400">
+                              sunya.np/preview/{business?.slug || 'lead'}
+                            </span>
+                          </div>
                           <span className="font-mono text-[10px] text-emerald-400">🔒</span>
                         </div>
                         <button
@@ -1292,6 +1436,34 @@ export default function SunyaToolPage() {
           </div>
         </div>
       </main>
+
+      {/* Branded Footer with Official Sunya Logo */}
+      <footer className="mt-16 border-t border-slate-800/80 bg-slate-950/60 py-8 text-xs text-slate-400">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 sm:flex-row">
+          <div className="flex items-center gap-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700 bg-white p-0.5 shadow-sm">
+              <img
+                src="/sunya-user-logo.png"
+                alt="Sunya Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <div>
+              <span className="font-extrabold text-slate-200">Sunya (शून्य)</span>
+              <span className="ml-2 text-slate-500">
+                · Autonomous Client Outreach &amp; Web Infrastructure
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-[11px] text-slate-500">
+            <span>Kathmandu Valley, Nepal</span>
+            <span>•</span>
+            <span>Zero API Fees</span>
+            <span>•</span>
+            <span>Antigravity Engine</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
