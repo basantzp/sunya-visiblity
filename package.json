@@ -26,6 +26,7 @@
     "pipeline:enrich": "tsx scripts/run-pipeline.ts --action enrich",
     "pipeline:generate": "tsx scripts/run-pipeline.ts --action generate",
     "pipeline:outreach": "tsx scripts/run-pipeline.ts --action outreach",
+    "outreach:kathmandu": "tsx scripts/dispatch-kathmandu-20-shops.ts",
     "test:shandar": "tsx scripts/test-shandar-momo.ts",
     "version:list": "tsx scripts/version-manager.ts list",
     "version:snapshot": "tsx scripts/version-manager.ts snapshot",

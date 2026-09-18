@@ -133,8 +133,8 @@ export interface MenuItemData {
   badge?: string;
   spiceLevel: number;
   spiceLabel: string;
-  dietary: 'Buff' | 'Chicken' | 'Veg' | 'Sides';
-  unit: 'plate' | 'jar';
+  dietary: 'Buff' | 'Chicken' | 'Veg' | 'Sides' | string;
+  unit: 'plate' | 'jar' | 'piece' | 'cup' | 'loaf' | 'set' | string;
   image: string;
 }
 
@@ -300,9 +300,31 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
     'timur-chutney-jar': 'takeaway',
   });
 
-  // Identify if this is Sandar Momo
-  const isSandar =
-    business.name.toLowerCase().includes('sandar') || business.name.toLowerCase().includes('momo');
+  // Identify shop category
+  const isMomo =
+    business.name.toLowerCase().includes('momo') ||
+    business.category.toLowerCase().includes('momo');
+  const isSandar = business.name.toLowerCase().includes('sandar') && isMomo;
+  const isSteak =
+    business.name.toLowerCase().includes('steak') ||
+    business.category.toLowerCase().includes('steak') ||
+    business.name.toLowerCase().includes('grill') ||
+    business.name.toLowerCase().includes('sizzler');
+  const isBakery =
+    business.name.toLowerCase().includes('bakery') ||
+    business.name.toLowerCase().includes('bake') ||
+    business.name.toLowerCase().includes('cake') ||
+    business.category.toLowerCase().includes('bakery');
+  const isCafe =
+    business.name.toLowerCase().includes('cafe') ||
+    business.name.toLowerCase().includes('coffee') ||
+    business.category.toLowerCase().includes('cafe') ||
+    business.category.toLowerCase().includes('coffee');
+  const isThakali =
+    business.name.toLowerCase().includes('thakali') ||
+    business.name.toLowerCase().includes('thakkhola') ||
+    business.name.toLowerCase().includes('bhojan');
+
   const brandName = isSandar ? 'Sandar Momo' : business.name;
 
   // Normalized phone handling
@@ -311,7 +333,17 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
 
   const heroImage =
     business.photos?.[0] ||
-    'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=85';
+    (isMomo
+      ? 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=85'
+      : isSteak
+        ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85'
+        : isBakery
+          ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1600&q=85'
+          : isCafe
+            ? 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1600&q=85'
+            : isThakali
+              ? 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=1600&q=85'
+              : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=85');
 
   const baseWhatsAppUrl = `https://wa.me/${targetPhone}?text=`;
 
@@ -355,18 +387,230 @@ export function RestaurantTemplate({ business, copy, previewMode = false }: Temp
             ? 'Veg'
             : /chicken/i.test(item.title)
               ? 'Chicken'
-              : 'Buff',
+              : isSteak
+                ? 'Buff / Beef'
+                : 'Buff',
           unit: isJar ? 'jar' : 'plate',
-          image:
-            idx === 0
-              ? 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80'
-              : 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+          image: isMomo
+            ? [
+                'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
+              ][idx % 4]
+            : isSteak
+              ? [
+                  'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+                  'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80',
+                  'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+                  'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
+                ][idx % 4]
+              : isBakery
+                ? [
+                    'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1579697096985-41fe1430e5df?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80',
+                  ][idx % 4]
+                : isCafe
+                  ? [
+                      'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80',
+                      'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
+                      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+                      'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80',
+                    ][idx % 4]
+                  : isThakali
+                    ? [
+                        'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80',
+                      ][idx % 4]
+                    : [
+                        'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+                      ][idx % 4],
         };
       });
     }
 
-    return SANDAR_AUTHENTIC_ITEMS;
-  }, [isSandar, copy.signature_offerings]);
+    if (isSteak) {
+      return [
+        {
+          id: 'steak-1',
+          title: 'Chef Signature Sizzler Platter',
+          nepaliTitle: 'सेफ विशेष सिज्लर प्लाटर',
+          price_npr: 'NPR 850',
+          priceNumeric: 850,
+          description:
+            'Sizzling prime grilled cut served over charred onions, butter tossed greens, and hand-cut fries.',
+          category: 'Chef Specials',
+          badge: 'Chef Signature',
+          spiceLevel: 2,
+          spiceLabel: 'Flame Grilled',
+          dietary: 'Buff / Beef',
+          unit: 'plate',
+          image:
+            'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          id: 'steak-2',
+          title: 'Prime Flame-Grilled T-Bone Steak',
+          nepaliTitle: 'टी-बोन स्टेक',
+          price_npr: 'NPR 950',
+          priceNumeric: 950,
+          description:
+            'Thick cut bone-in steak seared over high flame, finished with roasted garlic herb butter.',
+          category: 'Chef Specials',
+          badge: 'Bestseller',
+          spiceLevel: 1,
+          spiceLabel: 'Herb Butter',
+          dietary: 'Buff / Beef',
+          unit: 'plate',
+          image:
+            'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          id: 'steak-3',
+          title: 'Charcoal Grilled Sekuwa & Beaten Rice',
+          nepaliTitle: 'पोलेको सेकुवा र चिउरा',
+          price_npr: 'NPR 520',
+          priceNumeric: 520,
+          description:
+            'Marinated tender meat cuts skewered and charred over local sal-wood coals with crunchy beaten rice.',
+          category: 'Traditional Plates',
+          badge: 'Local Favorite',
+          spiceLevel: 3,
+          spiceLabel: 'Charcoal Smoky',
+          dietary: 'Buff',
+          unit: 'plate',
+          image:
+            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+        },
+      ];
+    }
+
+    if (isBakery) {
+      return [
+        {
+          id: 'bake-1',
+          title: 'Artisan French Butter Croissant',
+          nepaliTitle: 'फ्रेन्च बटर क्रोइसन्ट',
+          price_npr: 'NPR 180',
+          priceNumeric: 180,
+          description:
+            'Hand-laminated flaky golden layers made with premium butter, baked fresh every sunrise.',
+          category: 'Chef Specials',
+          badge: 'Morning Fresh',
+          spiceLevel: 0,
+          spiceLabel: 'Sweet Butter',
+          dietary: 'Veg',
+          unit: 'piece',
+          image:
+            'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          id: 'bake-2',
+          title: 'Organic Sourdough Country Loaf',
+          nepaliTitle: 'अर्ग्यानिक सावरडो पाउरोटी',
+          price_npr: 'NPR 320',
+          priceNumeric: 320,
+          description:
+            'Naturally fermented 36-hour wild yeast loaf with a blistered crust and chewy, airy crumb.',
+          category: 'Chef Specials',
+          badge: 'Wild Ferment',
+          spiceLevel: 0,
+          spiceLabel: 'Artisan Bread',
+          dietary: 'Veg',
+          unit: 'loaf',
+          image:
+            'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+        },
+      ];
+    }
+
+    if (isThakali) {
+      return [
+        {
+          id: 'thakali-1',
+          title: 'Authentic Royal Thakali Khana Set',
+          nepaliTitle: 'रोयल थकाली खाना सेट',
+          price_npr: 'NPR 650',
+          priceNumeric: 650,
+          description:
+            'Himalayan basmati rice, slow-cooked jimbu tempered black dal, seasonal tarkari, and gundruk achar.',
+          category: 'Chef Specials',
+          badge: 'Heritage Recipe',
+          spiceLevel: 2,
+          spiceLabel: 'Jimbu Spiced',
+          dietary: 'Mutton / Chicken',
+          unit: 'set',
+          image:
+            'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          id: 'thakali-2',
+          title: 'Sprouted Nine-Bean Kwati Heritage Soup',
+          nepaliTitle: 'गेडागुडीको क्वाँटी',
+          price_npr: 'NPR 280',
+          priceNumeric: 280,
+          description:
+            'Nutrient-rich ancient Himalayan stew simmered with ajwain and mountain herbs.',
+          category: 'Traditional Plates',
+          badge: 'Superfood',
+          spiceLevel: 2,
+          spiceLabel: 'Herb Simmered',
+          dietary: 'Veg',
+          unit: 'bowl',
+          image:
+            'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
+        },
+      ];
+    }
+
+    if (isCafe) {
+      return [
+        {
+          id: 'cafe-1',
+          title: 'Pan-Seared Himalayan River Trout',
+          nepaliTitle: 'हिमाली ट्राउट माछा',
+          price_npr: 'NPR 780',
+          priceNumeric: 780,
+          description:
+            'Fresh river trout seared in lemon-garlic butter sauce, served with roasted greens and potato mash.',
+          category: 'Chef Specials',
+          badge: 'House Specialty',
+          spiceLevel: 1,
+          spiceLabel: 'Lemon Butter',
+          dietary: 'Fish',
+          unit: 'plate',
+          image:
+            'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          id: 'cafe-2',
+          title: 'Artisan Pour-Over Single Origin Coffee',
+          nepaliTitle: 'अर्ग्यानिक कफी',
+          price_npr: 'NPR 220',
+          priceNumeric: 220,
+          description:
+            'High-altitude shade-grown organic Nepali Arabica beans freshly ground and brewed to order.',
+          category: 'Extras & Chutney',
+          badge: 'Specialty Roast',
+          spiceLevel: 0,
+          spiceLabel: 'Aromatic Roast',
+          dietary: 'Veg',
+          unit: 'cup',
+          image:
+            'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+        },
+      ];
+    }
+
+    return isMomo ? SANDAR_AUTHENTIC_ITEMS : [];
+  }, [isSandar, isMomo, isSteak, isBakery, isCafe, isThakali, copy.signature_offerings]);
 
   // Tab definitions
   const tabs = ['All', 'Chef Specials', 'Traditional Plates', 'Extras & Chutney'] as const;

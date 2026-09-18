@@ -20,14 +20,40 @@ export default async function PreviewPage({ params }: PageProps) {
 
   // Retrieve mock or database leads to match slug
   const allLeads = await discoverPlaces({ category: 'all', district: 'All' });
+  const cleanSlug = slug
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
   const matched =
     allLeads.find((l) => {
       const s = l.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
-      return s === slug || slug.includes(s) || s.includes(slug);
-    }) || allLeads[0];
+      const pid = (l.place_id || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      return (
+        s === cleanSlug ||
+        cleanSlug.includes(s) ||
+        s.includes(cleanSlug) ||
+        pid === cleanSlug ||
+        cleanSlug.includes(pid)
+      );
+    }) ||
+    // Try matching significant keywords (e.g., 'steak-house', 'french-bakery', 'the-pump')
+    allLeads.find((l) => {
+      const slugWords = cleanSlug.split('-').filter((w) => w.length >= 4);
+      const nameWords = l.name
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((w) => w.length >= 4);
+      const common = slugWords.filter((w) => nameWords.includes(w));
+      return common.length >= 2;
+    }) ||
+    allLeads[0];
 
   if (!matched) {
     notFound();

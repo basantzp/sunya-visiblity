@@ -10,6 +10,13 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import nodemailer from 'nodemailer';
+import {
+  canSendMoreToday,
+  DAILY_OUTREACH_LIMIT,
+  getDailySentCount,
+  isAlreadySent,
+  recordSent,
+} from './ledger';
 
 const resolveMx = promisify(dns.resolveMx);
 
@@ -38,6 +45,7 @@ export interface OutreachMailOptions {
   isConfidential?: boolean;
   preventDownloads?: boolean;
   dryRun?: boolean;
+  allowDuplicates?: boolean; // STRICT SAFETY: default false, prevents multiple emails to one client
   attachmentFilename?: string;
   attachments?: EmailAttachment[];
 }
@@ -77,7 +85,77 @@ export function generateColdEmailCopy(opts: OutreachMailOptions) {
   const interestYesUrl = `${baseUrl}/api/leads/interest?slug=${slug}&response=interested&email=${opts.toEmail}`;
   const interestNoUrl = `${baseUrl}/api/leads/interest?slug=${slug}&response=declined&email=${opts.toEmail}`;
 
-  const isSandar = opts.businessName.toLowerCase().includes('sandar') || slug.includes('sandar');
+  const isMomo =
+    opts.businessName.toLowerCase().includes('momo') ||
+    opts.category.toLowerCase().includes('momo') ||
+    slug.includes('momo');
+  const isSandar =
+    (opts.businessName.toLowerCase().includes('sandar') || slug.includes('sandar')) && isMomo;
+  const isSteak =
+    opts.businessName.toLowerCase().includes('steak') ||
+    opts.category.toLowerCase().includes('steak') ||
+    opts.businessName.toLowerCase().includes('grill') ||
+    opts.businessName.toLowerCase().includes('sizzler') ||
+    slug.includes('steak');
+  const isBakery =
+    opts.businessName.toLowerCase().includes('bakery') ||
+    opts.businessName.toLowerCase().includes('bake') ||
+    opts.businessName.toLowerCase().includes('cake') ||
+    opts.category.toLowerCase().includes('bakery') ||
+    slug.includes('bakery') ||
+    slug.includes('bake');
+  const isCafe =
+    opts.businessName.toLowerCase().includes('cafe') ||
+    opts.businessName.toLowerCase().includes('coffee') ||
+    opts.category.toLowerCase().includes('cafe') ||
+    opts.category.toLowerCase().includes('coffee') ||
+    slug.includes('cafe') ||
+    slug.includes('coffee');
+  const isJuice =
+    opts.businessName.toLowerCase().includes('juice') ||
+    opts.businessName.toLowerCase().includes('pan') ||
+    opts.category.toLowerCase().includes('juice') ||
+    slug.includes('juice');
+  const isHotel =
+    opts.category.toLowerCase().includes('hotel') ||
+    opts.category.toLowerCase().includes('lodge') ||
+    opts.category.toLowerCase().includes('resort') ||
+    opts.category.toLowerCase().includes('hospitality') ||
+    opts.businessName.toLowerCase().includes('hotel') ||
+    opts.businessName.toLowerCase().includes('resort') ||
+    opts.businessName.toLowerCase().includes('lodge') ||
+    slug.includes('hotel') ||
+    slug.includes('resort') ||
+    slug.includes('lodge');
+  const isClothing =
+    !isHotel &&
+    (opts.category.toLowerCase().includes('clothing') ||
+      opts.category.toLowerCase().includes('boutique') ||
+      opts.category.toLowerCase().includes('apparel') ||
+      opts.category.toLowerCase().includes('textile') ||
+      opts.category.toLowerCase().includes('fashion') ||
+      opts.businessName.toLowerCase().includes('clothing') ||
+      opts.businessName.toLowerCase().includes('apparel') ||
+      opts.businessName.toLowerCase().includes('hastakala') ||
+      slug.includes('clothing') ||
+      slug.includes('apparel') ||
+      slug.includes('hastakala') ||
+      opts.businessName.toLowerCase().includes('boutique'));
+  const isRetail =
+    (opts.businessName.toLowerCase().includes('pasal') ||
+      opts.businessName.toLowerCase().includes('dry foods') ||
+      opts.category.toLowerCase().includes('retail') ||
+      opts.category.toLowerCase().includes('grocery') ||
+      slug.includes('pasal') ||
+      slug.includes('foods')) &&
+    !isClothing;
+  const isThakali =
+    opts.businessName.toLowerCase().includes('thakali') ||
+    opts.businessName.toLowerCase().includes('thakkhola') ||
+    opts.businessName.toLowerCase().includes('bhojan') ||
+    slug.includes('thakali') ||
+    slug.includes('thakkhola') ||
+    slug.includes('bhojan');
   const isFlower =
     opts.category.toLowerCase().includes('flower') ||
     opts.businessName.toLowerCase().includes('parijat') ||
@@ -90,7 +168,8 @@ export function generateColdEmailCopy(opts: OutreachMailOptions) {
     opts.category.toLowerCase().includes('fitness') ||
     opts.businessName.toLowerCase().includes('health club') ||
     slug.includes('fitness') ||
-    slug.includes('gym');
+    slug.includes('gym') ||
+    slug.includes('pump');
   const isConfidential = opts.isConfidential !== false;
   const preventDownloads =
     opts.preventDownloads !== undefined ? opts.preventDownloads : isConfidential;
@@ -98,46 +177,109 @@ export function generateColdEmailCopy(opts: OutreachMailOptions) {
   const subject = isSandar
     ? `[CONFIDENTIAL PROPOSAL] Private Website & Digital Ordering Draft for Sandar Momo (Sankhamul)`
     : isFlower
-      ? `[CONFIDENTIAL PROPOSAL] Private Website & Direct WhatsApp Ordering Draft for ${opts.businessName} (Sankhamul)`
+      ? `[CONFIDENTIAL PROPOSAL] Private Website & Direct WhatsApp Ordering Draft for ${opts.businessName} (${opts.district})`
       : isGym
-        ? `[CONFIDENTIAL PROPOSAL] Private Website & 1-Tap Membership Enquiry System for ${opts.businessName} (Sankhamul)`
-        : isConfidential
-          ? `[CONFIDENTIAL PROPOSAL] Private Digital Draft for ${opts.businessName}`
-          : `Website proposal for ${opts.businessName} (already live on preview)`;
+        ? `[CONFIDENTIAL PROPOSAL] Private Website & 1-Tap Membership Enquiry System for ${opts.businessName} (${opts.district})`
+        : isClothing
+          ? `[CONFIDENTIAL PROPOSAL] Private Website & Digital Lookbook Draft for ${opts.businessName} (${opts.district})`
+          : isHotel
+            ? `[CONFIDENTIAL PROPOSAL] Private Website & Direct Room Booking System for ${opts.businessName} (${opts.district})`
+            : isSteak
+              ? `[CONFIDENTIAL PROPOSAL] Private Website & Sizzler Dining Ordering Draft for ${opts.businessName} (${opts.district})`
+              : isBakery
+                ? `[CONFIDENTIAL PROPOSAL] Private Website & Artisan Bakery Ordering Draft for ${opts.businessName} (${opts.district})`
+                : isCafe
+                  ? `[CONFIDENTIAL PROPOSAL] Private Website & Coffee Menu Ordering Draft for ${opts.businessName} (${opts.district})`
+                  : isThakali
+                    ? `[CONFIDENTIAL PROPOSAL] Private Website & Authentic Thakali Ordering Draft for ${opts.businessName} (${opts.district})`
+                    : isRetail
+                      ? `[CONFIDENTIAL PROPOSAL] Private Website & Direct WhatsApp Ordering Draft for ${opts.businessName} (${opts.district})`
+                      : isConfidential
+                        ? `[CONFIDENTIAL PROPOSAL] Private Digital Draft for ${opts.businessName} (${opts.district})`
+                        : `Website proposal for ${opts.businessName} (already live on preview)`;
 
+  const sanitizedShopName = opts.businessName.replace(/[^a-zA-Z0-9]/g, '_');
   const attachmentFile =
     opts.attachmentFilename ||
     (isGym
-      ? 'Shankhamul_Health_Club_Website.html'
+      ? `${sanitizedShopName}_Health_Club_Website.html`
       : isFlower
-        ? 'Parijat_Flower_House_Sankhamul_Website.html'
-        : 'Sandar_Momo_Sankhamul_Website.html');
+        ? `${sanitizedShopName}_Website.html`
+        : isClothing
+          ? `${sanitizedShopName}_Boutique_Website.html`
+          : isHotel
+            ? `${sanitizedShopName}_Hotel_Website.html`
+            : isSandar
+              ? 'Sandar_Momo_Sankhamul_Website.html'
+              : `${sanitizedShopName}_Website.html`);
 
   const localHook = isSandar
     ? 'You have an iconic 4.7★ rating (420+ reviews) near Sankhamul Bridge, and customers consistently praise your steaming buff momos and fiery timur paste.'
-    : isFlower
-      ? `You have an exceptional 4.8★ rating (180+ reviews) along Sankhamul Marg, and locals trust ${opts.businessName} for fresh blooms and sacred puja offerings.`
-      : isGym
-        ? `You have an established 4.6★ rating (140+ reviews) along Sankhamul Marg, and neighborhood fitness members across Sankhamul and Baneshwor trust your coaches for disciplined, injury-free training.`
-        : `You have strong 4.8★ reviews in ${opts.district}, and patrons love your trusted quality service.`;
+    : isMomo
+      ? `You have a beloved reputation in ${opts.district}, and customers consistently praise your freshly steamed momos and signature timur achar.`
+      : isClothing
+        ? `You have a distinguished reputation in ${opts.district}, and patrons celebrate your authentic handcrafted Nepali cashmere pashminas, artisanal kurthas, and ethical textiles.`
+        : isHotel
+          ? `You have an exceptional hospitality reputation in ${opts.district}, and guests consistently praise your serene boutique rooms, warm Nepali hospitality, and prime location.`
+          : isSteak
+            ? `You have an established reputation for premium dining in ${opts.district}, and patrons celebrate your sizzling tenderloin steaks, grilled cuts, and hospitable team.`
+            : isBakery
+              ? `You have a cherished reputation in ${opts.district}, and locals love your morning-fresh artisanal breads, flaky golden croissants, and celebration cakes.`
+              : isCafe
+                ? `You have a wonderful reputation in ${opts.district}, and coffee lovers regularly gather for your specialty Himalayan Arabica and cozy ambiance.`
+                : isRetail
+                  ? `You are a trusted name in ${opts.district} for pure organic dry foods, authentic mountain staples, and wholesome groceries.`
+                  : isThakali
+                    ? `You are celebrated across ${opts.district} for authentic Himalayan Thakali thali, aromatic Jimbu dal, and heartfelt traditional hospitality.`
+                    : isFlower
+                      ? `You have an exceptional 4.8★ rating (180+ reviews) along Sankhamul Marg, and locals trust ${opts.businessName} for fresh blooms and sacred puja offerings.`
+                      : isGym
+                        ? `You have an established 4.6★ rating (140+ reviews) along Sankhamul Marg, and neighborhood fitness members across Sankhamul and Baneshwor trust your coaches for disciplined, injury-free training.`
+                        : `You have strong 4.8★ reviews in ${opts.district}, and patrons love your trusted quality service.`;
 
   const socialResearchList = isSandar
     ? `• Facebook (MRR / Foodies): Voted best fiery timur achar & steaming buff momos.
 • Reddit (r/Nepal): Consistently recommended as an authentic Sankhamul gem.
 • Twitter/X: Praised for fast counter service and honest taste.`
-    : isFlower
-      ? `• Facebook Groups: Recommended for fresh morning deliveries and wedding decor.
+    : isMomo
+      ? `• Facebook (Valley Foodies): Praised for delicious steaming momos and authentic jhol achar.
+• Reddit (r/Nepal): Recommended as a dependable neighborhood momo spot.
+• Twitter/X: Loved for quick counter takeaway and fresh batches.`
+      : isClothing
+        ? `• Facebook & Instagram: Tagged and admired for authentic handwoven cashmere pashminas and linen collections.
+• Reddit (r/Nepal): Consistently recommended for trustworthy, fair-priced local handicrafts without tourist markups.
+• Google Reviews: Praised for knowledgeable, courteous staff and transparent fabric quality.`
+        : isHotel
+          ? `• Tripadvisor & Google Reviews: Praised for quiet heritage atmosphere, spotless boutique rooms, and hospitable front desk.
+• Reddit (r/Nepal): Recommended for travelers and families seeking serene, authentic Kathmandu hospitality.
+• Instagram: Tagged frequently for scenic mountain-view balconies and courtyard breakfast.`
+          : isSteak
+            ? `• Facebook & Instagram: Praised for generous sizzling platters and tender steaks.
+• Reddit (r/Nepal): Recommended for reliable steak dinners and celebratory meals in Kathmandu.
+• Twitter/X: Highlighted for great steaks and hospitable ambiance.`
+            : isBakery
+              ? `• Facebook Groups: Loved for oven-fresh croissants and artisan sourdough.
+• Reddit (r/Nepal): Praised as one of the best neighborhood bakeries in the valley.
+• Instagram: Tagged frequently for stunning celebration cakes.`
+              : isCafe
+                ? `• Facebook & Instagram: Highlighted for cozy ambiance, smooth espresso, and work-friendly space.
+• Reddit (r/Nepal): Recommended for quiet coffee meetings and quality beans.`
+                : isRetail
+                  ? `• Community Groups: Praised for unadulterated organic staples and fair prices.
+• Facebook: Recommended for clean packaging and direct delivery.`
+                  : isGym
+                    ? `• Facebook (Valley Health & Fitness): Celebrated as a community-rooted gym.
+• Reddit (r/Nepal): Frequently recommended for serious lifters wanting authentic iron and fair rates.
+• Twitter/X: Praised for uncrowded morning shifts and attentive coaches.`
+                    : isFlower
+                      ? `• Facebook Groups: Recommended for fresh morning deliveries and wedding decor.
 • Reddit (r/Nepal): Praised for fair pricing and healthy indoor plants.
 • Twitter/X: Loved for reliable festive and temple puja orders.`
-      : isGym
-        ? `• Facebook (Valley Health & Fitness): Celebrated as the most welcoming, community-rooted gym in Sankhamul.
-• Reddit (r/Nepal): Frequently recommended for serious lifters wanting authentic iron and fair monthly rates without commercial gimmicks.
-• Twitter/X: Praised for uncrowded 5:30 AM morning shifts and attentive coaches.`
-        : `• Facebook & Twitter/X: Patrons actively recommend your craft and service.
+                      : `• Facebook & Twitter/X: Patrons actively recommend your craft and service.
 • Reddit (r/Nepal): Praised for trusted, quality service in ${opts.district}.`;
 
   // High-legibility, warm founder-to-founder plain text version
-  const bodyText = `Namaste Dai / Didi & Management at ${opts.businessName}! 🙏
+  const bodyText = `Dear Sir/Ma'am & Management at ${opts.businessName},
 
 ${localHook}
 
@@ -298,12 +440,12 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                 <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 5px;">
                   ${
                     isSandar
-                      ? 'Namaste Dai / Didi &amp; Sandar Momo Team! 🙏'
+                      ? "Dear Sir/Ma'am &amp; Sandar Momo Team,"
                       : isFlower
-                        ? 'Namaste Dai / Didi &amp; Parijat Flower House Family! 🙏'
+                        ? "Dear Sir/Ma'am &amp; Parijat Flower House Family,"
                         : isGym
-                          ? `Namaste Dai / Didi &amp; ${opts.businessName} Coaches! 🙏`
-                          : `Namaste Dai / Didi &amp; Management at ${opts.businessName}! 🙏`
+                          ? `Dear Sir/Ma\'am &amp; ${opts.businessName} Leadership,`
+                          : `Dear Sir/Ma\'am &amp; Management at ${opts.businessName},`
                   }
                 </div>
                 
@@ -369,17 +511,6 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                         }
                       </div>
 
-                      ${
-                        isSandar
-                          ? `
-                      <!-- Verified Reddit Screenshot Attachment (Compact Single Plate) -->
-                      <div style="margin-bottom: 4px; border-radius: 8px; overflow: hidden; border: 1px solid #343536; background-color: #1a1a1b; max-width: 440px; margin-left: auto; margin-right: auto;">
-                        <a href="https://www.reddit.com/r/Nepal/search/?q=sandar%20momo%20sankhamul" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
-                          <img src="cid:redditproof" alt="Reddit r/Nepal Customer Conversation Screenshot" style="width: 100%; max-width: 440px; display: block; height: auto; margin: 0 auto; border: 0;" />
-                        </a>
-                      </div>
-                      `
-                          : `
                       <!-- Reddit Conversation Snippet Card -->
                       <div style="background-color: #12161f; border: 1px solid #283548; border-left: 3px solid #ff4500; border-radius: 7px; padding: 8px 10px; margin-bottom: 7px;">
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -394,15 +525,27 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                         </table>
                         <div style="font-size: 11px; line-height: 1.45; color: #e2e8f0; font-style: italic;">
                           ${
-                            isFlower
+                            isSandar
                               ? `
+                            "Sandar Momo near Sankhamul bridge is 10/10, but <strong>why is there no official website to order takeaway?</strong> We're forced to pay 25%–30% cuts on food delivery apps just to skip the line!"
+                          `
+                              : isFlower
+                                ? `
                             "Parijat Flower House on Sankhamul Marg has the healthiest plants and fresh puja flowers. But <strong>there is no official website or catalog online</strong>. Wish we could just browse their pots and order directly on WhatsApp!"
                           `
-                              : isGym
-                                ? `
+                                : isGym
+                                  ? `
                             "Shankhamul Health Club has solid equipment and genuine, respectful trainers. But <strong>they have no website to check membership fees or timing</strong>. Had to walk down just to ask about fees. If they had a simple online page, so many more youth would enroll!"
                           `
-                                : `
+                                  : isClothing
+                                    ? `
+                            "${opts.businessName} has some of the finest handcrafted pashminas and textiles in the valley, but <strong>there is no official digital lookbook online</strong>. Having a 1-tap WhatsApp catalog would make browsing sizes and reserving pieces effortless!"
+                          `
+                                    : isHotel
+                                      ? `
+                            "${opts.businessName} is one of the most peaceful boutique stays in the valley, but <strong>why is there no direct WhatsApp room booking on Google?</strong> Booking platforms take huge 18%–25% commission fees from local hoteliers!"
+                          `
+                                      : `
                             "They offer amazing quality in ${opts.district}, but <strong>they have no official website to check prices or order</strong>. We have to guess or use delivery apps that take huge cuts."
                           `
                           }
@@ -423,22 +566,32 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                         </table>
                         <div style="font-size: 11px; line-height: 1.45; color: #e2e8f0; font-style: italic;">
                           ${
-                            isFlower
+                            isSandar
                               ? `
+                            "Searched Google for Sandar Momo (Sankhamul) tonight to pick up takeaway after work—found zero official website. A direct WhatsApp takeaway ordering storefront would save everyone 25 mins waiting in the counter queue!"
+                          `
+                              : isFlower
+                                ? `
                             "Needed event flower decorations from Parijat, but couldn't find their official menu or price list on Google. A direct WhatsApp ordering website would make booking so much easier!"
                           `
-                              : isGym
-                                ? `
+                                : isGym
+                                  ? `
                             "Wanted to sign up for early morning 5:30 AM workouts at Shankhamul Health Club, but couldn't find trainer packages online. A 1-tap WhatsApp consultation page would make joining so frictionless!"
                           `
-                                : `
+                                  : isClothing
+                                    ? `
+                            "Wanted to gift authentic Nepali pashminas from ${opts.businessName} but couldn't find an updated seasonal catalog online. A 1-tap WhatsApp shopping storefront would help so many patrons browse and buy directly!"
+                          `
+                                    : isHotel
+                                      ? `
+                            "Tried to check suite rates and airport transfer for ${opts.businessName} online—found zero official direct booking site. A 1-tap WhatsApp booking portal saves commission for both guests and owners!"
+                          `
+                                      : `
                             "Searched Google for ${opts.businessName} to order directly—found no official site with current prices. A direct WhatsApp ordering page would be a gamechanger."
                           `
                           }
                         </div>
                       </div>
-                      `
-                      }
 
                     </td>
                   </tr>
@@ -509,9 +662,23 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                           ? 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80'
                           : isGym
                             ? 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80'
-                            : isSandar
-                              ? 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?auto=format&fit=crop&w=800&q=80'
-                              : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80'
+                            : isClothing
+                              ? 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=800&q=80'
+                              : isHotel
+                                ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
+                                : isSandar || isMomo
+                                  ? 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80'
+                                  : isSteak
+                                    ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
+                                    : isBakery
+                                      ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80'
+                                      : isCafe
+                                        ? 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80'
+                                        : isRetail
+                                          ? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80'
+                                          : isThakali
+                                            ? 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80'
+                                            : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80'
                       }" 
                       alt="${opts.businessName}" 
                       width="100%" 
@@ -527,9 +694,25 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                               ? '🌸 4.8 ★ (184+ Google Reviews) · Sankhamul Marg'
                               : isGym
                                 ? '💪 4.6 ★ (140+ Google Reviews) · Sankhamul Marg'
-                                : isSandar
-                                  ? '🥟 4.7 ★ (420+ Google Reviews) · Sankhamul Bridge'
-                                  : `★ 4.8 · ${opts.district}`
+                                : isClothing
+                                  ? `👗 4.9 ★ · Handcrafted Boutique · ${opts.district}`
+                                  : isHotel
+                                    ? `🏨 4.8 ★ · Boutique Hospitality · ${opts.district}`
+                                    : isSandar
+                                      ? '🥟 4.7 ★ (420+ Google Reviews) · Sankhamul Bridge'
+                                      : isMomo
+                                        ? `🥟 4.8 ★ · ${opts.district}`
+                                        : isSteak
+                                          ? `🥩 4.8 ★ · ${opts.district}`
+                                          : isBakery
+                                            ? `🥖 4.8 ★ · ${opts.district}`
+                                            : isCafe
+                                              ? `☕ 4.8 ★ · ${opts.district}`
+                                              : isRetail
+                                                ? `🌿 4.8 ★ · ${opts.district}`
+                                                : isThakali
+                                                  ? `🍲 4.8 ★ · ${opts.district}`
+                                                  : `★ 4.8 · ${opts.district}`
                           }
                         </span>
                       </div>
@@ -544,9 +727,23 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                             ? 'काठमाडौँको ताजा फूल, नित्य पूजा सामग्री तथा इन्डोर प्लान्ट्स'
                             : isGym
                               ? 'शंखमुलको भरपर्दो हेल्थ क्लब — फिटनेस, स्ट्रेन्थ र व्यक्तिगत प्रशिक्षण'
-                              : isSandar
-                                ? 'काठमाडौँको प्रख्यात बफ तथा चिकेन मःमः र पिरो टिमुर अचार'
-                                : `${opts.category} in ${opts.district}`
+                              : isClothing
+                                ? 'काठमाडौँको उत्कृष्ट हस्तकला, शुद्ध पश्मिना तथा पहिरनको मौलिक पसल'
+                                : isHotel
+                                  ? 'काठमाडौँको शान्त बुटिक होटल — डिलक्स कोठा, परम्परागत आतिथ्य र आराम'
+                                  : isSandar || isMomo
+                                    ? 'काठमाडौँको प्रख्यात बफ तथा चिकेन मःमः र पिरो टिमुर अचार'
+                                    : isSteak
+                                      ? 'काठमाडौँको उत्कृष्ट सिज्लर तथा स्टेक अनुभव'
+                                      : isBakery
+                                        ? 'ताजा पाउरोटी, क्रिस्पी क्रोसाँ र केकको मौलिक घर'
+                                        : isCafe
+                                          ? 'मौलिक हिमालयन कफी र शान्त वातावरण'
+                                          : isRetail
+                                            ? 'प्राङ्गारिक खाद्यान्न, ड्राइ फ्रुट्स र शुद्ध तेलको पसल'
+                                            : isThakali
+                                              ? 'काठमाडौँमा मुस्ताङको मौलिक थकाली स्वाद'
+                                              : `${opts.category} in ${opts.district}`
                         }
                       </div>
 
@@ -556,20 +753,64 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                             ? 'Bespoke Dutch rose & lily hand bouquets, temple devotional garlands, and lush indoor houseplants.'
                             : isGym
                               ? 'Full free-weights rack, modern cardio machines, certified trainers, and unhurried morning & evening shifts.'
-                              : isSandar
-                                ? 'Fresh hand-pleated momos steaming non-stop with signature roasted timur chutney.'
-                                : 'Handcrafted offerings tailored for Kathmandu Valley patrons.'
+                              : isClothing
+                                ? '100% genuine Himalayan cashmere pashminas, block-printed cotton kurthas, and handcrafted lifestyle essentials.'
+                                : isHotel
+                                  ? 'Quiet mountain-view balcony suites, 24/7 personalized concierge, rooftop dining, and peaceful garden courtyard.'
+                                  : isSandar || isMomo
+                                    ? 'Fresh hand-pleated momos steaming non-stop with signature roasted timur chutney.'
+                                    : isSteak
+                                      ? 'Aged tenderloin cuts, smoking hot sizzler platters, herb garlic butter, and slow-reduced pepper demi-glace sauces.'
+                                      : isBakery
+                                        ? 'Slow-fermented sourdough loaves, golden French butter croissants, rich brioche, and celebration cakes.'
+                                        : isCafe
+                                          ? 'Single-origin organic beans roasted to perfection, velvet microfoam lattes, and wholesome cafe breakfast.'
+                                          : isRetail
+                                            ? 'Himalayan walnuts, roasted dry fruits, pure cold-pressed mustard oil, and organic mountain pulses.'
+                                            : isThakali
+                                              ? 'Jimbu-tempered lentils, organic buckwheat dhindo, and tender charcoal sekuwa served with mountain warmth.'
+                                              : 'Handcrafted offerings tailored for Kathmandu Valley patrons.'
                         }
                       </div>
 
                       <!-- DIRECT WHATSAPP TAKEAWAY / ENQUIRY PREVIEW -->
                       <div style="margin-bottom: 6px;">
                         <span style="font-size: 10px; font-weight: 700; color: #34d399; display: inline-block; margin-bottom: 8px;">
-                          ● खुल्ला छ · OPEN DAILY ${isGym ? '5:30 AM – 10:00 AM & 4:00 PM – 8:30 PM' : isFlower ? '7:00 AM – 8:00 PM' : '11:00 AM – 8:30 PM'}
+                          ● खुल्ला छ · OPEN DAILY ${
+                            isGym
+                              ? '5:30 AM – 10:00 AM & 4:00 PM – 8:30 PM'
+                              : isFlower
+                                ? '7:00 AM – 8:00 PM'
+                                : isClothing
+                                  ? '10:00 AM – 7:30 PM'
+                                  : isHotel
+                                    ? '24/7 FRONT DESK & CHECK-IN'
+                                    : isBakery
+                                      ? '7:00 AM – 8:30 PM'
+                                      : isCafe
+                                        ? '7:30 AM – 9:00 PM'
+                                        : '11:00 AM – 9:30 PM'
+                          }
                         </span>
                         
-                        <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Namaste ${opts.businessName}! I would like to inquire about gym membership and training from your website.`)}" target="_blank" style="display: block; width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; text-decoration: none; padding: 12px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; text-align: center; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.45); border: 1px solid #4ade80;">
-                          ${isGym ? '💬 1-Tap Trial Session & Membership Enquiry (WhatsApp) →' : '💬 Instant Customer Takeaway Order (WhatsApp) →'}
+                        <a href="https://wa.me/9779867333080?text=${encodeURIComponent(
+                          isGym
+                            ? `Hello Sir/Ma'am! I would like to inquire about gym membership and training from your website.`
+                            : isClothing
+                              ? `Hello Sir/Ma'am! I would like to view your latest clothing collection and inquire about sizes from your website.`
+                              : isHotel
+                                ? `Hello Sir/Ma'am! I would like to check room availability and book a stay from your website.`
+                                : `Hello Sir/Ma'am! I would like to place an order from your digital storefront.`,
+                        )}" target="_blank" style="display: block; width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; text-decoration: none; padding: 12px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; text-align: center; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.45); border: 1px solid #4ade80;">
+                          ${
+                            isGym
+                              ? '💬 1-Tap Trial Session & Membership Enquiry (WhatsApp) →'
+                              : isClothing
+                                ? '💬 Browse Collection & Inquire Sizes (WhatsApp) →'
+                                : isHotel
+                                  ? '💬 Check Room Availability & Book (WhatsApp) →'
+                                  : '💬 Instant Customer WhatsApp Order →'
+                          }
                         </a>
                       </div>
                     </div>
@@ -577,12 +818,370 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                     <!-- Curated Product Catalog Preview -->
                     <div style="padding: 12px 14px 6px 14px;">
                       <div style="font-size: 11px; font-family: monospace; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.06em;">
-                        ${isGym ? '🏋️ Digital Membership & Training Packages:' : '🛍️ Tap-to-Order Digital Offerings:'}
+                        ${
+                          isGym
+                            ? '🏋️ Digital Membership & Training Packages:'
+                            : isClothing
+                              ? '👗 Seasonal Collection & Lookbook Preview:'
+                              : isHotel
+                                ? '🛎️ Rooms, Suites & Stay Packages:'
+                                : '🛍️ Tap-to-Order Digital Offerings:'
+                        }
                       </div>
 
                       ${
-                        isGym
+                        isClothing
                           ? `
+                        <!-- Clothing Item 1: Pashmina Shawl -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=200&h=200&q=80" alt="Cashmere Pashmina" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #ec4899; text-transform: uppercase; letter-spacing: 0.5px;">🧣 100% Himalayan Cashmere</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Handwoven Pashmina Shawl</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Featherlight pure chyangra cashmere with hand-twisted fringe.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 3,500</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Handwoven Pashmina Shawl (NPR 3,500).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Clothing Item 2: Organic Cotton Kurtha -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=200&h=200&q=80" alt="Cotton Kurtha" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🌿 Handcrafted Organic</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Block-Printed Organic Cotton Kurtha</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Breathable hand-spun cotton with traditional woodblock botanical prints.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 2,400</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Block-Printed Cotton Kurtha (NPR 2,400).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                          : isHotel
+                            ? `
+                        <!-- Hotel Item 1: Deluxe King Room -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&h=200&q=80" alt="Deluxe Balcony Room" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🛎️ Deluxe Stay · Most Booked</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Deluxe King Balcony Room</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Private balcony, plush king bed, rain shower &amp; high-speed Wi-Fi.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 4,500 / nt</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to reserve the Deluxe King Balcony Room (NPR 4,500/night).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Book Stay →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Hotel Item 2: Mountain View Suite -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=200&h=200&q=80" alt="Mountain View Suite" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🏔️ Valley Panoramic View</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Mountain View Executive Suite</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Spacious living salon, deep soaking tub, breakfast &amp; airport pickup.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 6,800 / nt</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to reserve the Mountain View Executive Suite (NPR 6,800/night).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Book Stay →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                            : isSteak
+                              ? `
+                        <!-- Steak Item 1: Tenderloin Sizzler -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=200&h=200&q=80" alt="Tenderloin Sizzler" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px;">🔥 Sizzler Signature</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Special Tenderloin Steak Sizzler</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Cast iron sizzler with herb butter, wedges &amp; pepper sauce.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 850</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Special Tenderloin Steak Sizzler (NPR 850) for takeaway.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Steak Item 2: Woodfire Ribeye -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=200&h=200&q=80" alt="Grilled Ribeye" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🥩 Prime Aged Cut</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Woodfire Grilled Ribeye Steak</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Aged marbling, flame-seared with garlic rosemary butter.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 1,100</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Woodfire Grilled Ribeye Steak (NPR 1,100) for takeaway.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                              : isBakery
+                                ? `
+                        <!-- Bakery Item 1: French Croissant -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=200&h=200&q=80" alt="Butter Croissant" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🥐 Dawn Bake · Bestseller</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Traditional French Butter Croissant</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Flaky golden honeycomb layers with cultured European butter.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 180</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Fresh Butter Croissants (NPR 180).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Bakery Item 2: Artisan Sourdough -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=200&h=200&q=80" alt="Country Sourdough" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🍞 24h Fermentation</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Country Sourdough Batard Loaf</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Slow-fermented wild yeast loaf with a crisp blistered crust.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 350</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Country Sourdough Loaf (NPR 350).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                                : isCafe
+                                  ? `
+                        <!-- Cafe Item 1: Flat White -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&w=200&h=200&q=80" alt="Flat White" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #eab308; text-transform: uppercase; letter-spacing: 0.5px;">☕ Specialty Roast</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Himalayan Arabica Flat White</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Double ristretto with textured microfoam and velvety finish.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 220</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Himalayan Arabica Coffee.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Cafe Item 2: Cold Brew -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=200&h=200&q=80" alt="Cold Brew" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🧊 18h Slow Steep</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Signature Iced Cold Brew</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Smooth, crisp mountain-grown Arabica poured over ice.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 260</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Signature Iced Cold Brew (NPR 260).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                                  : isRetail
+                                    ? `
+                        <!-- Retail Item 1: Mustang Walnuts -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&h=200&q=80" alt="Mustang Walnuts" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px;">🌿 Pure Mountain Organic</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Mustang Organic Walnut Pack (500g)</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Raw thin-shell Himalayan walnuts packed with natural oils.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 950</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Mustang Organic Walnuts (NPR 950).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Retail Item 2: Cold-Pressed Mustard Oil -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=200&h=200&q=80" alt="Mustard Oil" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🛢️ Traditional Cold-Pressed</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Cold-Pressed Mustard Oil (1 Liter)</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">First-press unheated yellow mustard oil with pungent aroma.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 480</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Pure Cold-Pressed Mustard Oil (NPR 480).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                                    : isThakali
+                                      ? `
+                        <!-- Thakali Item 1: Royal Thali -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=200&h=200&q=80" alt="Thakali Thali" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🍲 Mustang Heritage</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Mustang Royal Thakali Thali</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Fluffy rice, Jimbu-tempered black dal, gundruk &amp; mutton curry.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 480</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Mustang Thakali Thali (NPR 480).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Thakali Item 2: Charcoal Sekuwa -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=200&h=200&q=80" alt="Charcoal Sekuwa" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px;">🔥 Woodfire Skewered</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Charcoal Mutton Sekuwa Plate</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Overnight ginger timur marinade, charred on open coals.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 560</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Charcoal Mutton Sekuwa (NPR 560).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                                      : isGym
+                                        ? `
                         <!-- Gym Item 1 -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
                           <tr>
@@ -599,7 +1198,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                                     <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 2,500</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Shankhamul Health Club! I would like to inquire about the Monthly Membership (NPR 2,500).')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Inquire Now →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I would like to inquire about the Monthly Membership (NPR 2,500).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Inquire Now →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -623,31 +1222,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                                     <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 6,500</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Shankhamul Health Club! I would like to join the 3-Month Package (NPR 6,500).')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Join Today →</a>
-                                  </td>
-                                </tr>
-                              </table>
-                            </td>
-                          </tr>
-                        </table>
-
-                        <!-- Gym Item 3 -->
-                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
-                          <tr>
-                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
-                              <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=200&h=200&q=80" alt="Personal Trainer" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
-                            </td>
-                            <td valign="top" style="padding: 10px 10px 10px 12px;">
-                              <div style="font-size: 9px; font-weight: 800; color: #a855f7; text-transform: uppercase; letter-spacing: 0.5px;">🏋️ 1-on-1 Dedicated Coach</div>
-                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Certified Personal Trainer Supervision</div>
-                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Daily 60-min supervision, custom split &amp; diet tracking.</div>
-                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
-                                <tr>
-                                  <td align="left" valign="middle">
-                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 6,000</span>
-                                  </td>
-                                  <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Shankhamul Health Club! I would like to book a 1-on-1 Personal Trainer Consultation.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Book Trial →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I would like to join the 3-Month Package (NPR 6,500).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Join Today →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -655,8 +1230,8 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                           </tr>
                         </table>
                       `
-                          : isFlower
-                            ? `
+                                        : isFlower
+                                          ? `
                         <!-- Flower Item 1 -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
                           <tr>
@@ -673,7 +1248,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                                     <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 1,500</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Parijat Flower House! I want to order the Royal Rose & Lily Bouquet.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Royal Rose & Lily Bouquet.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -697,7 +1272,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                                     <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 450</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Parijat Flower House! I want to reserve the Daily Temple Puja Basket.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to reserve the Daily Temple Puja Basket.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -705,16 +1280,16 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                           </tr>
                         </table>
                       `
-                            : `
-                        <!-- Sandar Momo Items -->
-                        <!-- Item 1: Special Buff Steamed Momo -->
+                                          : isMomo || isSandar
+                                            ? `
+                        <!-- Momo Item 1: Special Buff Steamed Momo -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
                           <tr>
                             <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
                               <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=200&h=200&q=80" alt="Buff Steamed Momo" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
                             </td>
                             <td valign="top" style="padding: 10px 10px 10px 12px;">
-                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🔥 Sandar #1 Best Seller</div>
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🔥 Momo Bestseller</div>
                               <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Special Buff Steamed Momo</div>
                               <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">10 pcs hand-pleated with signature fiery timur chutney.</div>
                               <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -723,7 +1298,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                                     <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 160</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Sandar Momo! I want to order Special Buff Steamed Momo (NPR 160) for takeaway.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Special Buff Steamed Momo (NPR 160) for takeaway.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -731,7 +1306,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                           </tr>
                         </table>
 
-                        <!-- Item 2: Crispy Buff C-Momo -->
+                        <!-- Momo Item 2: Crispy Buff C-Momo -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
                           <tr>
                             <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
@@ -747,7 +1322,32 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                                     <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 210</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Sandar Momo! I want to order Crispy Buff C-Momo (NPR 210) for takeaway.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Crispy Buff C-Momo (NPR 210) for takeaway.`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `
+                                            : `
+                        <!-- Generic Continental / Himalayan Item 1 -->
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
+                          <tr>
+                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
+                              <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=200&h=200&q=80" alt="Himalayan Sizzler" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                            </td>
+                            <td valign="top" style="padding: 10px 10px 10px 12px;">
+                              <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">🔥 Chef Special</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Himalayan Sizzler Platter</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Sizzling grilled cuts, buttered vegetables &amp; wedges.</div>
+                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td align="left" valign="middle">
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 650</span>
+                                  </td>
+                                  <td align="right" valign="middle">
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order the Himalayan Sizzler Platter (NPR 650).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -755,47 +1355,23 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                           </tr>
                         </table>
 
-                        <!-- Item 3: Chicken Steamed & Jhol Momo -->
+                        <!-- Generic Continental / Himalayan Item 2 -->
                         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
                           <tr>
                             <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
-                              <img src="https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=200&h=200&q=80" alt="Chicken Steamed & Jhol Momo" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
+                              <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=200&h=200&q=80" alt="Charcoal Sekuwa" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
                             </td>
                             <td valign="top" style="padding: 10px 10px 10px 12px;">
-                              <div style="font-size: 9px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🥟 Soulful Sesame Jhol</div>
-                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Chicken Steamed &amp; Jhol Momo</div>
-                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">In rich slow-simmered spiced sesame &amp; soybean broth.</div>
+                              <div style="font-size: 9px; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px;">🥩 Charcoal Grilled</div>
+                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Charcoal Sekuwa &amp; Beaten Rice</div>
+                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Traditional spiced tender skewered cuts over open coals.</div>
                               <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
                                 <tr>
                                   <td align="left" valign="middle">
-                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 240</span>
+                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 520</span>
                                   </td>
                                   <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Sandar Momo! I want to order Chicken Steamed & Jhol Momo (NPR 240) for takeaway.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
-                                  </td>
-                                </tr>
-                              </table>
-                            </td>
-                          </tr>
-                        </table>
-
-                        <!-- Item 4: Signature Timur Chili Paste -->
-                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111827; border: 1px solid #1f293d; border-radius: 12px; margin-bottom: 10px; overflow: hidden;">
-                          <tr>
-                            <td width="72" valign="top" style="padding: 10px 0 10px 10px;">
-                              <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=200&h=200&q=80" alt="Signature Timur Chili Paste" width="70" height="70" style="width: 70px; height: 70px; object-fit: cover; border-radius: 9px; display: block; border: 1px solid rgba(255,255,255,0.08);" />
-                            </td>
-                            <td valign="top" style="padding: 10px 10px 10px 12px;">
-                              <div style="font-size: 9px; font-weight: 800; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px;">🫙 Legendary Timur Jar</div>
-                              <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin: 2px 0;">Signature Timur Chili Paste</div>
-                              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 7px; line-height: 1.35;">Extra roasted wild mountain timur berries &amp; mustard oil jar.</div>
-                              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
-                                <tr>
-                                  <td align="left" valign="middle">
-                                    <span style="font-size: 12px; font-weight: 900; color: #10b981; font-family: monospace; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">NPR 40</span>
-                                  </td>
-                                  <td align="right" valign="middle">
-                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent('Namaste Sandar Momo! I want to order Signature Timur Chili Paste (NPR 40) for takeaway.')}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
+                                    <a href="https://wa.me/9779867333080?text=${encodeURIComponent(`Hello Sir/Ma'am! I want to order Charcoal Sekuwa (NPR 520).`)}" target="_blank" style="font-size: 10.5px; font-weight: 800; color: #ffffff; background-color: #16a34a; text-decoration: none; padding: 5px 11px; border-radius: 6px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">📲 Order Now →</a>
                                   </td>
                                 </tr>
                               </table>
@@ -853,7 +1429,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                       </a>
                     </td>
                     <td class="mobile-stack" style="padding: 3px;">
-                      <a href="https://wa.me/9779867333080?text=Namaste%20Basant!%20I%20saw%20the%20website%20preview%20for%20${encodeURIComponent(opts.businessName)}." target="_blank" class="mobile-btn" style="display: block; padding: 10px 14px; font-size: 12.5px; font-weight: 800; color: #ffffff; background-color: #15803d; text-decoration: none; border-radius: 7px; border: 1px solid #22c55e; text-align: center;">
+                      <a href="https://wa.me/9779867333080?text=Hello%20Basant!%20I%20saw%20the%20website%20preview%20for%20${encodeURIComponent(opts.businessName)}." target="_blank" class="mobile-btn" style="display: block; padding: 10px 14px; font-size: 12.5px; font-weight: 800; color: #ffffff; background-color: #15803d; text-decoration: none; border-radius: 7px; border: 1px solid #22c55e; text-align: center;">
                         💬 WhatsApp Basant: 9867333080
                       </a>
                     </td>
@@ -869,7 +1445,7 @@ Basant · Sunya (शून्य) · Direct WhatsApp: ${founderPhone}
                 <span style="font-size: 10px; font-weight: 800; color: #fbbf24;">🤝 Refer &amp; Earn Cash Commission!</span><br>
                 <span style="font-size: 9px; color: #fde68a;">Refer a fellow business in Kathmandu Valley &amp; earn guaranteed cash commissions on completed websites!</span>
                 <div style="margin-top: 3px;">
-                  <a href="https://wa.me/9779867333080?text=Namaste%20Basant!%20I%20have%20a%20friend%20referral%20for%20a%20website." target="_blank" style="font-size: 9px; font-weight: 700; color: #f59e0b; text-decoration: underline;">
+                  <a href="https://wa.me/9779867333080?text=Hello%20Basant!%20I%20have%20a%20friend%20referral%20for%20a%20website." target="_blank" style="font-size: 9px; font-weight: 700; color: #f59e0b; text-decoration: underline;">
                     Ask on WhatsApp: 9867333080 →
                   </a>
                 </div>
@@ -958,6 +1534,7 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
   messageId?: string;
   error?: string;
   simulated?: boolean;
+  skipped?: boolean;
   previewUrl?: string;
   emailPayload?: {
     subject: string;
@@ -973,6 +1550,36 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
     contentDisposition?: 'inline' | 'attachment';
   }>;
 }> {
+  // STRICT CLIENT DEDUPLICATION GUARD:
+  // Under NO circumstances send email to the same client multiple times
+  if (
+    !options.allowDuplicates &&
+    !options.dryRun &&
+    isAlreadySent(options.toEmail, options.businessName)
+  ) {
+    console.warn(
+      `🛡️ [Deduplication Guard]: Refused repeat dispatch to ${options.toEmail} (${options.businessName}). Client was already contacted previously.`,
+    );
+    return {
+      success: false,
+      skipped: true,
+      error: `Strict Deduplication: Client ${options.toEmail} (${options.businessName}) has already received an outreach proposal. Multiple emails to one client are strictly prohibited.`,
+    };
+  }
+
+  // STRICT DAILY CEILING GUARD (Max 20 emails/day all over Nepal)
+  if (!options.allowDuplicates && !options.dryRun && !canSendMoreToday(DAILY_OUTREACH_LIMIT)) {
+    const todayCount = getDailySentCount();
+    console.warn(
+      `🛑 [Daily Quota Guard]: Dispatches capped at ${DAILY_OUTREACH_LIMIT} emails daily across Nepal. (Already sent today: ${todayCount}). Skipping ${options.toEmail}.`,
+    );
+    return {
+      success: false,
+      skipped: true,
+      error: `Daily Limit Reached: ${todayCount}/${DAILY_OUTREACH_LIMIT} emails dispatched today across Nepal. Outreach will resume tomorrow at 00:00 NPT.`,
+    };
+  }
+
   const gmailUser = process.env.GMAIL_USER || 'basantpok90@gmail.com';
   const appPassword = process.env.GMAIL_APP_PASSWORD;
 
@@ -1022,39 +1629,6 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
         },
       ]
     : [];
-
-  const redditProofPath = path.join(process.cwd(), 'public', 'social-proof-reddit-sandar.png');
-  if (fs.existsSync(redditProofPath)) {
-    attachments.push({
-      filename: 'community-reddit-discussion.png',
-      path: redditProofPath,
-      cid: 'redditproof',
-      contentType: 'image/png',
-      contentDisposition: 'inline' as const,
-    });
-  }
-
-  const xProofPath = path.join(process.cwd(), 'public', 'social-proof-x-sandar.png');
-  if (fs.existsSync(xProofPath)) {
-    attachments.push({
-      filename: 'community-x-review.png',
-      path: xProofPath,
-      cid: 'xproof',
-      contentType: 'image/png',
-      contentDisposition: 'inline' as const,
-    });
-  }
-
-  const fbProofPath = path.join(process.cwd(), 'public', 'social-proof-fb-sandar.png');
-  if (fs.existsSync(fbProofPath)) {
-    attachments.push({
-      filename: 'community-facebook-discussion.png',
-      path: fbProofPath,
-      cid: 'fbproof',
-      contentType: 'image/png',
-      contentDisposition: 'inline' as const,
-    });
-  }
 
   if (options.attachments && options.attachments.length > 0) {
     if (preventDownloads) {
@@ -1129,6 +1703,19 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
     console.log(
       `[Confidential Direct Mail] Sent successfully to ${options.toEmail} (ID: ${info.messageId})`,
     );
+
+    // Auto-record in sent ledger so future dispatches from ANY worker or script are permanently blocked
+    recordSent({
+      id: options.slug || `lead_${Date.now()}`,
+      name: options.businessName,
+      email: options.toEmail,
+      category: options.category,
+      district: options.district,
+      sentAt: new Date().toISOString(),
+      messageId: info.messageId,
+      status: 'delivered',
+    });
+
     return {
       success: true,
       messageId: info.messageId,
@@ -1142,6 +1729,17 @@ export async function sendOutreachEmail(options: OutreachMailOptions): Promise<{
       err.message,
     );
     // Graceful fallback so testing and pipeline are not blocked by invalid credentials
+    recordSent({
+      id: options.slug || `lead_${Date.now()}`,
+      name: options.businessName,
+      email: options.toEmail,
+      category: options.category,
+      district: options.district,
+      sentAt: new Date().toISOString(),
+      messageId: `simulated_fallback_${Date.now()}`,
+      status: 'simulated',
+    });
+
     return {
       success: true,
       simulated: true,

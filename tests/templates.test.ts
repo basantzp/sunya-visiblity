@@ -15,14 +15,17 @@ describe('Template Resolver (Multi-Template Engine)', () => {
     expect(resolveTemplateType('Holistic Wellness Center')).toBe('wellness');
   });
 
-  it('should map retail, crafts, and boutique to retail template', () => {
+  it('should map retail, crafts, clothing, and boutique to retail template', () => {
     expect(resolveTemplateType('Handicrafts Boutique')).toBe('retail');
     expect(resolveTemplateType('Pashmina Store')).toBe('retail');
     expect(resolveTemplateType('Traditional Pottery Shop')).toBe('retail');
     expect(resolveTemplateType('Silver Jewelry Craft')).toBe('retail');
+    expect(resolveTemplateType('Clothing & Handloom Boutique')).toBe('retail');
   });
 
-  it('should fallback to services template for general professional services', () => {
+  it('should fallback to services template for hotels and general professional services', () => {
+    expect(resolveTemplateType('Boutique Hotel & Resort')).toBe('services');
+    expect(resolveTemplateType('Heritage Lodge & Hospitality')).toBe('services');
     expect(resolveTemplateType('Accounting Consultancy')).toBe('services');
     expect(resolveTemplateType('Dental Clinic')).toBe('services');
     expect(resolveTemplateType('Driving School')).toBe('services');

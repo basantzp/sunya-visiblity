@@ -6,8 +6,11 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const apiKey = process.env.GEMINI_API_KEY || '';
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+function getGenAI(): GoogleGenerativeAI | null {
+  const key = process.env.GEMINI_API_KEY || '';
+  if (!key || key === 'placeholder') return null;
+  return new GoogleGenerativeAI(key);
+}
 
 export interface BusinessInputForEnrichment {
   name: string;
@@ -52,8 +55,13 @@ export interface EnrichedCopyResult {
 export async function enrichAndGenerateCopy(
   business: BusinessInputForEnrichment,
 ): Promise<EnrichedCopyResult> {
+  const currentKey = process.env.GEMINI_API_KEY || '';
+  const genAIClient = getGenAI();
   const isZeroFees =
-    process.env.ZERO_API_FEES === 'true' || !genAI || !apiKey || apiKey === 'placeholder';
+    process.env.ZERO_API_FEES === 'true' ||
+    !genAIClient ||
+    !currentKey ||
+    currentKey === 'placeholder';
 
   if (isZeroFees) {
     console.log(
@@ -62,7 +70,8 @@ export async function enrichAndGenerateCopy(
     return getFallbackEnrichedCopy(business);
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const primaryModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+  const model = genAIClient.getGenerativeModel({ model: primaryModel });
 
   const prompt = `
 You are the master local-business copywriter for Sunya, a bespoke agency in Kathmandu, Nepal.
@@ -116,7 +125,13 @@ JSON Schema:
       generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const text = result.response.text();
+    let text = result.response.text().trim();
+    if (text.startsWith('```')) {
+      text = text
+        .replace(/^```(?:json)?\n?/, '')
+        .replace(/\n?```$/, '')
+        .trim();
+    }
     return JSON.parse(text);
   } catch (error) {
     console.error('[Gemini Copywriting Error]:', error);
@@ -129,8 +144,51 @@ JSON Schema:
  */
 function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyResult {
   const isMomo = b.name.toLowerCase().includes('momo') || b.category.toLowerCase().includes('momo');
+  const isSteak =
+    b.name.toLowerCase().includes('steak') ||
+    b.category.toLowerCase().includes('steak') ||
+    b.name.toLowerCase().includes('grill') ||
+    b.name.toLowerCase().includes('sizzler');
+  const isBakery =
+    b.name.toLowerCase().includes('bakery') ||
+    b.name.toLowerCase().includes('bake') ||
+    b.name.toLowerCase().includes('cake') ||
+    b.category.toLowerCase().includes('bakery');
+  const isCafe =
+    b.name.toLowerCase().includes('cafe') ||
+    b.name.toLowerCase().includes('coffee') ||
+    b.category.toLowerCase().includes('cafe') ||
+    b.category.toLowerCase().includes('coffee');
+  const isJuice =
+    b.name.toLowerCase().includes('juice') ||
+    b.name.toLowerCase().includes('pan') ||
+    b.category.toLowerCase().includes('juice');
+  const isHotel =
+    b.category.toLowerCase().includes('hotel') ||
+    b.category.toLowerCase().includes('lodge') ||
+    b.category.toLowerCase().includes('resort') ||
+    b.category.toLowerCase().includes('hospitality') ||
+    b.name.toLowerCase().includes('hotel') ||
+    b.name.toLowerCase().includes('resort') ||
+    b.name.toLowerCase().includes('lodge');
+  const isClothing =
+    !isHotel &&
+    (b.category.toLowerCase().includes('clothing') ||
+      b.category.toLowerCase().includes('boutique') ||
+      b.category.toLowerCase().includes('apparel') ||
+      b.category.toLowerCase().includes('textile') ||
+      b.category.toLowerCase().includes('fashion') ||
+      b.name.toLowerCase().includes('clothing') ||
+      b.name.toLowerCase().includes('boutique') ||
+      b.name.toLowerCase().includes('hastakala'));
+  const isRetail =
+    (b.name.toLowerCase().includes('pasal') ||
+      b.name.toLowerCase().includes('dry foods') ||
+      b.category.toLowerCase().includes('retail') ||
+      b.category.toLowerCase().includes('grocery')) &&
+    !isClothing;
   const isRestaurant =
-    b.category.toLowerCase().includes('restaurant') || b.category.toLowerCase().includes('cafe');
+    b.category.toLowerCase().includes('restaurant') || b.category.toLowerCase().includes('food');
   const isSpa =
     b.category.toLowerCase().includes('spa') ||
     b.category.toLowerCase().includes('wellness') ||
@@ -236,6 +294,509 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
         hero_title: 'काठमाडौँको प्रसिद्ध मौलिक मःमः',
         tagline: 'ताजा बाफ, क्रिस्पी कोथे र स्वादिलो झोल',
         about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो पुरानो मौलिक स्वाद र उत्कृष्ट आतिथ्यको आनन्द लिनुहोस्।`,
+      },
+    };
+  }
+
+  if (isSteak) {
+    return {
+      tagline: 'Prime Sizzlers, Tender Steaks & Wood-Fired Grills in ' + b.district,
+      hero_title: 'Kathmandu’s Premier Steakhouse & Grill Experience',
+      hero_subtitle:
+        'Aged tenderloin cuts, smoking hot sizzler platters, herb garlic butter, and slow-reduced pepper demi-glace sauces.',
+      about_story: `${b.name} brings the timeless art of master grilling and sizzling iron platters to ${b.district}. What started as a haven for steak enthusiasts and international travelers has become one of the valley's most cherished dining institutions. Every cut is meticulously selected, expertly aged, and seasoned over high-heat grills to deliver rich, juicy tenderness with signature Himalayan herb butter.`,
+      brand_voice: 'Bold, robust, generous, culinary-focused, and hospitable',
+      primary_color: '#450A0A', // Deep Mahogany / Rich Char
+      accent_color: '#DC2626', // Sizzling Crimson
+      signature_offerings: [
+        {
+          title: 'Special Tenderloin Steak Sizzler',
+          description:
+            'Prime aged tenderloin steak served on a smoking cast-iron platter with rosemary herb butter, charred greens, and roasted potato wedges.',
+          price_npr: 'NPR 850',
+        },
+        {
+          title: 'Woodfire Grilled Ribeye Steak',
+          description:
+            'Generous marbled ribeye grilled over open embers, finished with garlic herb butter and rich black pepper demi-glace.',
+          price_npr: 'NPR 1,100',
+        },
+        {
+          title: 'Chicken Sizzler with Mushroom Cream Sauce',
+          description:
+            'Tender chicken breast seared golden, accompanied by sautéed buttered vegetables, crispy fries, and velvet button mushroom gravy.',
+          price_npr: 'NPR 680',
+        },
+        {
+          title: 'Charcoal Grilled Pork Chops',
+          description:
+            'Thick-cut pork chops glazed with Himalayan wild honey, whole-grain mustard, and charred valley greens.',
+          price_npr: 'NPR 780',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Sizzling Presentation & Flavor',
+          original_testimonial_summary:
+            'Patrons consistently praise the smoking hot cast iron presentation, juicy meat tenderness, and authentic pepper gravy.',
+          customer_archetype: 'Steak Connoisseur',
+        },
+        {
+          sentiment: 'Atmosphere & Courteous Service',
+          original_testimonial_summary:
+            'Celebrated by locals and visitors as the most reliable, warm dining destination in Kathmandu for hearty steak celebrations.',
+          customer_archetype: 'Weekend Dinner Guest',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Do you take table reservations and group bookings?',
+          answer:
+            'Yes! Advance table bookings are recommended during weekend evenings and can be reserved directly via WhatsApp.',
+        },
+        {
+          question: 'Where can guests park near your location?',
+          answer: `Convenient parking options for two-wheelers and four-wheelers are accessible near our ${b.district} location.`,
+        },
+      ],
+      local_seo_keywords: [
+        `best steak in ${b.district}`,
+        `${b.name.toLowerCase()} menu`,
+        'kathmandu sizzler steakhouse',
+        'woodfire grill dining kathmandu',
+      ],
+      nepali_content: {
+        hero_title: 'काठमाडौँको उत्कृष्ट सिज्लर तथा स्टेक अनुभव',
+        tagline: 'तातो सिज्लर, रसिला स्टेक र उत्कृष्ट आतिथ्यता',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हाम्रो विशेष सिज्लर र ग्रिल परिकारहरुको स्वाद लिनुहोस्।`,
+      },
+    };
+  }
+
+  if (isBakery) {
+    return {
+      tagline: 'Artisan Sourdough, Flaky Croissants & Handcrafted Pastries in ' + b.district,
+      hero_title: 'Kathmandu’s Trusted Neighborhood Bakery & Patisserie',
+      hero_subtitle:
+        'Slow-fermented sourdough loaves, golden French butter croissants, rich brioche, and celebratory custom cakes baked fresh at dawn.',
+      about_story: `${b.name} fills the streets of ${b.district} with the comforting aroma of oven-fresh bread and European butter pastries every morning. Rooted in traditional baking techniques, we cultivate natural sourdough starters, slow-prove our baguettes for 24 hours, and fold real butter into crisp laminated croissants. From sunrise breakfast pastries to artisanal afternoon tea cakes, we bake with uncompromising care.`,
+      brand_voice: 'Warm, artisanal, comforting, sweet, and welcoming',
+      primary_color: '#78350F', // Warm Walnut
+      accent_color: '#F59E0B', // Golden Crust Amber
+      signature_offerings: [
+        {
+          title: 'Traditional French Butter Croissant',
+          description:
+            'Crispy, golden, multilayered honeycomb croissant made with imported cultured butter, flaky on the outside and airy inside.',
+          price_npr: 'NPR 180',
+        },
+        {
+          title: 'Country Sourdough Batard',
+          description:
+            '24-hour slow-fermented crusty sourdough with a tangy, chewy open crumb and blistered crust, baked on stone hearths.',
+          price_npr: 'NPR 350',
+        },
+        {
+          title: 'Belgian Dark Chocolate Truffle Gateau',
+          description:
+            'Decadent moist sponge layered with 70% dark chocolate ganache, finished with mirror glaze and chocolate shavings.',
+          price_npr: 'NPR 450',
+        },
+        {
+          title: 'Fresh Wild Blueberry Danish',
+          description:
+            'Buttery puff pastry basket filled with vanilla bean pastry cream and sweet wild berry compote.',
+          price_npr: 'NPR 220',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Morning Freshness & Flaky Texture',
+          original_testimonial_summary:
+            'Patrons frequently praise the unbeatable flakiness of the croissants and the authentic crust of the fresh sourdough.',
+          customer_archetype: 'Daily Morning Regular',
+        },
+        {
+          sentiment: 'Celebration Cakes & Warm Counter Service',
+          original_testimonial_summary:
+            'Renowned across the valley for dependable, beautifully decorated custom birthday cakes and friendly bakers.',
+          customer_archetype: 'Family Celebrator',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Can I pre-order custom birthday or celebration cakes?',
+          answer:
+            'Yes! You can easily place custom cake pre-orders directly via WhatsApp with your preferred design and flavor.',
+        },
+        {
+          question: 'What time are morning croissants and sourdough ready?',
+          answer:
+            'Our first hot batches come straight out of the hearth ovens daily starting at 7:00 AM.',
+        },
+      ],
+      local_seo_keywords: [
+        `best bakery in ${b.district}`,
+        `${b.name.toLowerCase()} cake prices`,
+        'sourdough bread kathmandu',
+        'french croissants patisserie nepal',
+      ],
+      nepali_content: {
+        hero_title: 'ताजा पाउरोटी, क्रिस्पी क्रोसाँ र केकको मौलिक घर',
+        tagline: 'हरेक बिहान ताजा बेकिङ र मीठो स्वाद',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। हरेक बिहान ताजा बेक गरिएका बेकरी परिकारहरुको आनन्द लिनुहोस्।`,
+      },
+    };
+  }
+
+  if (isCafe) {
+    return {
+      tagline: 'Specialty Himalayan Arabica & Relaxed Valley Vibes in ' + b.district,
+      hero_title: 'Your Everyday Coffee Sanctuary & Brunch Corner',
+      hero_subtitle:
+        'Single-origin organic beans roasted to perfection, velvet microfoam lattes, slow cold brews, and wholesome European-style cafe breakfasts.',
+      about_story: `Nestled in the cozy corners of ${b.district}, ${b.name} is a sanctuary for coffee purists and creative minds alike. We source specialty high-altitude Arabica directly from Himalayan organic farms across Nuwakot and Kavre, carefully extracting rich espresso notes of toasted walnut and dark stone fruit. Pair your brew with freshly baked treats and hearty brunch in our tranquil cafe space.`,
+      brand_voice: 'Refined, calm, creative, welcoming, and community-driven',
+      primary_color: '#365314', // Deep Olive Green / Forest
+      accent_color: '#EAB308', // Warm Latte Gold
+      signature_offerings: [
+        {
+          title: 'Himalayan Arabica Flat White',
+          description:
+            'Double ristretto of locally roasted single-origin Arabica blended with silky, textured whole milk microfoam.',
+          price_npr: 'NPR 220',
+        },
+        {
+          title: 'Signature 18-Hour Iced Cold Brew',
+          description:
+            'Slow steep extraction of mountain-grown beans, poured crisp over ice with hints of chocolate and orange zest.',
+          price_npr: 'NPR 260',
+        },
+        {
+          title: 'Avocado & Poached Egg Sourdough Toast',
+          description:
+            'Crushed avocado, farm poached eggs, chili flakes, and toasted seeds over thick toasted country sourdough.',
+          price_npr: 'NPR 420',
+        },
+        {
+          title: 'Artisan Cinnamon Roll with Vanilla Cream',
+          description:
+            'Warm soft brioche swirl laden with aromatic Ceylon cinnamon and creamy vanilla bean frosting.',
+          price_npr: 'NPR 200',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Exceptional Coffee Quality',
+          original_testimonial_summary:
+            'Coffee lovers praise the consistent smooth acidity, expert barista extraction, and warm cozy atmosphere.',
+          customer_archetype: 'Coffee Enthusiast',
+        },
+        {
+          sentiment: 'Relaxing Ambiance & Fast WiFi',
+          original_testimonial_summary:
+            'Popular spot for relaxed remote work, quiet reading, and friendly neighborhood catch-ups.',
+          customer_archetype: 'Remote Professional',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Do you offer whole coffee beans or grounds for takeaway?',
+          answer:
+            'Yes! Freshly roasted whole beans in nitrogen valve packs are available directly over the counter or on WhatsApp.',
+        },
+        {
+          question: 'Is fast Wi-Fi and power outlets available for laptop work?',
+          answer:
+            'Yes, we provide high-speed complimentary Wi-Fi and easily accessible power sockets at select tables.',
+        },
+      ],
+      local_seo_keywords: [
+        `best cafe in ${b.district}`,
+        'specialty coffee kathmandu',
+        'himalayan arabica roastery',
+        'quiet study cafe kathmandu',
+      ],
+      nepali_content: {
+        hero_title: 'मौलिक हिमालयन कफी र शान्त वातावरण',
+        tagline: 'ताजा रोस्ट गरिएको कफी र मिठो खाजा',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। ताजा अर्गानिक कफी र मिठो नास्ताको आनन्द लिनुहोस्।`,
+      },
+    };
+  }
+
+  if (isJuice) {
+    return {
+      tagline: '100% Pure Cold-Pressed Juices, Fruit Bowls & Refreshments',
+      hero_title: 'Kathmandu’s Fresh Fruit & Wellness Bar in ' + b.district,
+      hero_subtitle:
+        'Raw unpasteurized fruit juices, seasonal valley citrus coolers, natural fruit bowls, and digestive herbal infusions with zero added sugar.',
+      about_story: `${b.name} is dedicated to pure natural vitality in ${b.district}. We press only ripe seasonal fruits daily—from sweet royal pomegranates to valley apples, fresh mint, and juicy citrus. No artificial syrups, no chemicals—just 100% genuine hydration and refreshing taste prepared fresh right in front of your eyes.`,
+      brand_voice: 'Vibrant, energetic, health-conscious, clean, and refreshing',
+      primary_color: '#14532D', // Deep Citrus Leaf
+      accent_color: '#F97316', // Vibrant Orange
+      signature_offerings: [
+        {
+          title: 'Royal Pomegranate & Sweet Orange Cold-Pressed Juice',
+          description:
+            'Pure freshly squeezed pomegranate pearls and sweet oranges with a pinch of Himalayan pink salt, zero added water.',
+          price_npr: 'NPR 220',
+        },
+        {
+          title: 'Tropical Rainbow Valley Fruit Bowl',
+          description:
+            'Chilled cubes of seasonal valley fruits, chia seeds, roasted almonds, and a touch of wild mountain honey.',
+          price_npr: 'NPR 180',
+        },
+        {
+          title: 'Spicy Mint Masala Soda Refresher',
+          description:
+            'Crushed fresh garden mint, roasted cumin, black salt, and sparkling soda for the ultimate refreshing cooler.',
+          price_npr: 'NPR 110',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Pure Unadulterated Freshness',
+          original_testimonial_summary:
+            'Patrons consistently praise the genuine fruit flavors, clean hygienic counter, and quick refreshing service.',
+          customer_archetype: 'Daily Commuter',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Do you add sugar or water to your juices?',
+          answer:
+            'Never! Our signature juices are pressed 100% pure from raw fresh fruits without artificial sweeteners.',
+        },
+      ],
+      local_seo_keywords: [`fresh fruit juice in ${b.district}`, 'healthy juice bar kathmandu'],
+      nepali_content: {
+        hero_title: 'ताजा फलफूलको शुद्ध जुस र स्वस्थ जीवन',
+        tagline: '१००% शुद्ध, प्राकृतिक र पौष्टिक',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। ताजा र शुद्ध जुसको अनुभव लिनुहोस्।`,
+      },
+    };
+  }
+
+  if (isRetail) {
+    return {
+      tagline: 'Organic Valley Produce, Himalayan Dry Foods & Mountain Groceries',
+      hero_title: 'Kathmandu’s Trusted Organic Pantry & Dry Goods Store',
+      hero_subtitle:
+        'Himalayan walnuts, roasted dry fruits, pure cold-pressed mustard oil, organic mountain pulses, and genuine valley staples.',
+      about_story: `${b.name} serves the households of ${b.district} with certified organic staples and nutrient-dense dry foods directly from Nepal's high-altitude farmers. From cold-pressed mustard oil to Mustang walnuts and hand-sorted pulses, we bring chemical-free wellness to your daily family kitchen.`,
+      brand_voice: 'Authentic, trusted, grounded, honest, and health-focused',
+      primary_color: '#1C1917', // Stone Dark
+      accent_color: '#16A34A', // Vibrant Leaf Green
+      signature_offerings: [
+        {
+          title: 'Mustang Organic Walnut & Dry Fruits Pack (500g)',
+          description:
+            'Crisp, buttery, raw thin-shell walnuts sourced from high Mustang orchards, rich in Omega-3 and natural oils.',
+          price_npr: 'NPR 950',
+        },
+        {
+          title: 'Traditional Cold-Pressed Mustard Oil (1 Liter)',
+          description:
+            'First-press organic yellow mustard seeds expeller-pressed without heat for pungent authentic valley flavor.',
+          price_npr: 'NPR 480',
+        },
+        {
+          title: 'Organic Jumla Red Rice & Himalayan Grains (2kg)',
+          description:
+            'Unpolished high-altitude Marshi red rice with delicate nutty aroma and abundant dietary fiber.',
+          price_npr: 'NPR 550',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Purity & Fair Local Prices',
+          original_testimonial_summary:
+            'Patrons consistently recommend the guaranteed authenticity and dependable chemical-free quality of all grocery items.',
+          customer_archetype: 'Conscious Shopper',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Do you deliver grocery and dry food parcels to homes?',
+          answer:
+            'Yes! You can order dry fruits, oils, and grains directly via WhatsApp for same-day home delivery across Kathmandu Valley.',
+        },
+      ],
+      local_seo_keywords: [
+        `organic store in ${b.district}`,
+        'dry foods kathmandu',
+        'mustang walnuts nepal',
+        'pure mustard oil kathmandu',
+      ],
+      nepali_content: {
+        hero_title: 'प्राङ्गारिक खाद्यान्न, ड्राइ फ्रुट्स र शुद्ध तेलको पसल',
+        tagline: 'शुद्ध, अर्गानिक र स्वस्थ दैनिक जीवन',
+        about_snippet: `${b.name} मा यहाँहरुलाई हार्दिक स्वागत छ। शुद्ध र उच्च गुणस्तरका खाद्यान्न सामाग्रीहरु प्राप्त गर्नुहोस्।`,
+      },
+    };
+  }
+
+  if (isClothing) {
+    return {
+      tagline: 'Authentic Himalayan Cashmere & Handcrafted Fashion in Kathmandu',
+      hero_title: 'Handcrafted Apparel & Ethical Valley Textiles',
+      hero_subtitle:
+        'Pure Himalayan cashmere pashmina shawls, breathable organic cotton kurthas, and sustainable handmade lifestyle collections.',
+      about_story: `${b.name} celebrates the rich tradition of Nepali handlooms, ethical craftsmanship, and sustainable slow fashion in ${b.district}. Working directly with master local weavers and artisans, our boutique curates exquisite handwoven cashmere, natural indigo-dyed cottons, and bespoke garments that honor cultural heritage while embracing contemporary silhouettes. Every thread reflects the dedication, patience, and authentic soul of Nepali artisans.`,
+      brand_voice: 'Artisanal, elegant, ethical, refined, and culturally proud',
+      primary_color: '#831843', // Deep Rose / Wine
+      accent_color: '#BE185D',
+      signature_offerings: [
+        {
+          title: 'Handwoven Himalayan Cashmere Pashmina Shawl (पश्मिना शल)',
+          description:
+            'Featherlight 100% pure high-altitude chyangra cashmere, hand-spun and finished with delicate hand-twisted fringes.',
+          price_npr: 'NPR 3,500',
+        },
+        {
+          title: 'Block-Printed Organic Cotton Kurtha Set (कपासको कुर्था सेट)',
+          description:
+            'Breathable handloom organic cotton featuring traditional wooden block prints and hand-tailored comfort fitting.',
+          price_npr: 'NPR 2,400',
+        },
+        {
+          title: 'Handloom Dhaka Weave Wrap / Throw (मौलिक ढाका शल)',
+          description:
+            'Geometric traditional Himalayan patterns handwoven on wooden floor looms using pure combed cotton threads.',
+          price_npr: 'NPR 2,800',
+        },
+        {
+          title: 'Natural Indigo Linen Casual Shirt (लिनेन सर्ट)',
+          description:
+            'Pre-washed pure European flax linen tailored with mother-of-pearl buttons and relaxed mandarin collar.',
+          price_npr: 'NPR 1,850',
+        },
+        {
+          title: 'Hand-Embroidered Pure Silk Scarf (सिल्क स्कार्फ)',
+          description:
+            'Fine mulberry silk detailed with delicate floral needlework by valley women artisan collectives.',
+          price_npr: 'NPR 1,200',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Fabric Authenticity',
+          original_testimonial_summary:
+            'Customers repeatedly praise the unmistakable purity and softness of genuine pashmina weaves with zero tourist price inflation.',
+          customer_archetype: 'Conscious Shopper',
+        },
+        {
+          sentiment: 'Craftsmanship',
+          original_testimonial_summary:
+            'Admired for neat hand-stitching, rich botanical dyes, and attentive boutique service.',
+          customer_archetype: 'Local & Expat Regular',
+        },
+      ],
+      faqs: [
+        {
+          question: 'Are your pashmina shawls 100% genuine cashmere?',
+          answer:
+            'Yes, all our pashmina shawls are verified 100% Himalayan chyangra goat cashmere handwoven in Nepal.',
+        },
+        {
+          question: 'Can I order custom sizes or view the collection on WhatsApp?',
+          answer:
+            'Absolutely! Message us on WhatsApp to see our current seasonal lookbook, fabric swatches, and size options.',
+        },
+      ],
+      local_seo_keywords: [
+        `cashmere pashmina ${b.district}`,
+        'clothing boutique kathmandu',
+        'handmade cotton kurtha nepal',
+        'ethical clothing thamel',
+      ],
+      nepali_content: {
+        hero_title: 'मौलिक नेपाली हस्तकला तथा पहिरन',
+        tagline: 'परम्परागत सीप, आधुनिक शैली र शुद्धता',
+        about_snippet: `${b.name} मा यहाँहरुलाई स्वागत छ। शुद्ध पश्मिना तथा जैविक कपासका मौलिक पहिरनहरु उपलब्ध छन्।`,
+      },
+    };
+  }
+
+  if (isHotel) {
+    return {
+      tagline: 'Quiet Boutique Serenity in the Heart of Kathmandu Valley',
+      hero_title: 'Boutique Comfort & Authentic Nepali Hospitality',
+      hero_subtitle: `Sunlit balcony rooms, peaceful garden courtyard, mountain-view rooftop dining, and 24/7 dedicated concierge service in ${b.district}.`,
+      about_story: `${b.name} offers travelers and families a serene sanctuary tucked away from the valley's bustling streets. Combining traditional Newari architectural elegance with contemporary hospitality amenities, each room is thoughtfully appointed with plush bedding, private balconies, and modern en-suite bathrooms. Our caring team provides genuine warmth, curated Himalayan travel guidance, and rooftop dining featuring wholesome local produce.`,
+      brand_voice: 'Warm, hospitable, serene, attentive, and welcoming',
+      primary_color: '#064E3B', // Forest Emerald / Deep Heritage Green
+      accent_color: '#059669',
+      signature_offerings: [
+        {
+          title: 'Deluxe King Balcony Room (डिलक्स किङ कोठा)',
+          description:
+            'Spacious sunlit room with private courtyard balcony, plush pillow-top king bed, rain shower, and high-speed Wi-Fi.',
+          price_npr: 'NPR 4,500',
+        },
+        {
+          title: 'Mountain View Executive Suite (एक्जिक्युटिभ सुइट)',
+          description:
+            'Top-floor panoramic suite overlooking the valley ridges with separate sitting lounge, deep soaking tub, and complimentary breakfast.',
+          price_npr: 'NPR 6,800',
+        },
+        {
+          title: 'Rooftop Garden Breakfast & Organic Himalayan Coffee (ब्रेकफास्ट)',
+          description:
+            'Morning eggs to order, freshly baked sourdough, farm-fresh fruit platter, and fresh-pressed Arabica coffee in our open garden.',
+          price_npr: 'NPR 750',
+        },
+        {
+          title: 'Private Airport Transfer & Heritage Walking Tour',
+          description:
+            'Chauffeured pickup from Tribhuvan International Airport plus a complimentary guided architectural walk through historic local alleys.',
+          price_npr: 'NPR 2,500',
+        },
+        {
+          title: 'Himalayan Herbal Steam & Wellness Relaxation Pass',
+          description:
+            'Access to herbal sauna infused with wild mountain juniper and restorative eucalyptus oils.',
+          price_npr: 'NPR 1,800',
+        },
+      ],
+      review_themes: [
+        {
+          sentiment: 'Peaceful Ambiance',
+          original_testimonial_summary:
+            'Guests consistently highlight the extraordinary quietness, spotless rooms, and tranquil courtyard garden.',
+          customer_archetype: 'International Traveler',
+        },
+        {
+          sentiment: 'Heartfelt Hospitality',
+          original_testimonial_summary:
+            'Praised for going above and beyond to arrange airport pickups, local recommendations, and warm morning breakfasts.',
+          customer_archetype: 'Family Guest',
+        },
+      ],
+      faqs: [
+        {
+          question: 'What are the check-in and check-out times?',
+          answer:
+            'Check-in is from 1:00 PM and check-out is by 12:00 PM. Early check-in and late luggage storage are provided free of charge.',
+        },
+        {
+          question: 'Can I book directly via WhatsApp with zero platform fees?',
+          answer:
+            'Yes! Direct WhatsApp bookings receive guaranteed best room rates, flexible cancellation, and complimentary airport greeting.',
+        },
+      ],
+      local_seo_keywords: [
+        `boutique hotel in ${b.district}`,
+        'hotel room booking kathmandu',
+        'peaceful stay thamel kathmandu',
+        'heritage hotel nepal',
+      ],
+      nepali_content: {
+        hero_title: 'शान्त आतिथ्य, अविस्मरणीय बसाइ',
+        tagline: 'काठमाडौँको मुटुमा परम्परागत नेपाली न्यानोपन',
+        about_snippet: `${b.name} मा आरामदायी विश्राम, आधुनिक सुविधा र घरायसी पारिवारिक आतिथ्यको अनुभव लिनुहोस्।`,
       },
     };
   }
@@ -856,10 +1417,10 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
       accent_color: '#D97706',
       signature_offerings: [
         {
-          title: 'Special Steamed Kothey Plate',
+          title: 'Chef Signature Himalayan Sizzler Platter',
           description:
-            'Pan-crisped dumplings stuffed with tender mountain spices and smoked chili chutney.',
-          price_npr: 'NPR 380',
+            'Sizzling iron platter with grilled mountain-spiced cuts, buttered valley vegetables, and savory herb gravy.',
+          price_npr: 'NPR 650',
         },
         {
           title: 'Charcoal Sekuwa & Beaten Rice',
@@ -878,7 +1439,7 @@ function getFallbackEnrichedCopy(b: BusinessInputForEnrichment): EnrichedCopyRes
         {
           sentiment: 'Signature Taste',
           original_testimonial_summary:
-            'Patrons celebrate the distinct timur-infused chili chutney and consistent steaming freshness.',
+            'Patrons celebrate the distinct sizzling grill seasoning, authentic valley spices, and generous portions.',
           customer_archetype: 'Food Enthusiast',
         },
         {

@@ -5,15 +5,16 @@
 
 import { deployPreviewSite } from './deployer';
 import { enrichAndGenerateCopy } from './gemini';
+import { isAlreadySent, recordSent } from './ledger';
 import { sendOutreachEmail } from './mailer';
-import { discoverPlaces, GooglePlaceResult } from './places';
+import { discoverPlaces, GooglePlaceResult, NepalDistrict } from './places';
 import { supabase } from './supabaseClient';
 import { resolveTemplateType } from './templates';
 import { sendWhatsAppOutreach } from './whatsapp';
 
 export interface PipelineExecutionOptions {
   category?: string;
-  district?: 'Kathmandu' | 'Lalitpur' | 'Bhaktapur' | 'All';
+  district?: NepalDistrict | 'All';
   limit?: number;
   autoSendOutreach?: boolean; // false in Phase 1 (manual review gate), true in Phase 3
 }
@@ -37,7 +38,7 @@ export async function runAgencyPipeline(
     errors: [],
   };
 
-  console.log('🚀 [Sunya Pipeline] Starting Autonomous Cycle for Kathmandu Valley...');
+  console.log('🚀 [Sunya Pipeline] Starting Autonomous Cycle across Nepal (Capped at 20 daily)...');
 
   // Step 1: Discovery Engine
   const places = await discoverPlaces({
@@ -80,17 +81,35 @@ export async function runAgencyPipeline(
       // Step 5: Outreach (Only if autoSendOutreach is true, Phase 3 autonomy)
       if (opts.autoSendOutreach) {
         if (place.email) {
-          const mailRes = await sendOutreachEmail({
-            toEmail: place.email,
-            businessName: place.name,
-            district: place.district,
-            category: place.category,
-            previewUrl: deployment.previewUrl,
-            slug,
-            specificDetail: copy.signature_offerings[0]?.title || 'signature service',
-            isConfidential: true,
-          });
-          if (mailRes.success) summary.outreachDispatched++;
+          if (isAlreadySent(place.email, place.name)) {
+            console.log(
+              `⏩ [Pipeline Outreach] Skipped ${place.name} (${place.email}) — already delivered in sent ledger.`,
+            );
+          } else {
+            const mailRes = await sendOutreachEmail({
+              toEmail: place.email,
+              businessName: place.name,
+              district: place.district,
+              category: place.category,
+              previewUrl: deployment.previewUrl,
+              slug,
+              specificDetail: copy.signature_offerings[0]?.title || 'signature service',
+              isConfidential: true,
+            });
+            if (mailRes.success) {
+              summary.outreachDispatched++;
+              recordSent({
+                id: place.place_id || `place_${Date.now()}`,
+                name: place.name,
+                email: place.email,
+                category: place.category,
+                district: place.district,
+                sentAt: new Date().toISOString(),
+                messageId: mailRes.messageId || `msg_${Date.now()}`,
+                status: mailRes.simulated ? 'simulated' : 'delivered',
+              });
+            }
+          }
         }
 
         if (place.phone) {

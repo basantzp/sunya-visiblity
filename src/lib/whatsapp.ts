@@ -15,7 +15,7 @@ export interface WhatsAppOutreachOptions {
 
 export function generateWhatsAppMessage(opts: WhatsAppOutreachOptions): string {
   const price = (opts.priceNpr || 9999).toLocaleString();
-  return `Namaste ${opts.businessName}! 🙏
+  return `Dear Sir/Ma'am (${opts.businessName}),
 
 We noticed ${opts.businessName} has fantastic reviews in ${opts.district}, but no dedicated mobile website for patrons searching on Google.
 

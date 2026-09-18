@@ -60,7 +60,7 @@ export function WellnessTemplate({ business, copy }: TemplateProps) {
   const cleanPhone = (business.phone || '').replace(/[^0-9]/g, '');
   const targetPhone = cleanPhone.length >= 7 ? `977${cleanPhone}` : '9779867333080';
   const whatsappBookingUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(
-    `Namaste ${business.name}! I would like to schedule an appointment for ${selectedService}.`,
+    `Hello Sir/Ma'am! I would like to schedule an appointment for ${selectedService} at ${business.name}.`,
   )}`;
 
   return (
@@ -277,7 +277,7 @@ export function WellnessTemplate({ business, copy }: TemplateProps) {
                 </span>
                 <a
                   href={`https://wa.me/${targetPhone}?text=${encodeURIComponent(
-                    `Namaste ${business.name}! I am interested in: ${item.title}. Can you share slot availability?`,
+                    `Hello Sir/Ma'am! I am interested in: ${item.title} at ${business.name}. Can you share slot availability?`,
                   )}`}
                   target="_blank"
                   rel="noreferrer"

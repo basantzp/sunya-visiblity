@@ -414,7 +414,7 @@ export async function POST(req: NextRequest) {
       </div>
     </div>
     <a href="https://wa.me/${nepPhone}?text=${encodeURIComponent(
-      `Namaste Sunya! We reviewed our proposal PDF for ${businessName} and would like to connect our domain.`,
+      `Hello Sunya Team! We reviewed our proposal PDF for ${businessName} and would like to connect our domain.`,
     )}" class="wa-button">
       <span>💬 Reply on WhatsApp</span>
     </a>

@@ -42,24 +42,51 @@ interface TemplateProps {
 
 export function ServicesTemplate({ business, copy }: TemplateProps) {
   const [lang, setLang] = useState<'en' | 'np'>('en');
+
+  const isHotel =
+    business.name.toLowerCase().includes('hotel') ||
+    business.name.toLowerCase().includes('resort') ||
+    business.name.toLowerCase().includes('lodge') ||
+    business.name.toLowerCase().includes('guesthouse') ||
+    business.name.toLowerCase().includes('stay') ||
+    business.category.toLowerCase().includes('hotel') ||
+    business.category.toLowerCase().includes('hospitality');
+
   const heroImage =
     business.photos?.[0] ||
-    'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80';
-  const whatsappUrl = `https://wa.me/977${(business.phone || '').replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(business.name)},%20I%20would%20like%20to%20consult%20regarding%20your%20services!`;
+    (isHotel
+      ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
+      : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80');
+
+  const whatsappUrl = `https://wa.me/977${(business.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+    isHotel
+      ? `Hello Sir/Ma'am! I would like to check room availability and book a stay at ${business.name}.`
+      : `Hello Sir/Ma'am! I would like to consult regarding services at ${business.name}.`,
+  )}`;
 
   return (
-    <div className="min-h-screen bg-slate-900 font-sans text-slate-100 selection:bg-blue-600 selection:text-white">
+    <div
+      className={`min-h-screen ${isHotel ? 'bg-[#0b0f19] text-stone-100 selection:bg-amber-500 selection:text-black' : 'bg-slate-900 text-slate-100 selection:bg-blue-600 selection:text-white'} font-sans`}
+    >
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-900/90 px-6 py-4 backdrop-blur">
+      <header
+        className={`sticky top-0 z-40 border-b ${isHotel ? 'border-amber-500/20 bg-[#0b0f19]/90' : 'border-slate-800 bg-slate-900/90'} px-6 py-4 backdrop-blur`}
+      >
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-              <ShieldCheck className="h-5 w-5" />
+            <div
+              className={`flex h-9 w-9 items-center justify-center rounded-lg ${isHotel ? 'bg-amber-500 font-black text-stone-950' : 'bg-blue-600 font-bold text-white'}`}
+            >
+              {isHotel ? '🏨' : <ShieldCheck className="h-5 w-5" />}
             </div>
             <div>
               <span className="text-lg font-extrabold text-white">{business.name}</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-widest text-blue-400">
-                {business.district} Verified Practice
+              <span
+                className={`block text-[10px] font-semibold uppercase tracking-widest ${isHotel ? 'text-amber-400' : 'text-blue-400'}`}
+              >
+                {isHotel
+                  ? 'Boutique Hotel & Hospitality'
+                  : `${business.district} Verified Practice`}
               </span>
             </div>
           </div>
@@ -67,15 +94,15 @@ export function ServicesTemplate({ business, copy }: TemplateProps) {
           <div className="flex items-center gap-3 text-xs">
             <button
               onClick={() => setLang((l) => (l === 'en' ? 'np' : 'en'))}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-slate-300 hover:bg-slate-700"
+              className={`flex items-center gap-1.5 rounded-lg border ${isHotel ? 'border-stone-700 bg-stone-800/80 text-stone-300' : 'border-slate-700 bg-slate-800 text-slate-300'} px-3 py-1.5 hover:bg-slate-700`}
             >
-              <Globe className="h-3.5 w-3.5 text-blue-400" />
+              <Globe className={`h-3.5 w-3.5 ${isHotel ? 'text-amber-400' : 'text-blue-400'}`} />
               <span>{lang === 'en' ? 'नेपाली' : 'English'}</span>
             </button>
             {business.phone && (
               <a
                 href={`tel:${business.phone}`}
-                className="hidden items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 font-semibold text-white transition-colors hover:bg-blue-500 sm:inline-flex"
+                className={`hidden items-center gap-1.5 rounded-lg ${isHotel ? 'bg-amber-500 font-bold text-stone-950 hover:bg-amber-400' : 'bg-blue-600 font-semibold text-white hover:bg-blue-500'} px-4 py-1.5 transition-colors sm:inline-flex`}
               >
                 <Phone className="h-3.5 w-3.5" />
                 <span>{business.phone}</span>
@@ -88,7 +115,9 @@ export function ServicesTemplate({ business, copy }: TemplateProps) {
       {/* Hero Section */}
       <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-7">
-          <div className="inline-flex items-center gap-2 rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
+          <div
+            className={`inline-flex items-center gap-2 rounded-md border ${isHotel ? 'border-amber-500/30 bg-amber-500/10 text-amber-300' : 'border-blue-500/20 bg-blue-500/10 text-blue-400'} px-3 py-1 text-xs font-semibold`}
+          >
             <CheckCircle className="h-3.5 w-3.5" />
             <span>{lang === 'en' ? copy.tagline : copy.nepali_content.tagline}</span>
           </div>
@@ -106,17 +135,17 @@ export function ServicesTemplate({ business, copy }: TemplateProps) {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.02] hover:bg-blue-500"
+              className={`flex items-center gap-2 rounded-xl ${isHotel ? 'bg-gradient-to-r from-amber-400 to-amber-500 font-extrabold text-stone-950 shadow-amber-500/20 hover:scale-[1.02]' : 'bg-blue-600 font-bold text-white shadow-blue-600/20 hover:bg-blue-500'} px-6 py-3.5 shadow-lg transition-all`}
             >
               <MessageSquare className="h-4 w-4" />
-              <span>Consult on WhatsApp</span>
+              <span>{isHotel ? 'Book Room on WhatsApp' : 'Consult on WhatsApp'}</span>
             </a>
             {business.phone && (
               <a
                 href={`tel:${business.phone}`}
                 className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-6 py-3.5 font-semibold text-slate-200 transition-colors hover:bg-slate-700"
               >
-                <Phone className="h-4 w-4 text-blue-400" />
+                <Phone className={`h-4 w-4 ${isHotel ? 'text-amber-400' : 'text-blue-400'}`} />
                 <span>Call Directly</span>
               </a>
             )}
@@ -131,7 +160,7 @@ export function ServicesTemplate({ business, copy }: TemplateProps) {
               </span>
             </div>
             <div className="flex items-center gap-1 text-slate-300">
-              <MapPin className="h-4 w-4 text-blue-400" />
+              <MapPin className={`h-4 w-4 ${isHotel ? 'text-amber-400' : 'text-blue-400'}`} />
               <span>{business.address}</span>
             </div>
           </div>

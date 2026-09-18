@@ -27,7 +27,26 @@ export function resolveTemplateType(category: string): TemplateType {
   ) {
     return 'wellness';
   }
-  if (cat.includes('boutique') || cat.includes('craft') || cat.includes('store') || cat.includes('shop') || cat.includes('flower') || cat.includes('flora') || cat.includes('nursery') || cat.includes('clothing') || cat.includes('jewelry') || cat.includes('pottery')) {
+  if (
+    cat.includes('hotel') ||
+    cat.includes('resort') ||
+    cat.includes('lodge') ||
+    cat.includes('hospitality')
+  ) {
+    return 'services';
+  }
+  if (
+    cat.includes('boutique') ||
+    cat.includes('craft') ||
+    cat.includes('store') ||
+    cat.includes('shop') ||
+    cat.includes('flower') ||
+    cat.includes('flora') ||
+    cat.includes('nursery') ||
+    cat.includes('clothing') ||
+    cat.includes('jewelry') ||
+    cat.includes('pottery')
+  ) {
     return 'retail';
   }
   return 'services';

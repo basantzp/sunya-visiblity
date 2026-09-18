@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
 
   <div class="sticky-bar">
     <a href="https://wa.me/${nepPhone}?text=${encodeURIComponent(
-      `Namaste ${businessName}! I saw your mobile preview and would like to inquire about membership.`,
+      `Hello Sir/Ma'am! I saw your mobile preview for ${businessName} and would like to inquire about details.`,
     )}" class="wa-btn" target="_blank">
       <span>💬</span> <span>Inquire on WhatsApp with ${businessName}</span>
     </a>

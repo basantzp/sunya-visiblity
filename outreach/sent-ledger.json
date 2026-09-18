@@ -1,0 +1,222 @@
+[
+  {
+    "id": "ktm-shop-001",
+    "name": "Mr. Momo",
+    "email": "mrmomonepal@gmail.com",
+    "category": "restaurant",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:02:38.139Z",
+    "messageId": "<2ada034f-b5b7-d853-f374-4b97f4be880e@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-002",
+    "name": "French Bakery",
+    "email": "chefbs2000@gmail.com",
+    "category": "bakery",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:02:46.028Z",
+    "messageId": "<a26930bf-bb6c-0ffc-5902-b1343b4f4874@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-003",
+    "name": "Utpala BakeHouse",
+    "email": "boharadeep74@gmail.com",
+    "category": "bakery",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:02:54.302Z",
+    "messageId": "<60e44716-6942-7e15-de8a-9df0b5ed97cf@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-004",
+    "name": "Sa.Ra Bakes Vegan",
+    "email": "sarasarabakesvegan@gmail.com",
+    "category": "bakery",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:03:04.377Z",
+    "messageId": "<8d217c9c-d630-06cf-56be-91b96c64cc8f@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-005",
+    "name": "Healthy Pasal",
+    "email": "healthygroupnepal@gmail.com",
+    "category": "retail",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:03:12.868Z",
+    "messageId": "<7964fa07-dd53-a676-52dd-608fb44c1d1a@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-006",
+    "name": "Apsara Dry Foods",
+    "email": "apsaradryfoods@gmail.com",
+    "category": "retail",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:03:19.914Z",
+    "messageId": "<17d66e7b-431a-9b9e-94b2-003d275b2202@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-007",
+    "name": "Jaiswal Fruits Juice Pan Pasal",
+    "email": "Jaiswalrakesh4u76@gmail.com",
+    "category": "cafe",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:03:28.605Z",
+    "messageId": "<741e336f-55aa-21f9-e3ee-f6676770d842@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-008",
+    "name": "Thakkhola Thakali Kitchen",
+    "email": "bishnusherchan52@gmail.com",
+    "category": "restaurant",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:03:37.276Z",
+    "messageId": "<852d3efe-8d3a-0a7e-2642-ec2415e47666@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-009",
+    "name": "Bhojan Griha",
+    "email": "booking.bhojangriha@gmail.com",
+    "category": "restaurant",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:03:45.508Z",
+    "messageId": "<a91d0ec6-abb1-7e54-cfb2-7523b01b1691@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-010",
+    "name": "Rosemary Kitchen and Coffee Shop",
+    "email": "rosemarykitchenktm@gmail.com",
+    "category": "restaurant",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:03:52.806Z",
+    "messageId": "<041c6300-9f99-ad49-e112-de43c271cf73@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-011",
+    "name": "Farm Garden Cafe",
+    "email": "farmgardencafenepal@gmail.com",
+    "category": "cafe",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:04:00.787Z",
+    "messageId": "<96755470-422c-fdee-5f7c-31203783527e@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-012",
+    "name": "Zorpido Cafe",
+    "email": "zorpido@gmail.com",
+    "category": "cafe",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:04:08.234Z",
+    "messageId": "<d36dd47f-bcab-7e33-6ebf-17f609e2c6e2@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-013",
+    "name": "Traditional Bakery & Cake Shop",
+    "email": "jesanalam12345@gmail.com",
+    "category": "bakery",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:04:15.223Z",
+    "messageId": "<087f4393-ace5-1e4a-5d83-a3649bb874dd@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-014",
+    "name": "RED MUG CAFE",
+    "email": "bholaman243@gmail.com",
+    "category": "cafe",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:04:23.218Z",
+    "messageId": "<68952079-8738-4c50-ce8b-f1a34ec052c5@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-015",
+    "name": "Global Kitchen",
+    "email": "globalkitchen.np@gmail.com",
+    "category": "restaurant",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:04:30.151Z",
+    "messageId": "<cbe11675-ba2c-0d65-bafa-0f36ebedb576@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-016",
+    "name": "Kathmandu Steak House Restaurant",
+    "email": "kathmandusteakhouse@gmail.com",
+    "category": "restaurant",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:04:38.811Z",
+    "messageId": "<7b2427e6-984e-b02f-5607-8bfdf143700b@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-017",
+    "name": "Makoo Bakery",
+    "email": "makoobakery@gmail.com",
+    "category": "bakery",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:04:49.280Z",
+    "messageId": "<70cdc9fc-5816-c3f7-90ef-6739d956fcd6@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-018",
+    "name": "Manna Bakery",
+    "email": "findmannabakery@gmail.com",
+    "category": "bakery",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:04:57.172Z",
+    "messageId": "<77bbcfa4-c4da-1059-9210-30ca73c4917a@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-019",
+    "name": "Fit Bar Nepal",
+    "email": "thefitindustries@gmail.com",
+    "category": "fitness",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:05:05.580Z",
+    "messageId": "<4d23b20e-5508-5fd4-9b3c-0a7a33c9ec01@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-020",
+    "name": "The Pump Fitness Center",
+    "email": "thepump1234@gmail.com",
+    "category": "gym",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:05:14.787Z",
+    "messageId": "<62da09db-bcff-0a0e-9cf9-3b7b9635e123@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-021",
+    "name": "Sana Hastakala Crafts & Clothing Boutique",
+    "email": "info@sanahastakala.com",
+    "category": "boutique",
+    "district": "Lalitpur",
+    "sentAt": "2026-09-17T15:05:22.024Z",
+    "messageId": "<9e2221f0-c1a6-83f8-4ef2-ce2d64f39fc0@gmail.com>",
+    "status": "delivered"
+  },
+  {
+    "id": "ktm-shop-022",
+    "name": "Thamel Heritage Boutique Hotel",
+    "email": "reservation@thamelboutiquehotels.com",
+    "category": "hotel",
+    "district": "Kathmandu",
+    "sentAt": "2026-09-17T15:05:29.123Z",
+    "messageId": "<793983f2-bb74-767e-a8ed-f9fc96d61eea@gmail.com>",
+    "status": "delivered"
+  }
+]

@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
 
       const pdfFileName = `${slug}-proposal.pdf`;
 
-      const bilingualPitch = `Namaste ${matched.name}! 🙏
+      const bilingualPitch = `Dear Sir/Ma'am (${matched.name}),
 
 We noticed ${matched.name} has fantastic ${matched.rating}★ reviews in ${matched.district}, but no official mobile website for patrons searching on Google.
 
@@ -214,7 +214,7 @@ Would you like to connect your own domain (e.g. ${slug}.com.np) this week? Simpl
         matched.category.toLowerCase().includes('gym') ||
         matched.name.toLowerCase().includes('fitness');
       const categoryIcon = isGym ? '💪🏋️' : '🥟🍜';
-      const nepaliPitch = `नमस्ते ${matched.name} टिम! 🙏
+      const nepaliPitch = `आदरणीय Sir/Ma'am (${matched.name})!
 
 हामीले ${matched.district} मा हजुरहरूको ${matched.category} को ${matched.rating}★ उत्कृष्ट reviews देख्यौँ। Google मा खोज्ने नयाँ ग्राहकहरूका लागि official mobile website नभएकोले, हामीले हजुरहरूका लागि एउटा सम्पूर्ण मोबाइल वेबसाइट डिजाइन तयार गरेका छौँ।
 
@@ -229,7 +229,7 @@ Would you like to connect your own domain (e.g. ${slug}.com.np) this week? Simpl
 
       // Category-tailored Pitch
       const categoryPitch = isGym
-        ? `Namaste ${matched.name} Coaches! ${categoryIcon}
+        ? `Dear Sir/Ma'am (${matched.name}), ${categoryIcon}
 
 Every morning from 5:30 AM, fitness lovers in ${matched.district} search for gym shift timings, equipment, and monthly membership pricing on Google.
 
@@ -244,7 +244,7 @@ Would you like to activate your own domain this week? Simply reply here!`
         : bilingualPitch;
 
       // Short & Direct Pitch
-      const shortPitch = `Namaste ${matched.name}! 🙏 We noticed you have fantastic ${matched.rating}★ reviews in ${matched.district}, but no official mobile website.
+      const shortPitch = `Dear Sir/Ma'am (${matched.name}), We noticed you have fantastic ${matched.rating}★ reviews in ${matched.district}, but no official mobile website.
 📄 Attached below: Your official Mobile Website Design & Proposal PDF ("${pdfFileName}"). Tap to open and view the design directly in WhatsApp!
 Can we connect your custom domain this week?`;
 

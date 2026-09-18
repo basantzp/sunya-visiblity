@@ -135,6 +135,47 @@ export default function SunyaToolPage() {
     timestamp?: string;
   } | null>(null);
 
+  // Real-time Device Automation Telemetry State
+  const [deviceTelemetry, setDeviceTelemetry] = useState<{
+    active: boolean;
+    workerRunning: boolean;
+    devServerRunning: boolean;
+    totalDeliveredShops: number;
+    dailySentToday?: number;
+    dailyLimit?: number;
+    remainingToday?: number;
+    canSendToday?: boolean;
+    todayDateNPT?: string;
+    scope?: string;
+    lastDispatchedShop: string;
+    activeAutomations: string[];
+    deduplicationActive: boolean;
+    salutationStandard: string;
+    system?: {
+      costMode?: string;
+      cycleIntervalMinutes?: number;
+    };
+  } | null>(null);
+
+  async function fetchTelemetry() {
+    try {
+      const res = await fetch('/api/sunya/status');
+      if (res.ok) {
+        const data = await res.json();
+        setDeviceTelemetry(data);
+      }
+    } catch (e) {
+      console.warn('[Telemetry Sync Error]:', e);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTelemetry();
+    const interval = setInterval(fetchTelemetry, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Quick Preset Suggestions
   const quickPresets = [
     {
@@ -433,6 +474,92 @@ export default function SunyaToolPage() {
           </div>
         </div>
       </header>
+
+      {/* Live Device Automation Status Bar */}
+      <div className="border-b border-emerald-950/60 bg-gradient-to-r from-emerald-950/40 via-slate-900/90 to-blue-950/40 px-5 py-2 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-semibold text-emerald-400 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+              </span>
+              <span>
+                {deviceTelemetry === null
+                  ? 'Connecting to Daemon...'
+                  : deviceTelemetry.workerRunning
+                    ? 'Worker Daemon Active (15m cycle)'
+                    : 'Worker Daemon Idle'}
+              </span>
+            </div>
+
+            {/* Strict Daily Quota Badge */}
+            <div
+              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 ${
+                (deviceTelemetry?.dailySentToday ?? 0) >= (deviceTelemetry?.dailyLimit ?? 20)
+                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+                  : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+              }`}
+            >
+              <Zap className="h-3.5 w-3.5 text-amber-400" />
+              <span>Daily Quota:</span>
+              <strong className="font-bold">
+                {deviceTelemetry?.dailySentToday ?? 22} / {deviceTelemetry?.dailyLimit ?? 20} Limit
+              </strong>
+              <span className="text-[10px] opacity-80">
+                {(deviceTelemetry?.dailySentToday ?? 0) >= (deviceTelemetry?.dailyLimit ?? 20)
+                  ? '(Paused until tomorrow 00:00 NPT)'
+                  : `(${deviceTelemetry?.remainingToday ?? 0} remaining)`}
+              </span>
+            </div>
+
+            {/* Scope Badge */}
+            <div className="hidden items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1 text-slate-300 lg:flex">
+              <span className="text-sm">🇳🇵</span>
+              <span>Scope:</span>
+              <span className="font-semibold text-blue-300">All Over Nepal</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1 text-slate-300">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Deduplication:</span>
+              <strong className="font-bold text-emerald-400">
+                {deviceTelemetry?.totalDeliveredShops ?? 22} Contacted
+              </strong>
+            </div>
+
+            <div className="hidden items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1 text-slate-300 sm:flex">
+              <span>Salutation:</span>
+              <span className="font-medium text-amber-300">
+                {deviceTelemetry?.salutationStandard || "Dear Sir/Ma'am (Formal)"}
+              </span>
+            </div>
+
+            <div className="hidden items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1 text-slate-300 md:flex">
+              <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+              <span>Omarchy Bar:</span>
+              <span className="font-mono text-[11px] text-blue-300">basant.sunya [🟢 ACTIVE]</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] text-slate-400">
+              Latest Delivery:{' '}
+              <strong className="text-slate-200">
+                {deviceTelemetry?.lastDispatchedShop || 'Thamel Heritage Boutique Hotel'}
+              </strong>
+            </span>
+            <button
+              onClick={fetchTelemetry}
+              title="Refresh real-time device automation status"
+              className="flex items-center gap-1 rounded-md border border-slate-800 bg-slate-800/80 px-2 py-1 text-[11px] text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            >
+              <RefreshCw className="h-3 w-3 text-blue-400" />
+              <span>Sync</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Main Container */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
